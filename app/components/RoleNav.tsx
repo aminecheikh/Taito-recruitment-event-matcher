@@ -7,7 +7,7 @@ import type { NavItem } from "@/lib/nav";
 export function RoleNav({ items }: { items: readonly NavItem[] }) {
   const pathname = usePathname();
   return (
-    <nav aria-label="Pages" className="overflow-x-auto border-b border-neutral-300 bg-white px-4">
+    <nav aria-label="Pages" className="-mb-px overflow-x-auto">
       <ul className="flex gap-1">
         {items.map((item) => {
           const current = pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -16,8 +16,8 @@ export function RoleNav({ items }: { items: readonly NavItem[] }) {
               <Link
                 href={item.href}
                 aria-current={current ? "page" : undefined}
-                className={`flex min-h-11 items-center border-b-4 px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-neutral-900 ${
-                  current ? "border-neutral-900 text-neutral-900" : "border-transparent text-neutral-700 underline"
+                className={`flex min-h-12 items-center border-b-[3px] px-3 text-[0.9375rem] font-semibold transition-colors focus-visible:outline-offset-[-2px] ${
+                  current ? "border-accent text-ink" : "border-transparent text-muted hover:border-line-strong hover:text-ink"
                 }`}
               >
                 {item.label}

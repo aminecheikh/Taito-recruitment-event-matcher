@@ -1,3 +1,4 @@
+import { PageHeader } from "@/app/components/PageHeader";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
 import { AiBanner, StoryEditor } from "./StoryEditor";
@@ -8,9 +9,8 @@ export default async function StoriesPage() {
 
   if (!applicant) {
     return (
-      <main className="mx-auto max-w-3xl p-4">
-        <h1 className="text-2xl font-semibold">My stories</h1>
-        <p className="mt-3">Pick an applicant in the top bar</p>
+      <main className="page">
+        <PageHeader title="My stories">Pick an applicant in the top bar</PageHeader>
       </main>
     );
   }
@@ -18,21 +18,23 @@ export default async function StoriesPage() {
   const stories = db.stories.filter((s) => s.applicantId === applicant.id);
 
   return (
-    <main className="mx-auto max-w-3xl p-4">
-      <h1 className="text-2xl font-semibold">My stories</h1>
-      <p className="mt-2 text-neutral-800">
+    <main className="page">
+      <PageHeader eyebrow={applicant.pseudonym} title="My stories">
         Tell what you have done in your own words. The words stay yours; the AI never writes your story.
-      </p>
+      </PageHeader>
       <AiBanner />
-      <ul className="mt-4 space-y-6">
+      <ul className="mt-8 space-y-8">
         {stories.map((story) => (
           <li key={story.id}>
             <StoryEditor key={story.id} story={story} />
           </li>
         ))}
       </ul>
-      <h2 className="mt-8 text-xl font-semibold">Add a story</h2>
-      <StoryEditor key={`new:${stories.length}`} story={null} />
+      <h2 className="h2 mt-12">Add a story</h2>
+      <p className="hint mt-1">A few sentences about something you did: what happened, what you did yourself, what changed.</p>
+      <div className="mt-4">
+        <StoryEditor key={`new:${stories.length}`} story={null} />
+      </div>
     </main>
   );
 }

@@ -5,8 +5,6 @@ import { useState, useTransition } from "react";
 import { acceptMeetingAction } from "@/app/actions/applicantMeetings";
 import { meetingErrorText } from "./errors";
 
-const BUTTON = "min-h-11 px-4 py-2";
-
 export function RefreshButton() {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -15,7 +13,7 @@ export function RefreshButton() {
       type="button"
       onClick={() => start(() => router.refresh())}
       disabled={pending}
-      className={`${BUTTON} border border-neutral-700 text-neutral-900`}
+      className="btn"
     >
       {pending ? "Refreshing" : "Refresh"}
     </button>
@@ -33,12 +31,12 @@ export function AcceptButton({ meetingId, companyName }: { meetingId: string; co
       router.refresh();
     });
   return (
-    <div className="mt-3">
-      <button type="button" onClick={accept} disabled={pending} className={`${BUTTON} bg-neutral-900 text-white disabled:bg-neutral-200 disabled:text-neutral-700`}>
+    <div className="mt-4">
+      <button type="button" onClick={accept} disabled={pending} className="btn btn-primary">
         Accept meeting with {companyName}
       </button>
       {error ? (
-        <p role="alert" className="mt-2 border border-red-800 bg-red-50 p-3 text-red-900">
+        <p role="alert" className="notice notice-error mt-3">
           {error}
         </p>
       ) : null}

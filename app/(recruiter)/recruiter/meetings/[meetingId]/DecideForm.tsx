@@ -6,12 +6,12 @@ import { decideAction, shareCompanyDetailsAction } from "@/app/actions/meetings"
 
 type Req = { id: string; text: string };
 
-const input = "min-h-11 w-full rounded border border-neutral-700 bg-white px-2 text-neutral-900";
-const primary = "min-h-11 rounded bg-neutral-900 px-4 text-sm font-medium text-white disabled:bg-neutral-600";
+const input = "field";
+const primary = "btn btn-primary";
 
 function ErrorText({ message }: { message: string | null }) {
   return message ? (
-    <p role="alert" className="mt-2 text-red-800">
+    <p role="alert" className="notice notice-error mt-3">
       {message}
     </p>
   ) : null;
@@ -37,11 +37,14 @@ export function DecideForm({ meetingId, requirements }: { meetingId: string; req
   };
 
   return (
-    <form onSubmit={submit} className="mt-4 space-y-4">
-      <h2 className="text-lg font-semibold">Score the conversation</h2>
+    <form onSubmit={submit} className="card mt-8 space-y-5">
+      <div>
+        <h2 className="h2">Score the conversation</h2>
+        <p className="hint mt-1">Your own score, 0 to 10, per core requirement. It informs your answer; it never decides it.</p>
+      </div>
       {requirements.map((r) => (
-        <div key={r.id}>
-          <label htmlFor={`s-${r.id}`} className="block font-medium">
+        <div key={r.id} className="border-t border-line pt-4">
+          <label htmlFor={`s-${r.id}`} className="block font-semibold">
             {r.text}
           </label>
           <select
@@ -62,7 +65,7 @@ export function DecideForm({ meetingId, requirements }: { meetingId: string; req
           </select>
           {choice === "stop" && (
             <>
-              <label htmlFor={`f-${r.id}`} className="mt-2 block text-sm text-neutral-800">
+              <label htmlFor={`f-${r.id}`} className="hint mt-3 block">
                 Feedback line for the applicant on this requirement
               </label>
               <input
@@ -70,29 +73,32 @@ export function DecideForm({ meetingId, requirements }: { meetingId: string; req
                 required
                 value={feedback[r.id] ?? ""}
                 onChange={(e) => setFeedback({ ...feedback, [r.id]: e.target.value })}
-                className={input}
+                className={`${input} mt-1`}
               />
             </>
           )}
         </div>
       ))}
-      <fieldset>
-        <legend className="text-lg font-semibold">Your decision</legend>
-        <div className="mt-2 flex flex-wrap gap-4">
+      <fieldset className="border-t border-line pt-5">
+        <legend className="h3 float-left w-full">Your decision</legend>
+        <div className="clear-both flex flex-wrap gap-3 pt-2">
           {(
             [
               ["continue", "Continue"],
               ["stop", "Not this time"],
             ] as const
           ).map(([value, label]) => (
-            <label key={value} className="flex min-h-11 items-center gap-2">
+            <label
+              key={value}
+              className={`choice rounded-lg border px-4 font-semibold ${choice === value ? "border-accent bg-accent-soft" : "border-line-strong bg-surface"}`}
+            >
               <input type="radio" name="decision" value={value} checked={choice === value} onChange={() => setChoice(value)} />
               {label}
             </label>
           ))}
         </div>
         {choice === "continue" && (
-          <p className="mt-1 text-sm text-neutral-700">
+          <p className="hint mt-2">
             If the applicant also continues, you will add contact person, next step and timeline.
           </p>
         )}
@@ -129,10 +135,10 @@ export function ShareForm({ meetingId }: { meetingId: string }) {
 
   return (
     <form onSubmit={submit} className="mt-3 space-y-3">
-      <p>It is a match. Tell the applicant who to contact and what happens next.</p>
+      <p className="text-muted">It is a match. Tell the applicant who to contact and what happens next.</p>
       {SHARE_FIELDS.map(([key, label]) => (
         <div key={key}>
-          <label htmlFor={`share-${key}`} className="block font-medium">
+          <label htmlFor={`share-${key}`} className="label">
             {label}
           </label>
           <input
@@ -140,7 +146,7 @@ export function ShareForm({ meetingId }: { meetingId: string }) {
             required
             value={values[key]}
             onChange={(e) => setValues({ ...values, [key]: e.target.value })}
-            className={input}
+            className={`${input} mt-1`}
           />
         </div>
       ))}

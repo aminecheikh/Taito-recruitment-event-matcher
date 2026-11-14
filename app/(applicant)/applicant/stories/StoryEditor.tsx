@@ -39,8 +39,9 @@ export function AiBanner() {
     window.dispatchEvent(new Event(BANNER_EVENT));
   };
   return (
-    <div role="note" className="mt-4 flex flex-wrap items-center gap-3 rounded border border-neutral-700 bg-neutral-100 p-3 text-neutral-900">
-      <p className="flex-1">{BANNER_TEXT}</p>
+    <div role="note" className="ai-panel mt-6 flex flex-wrap items-center gap-3">
+      <span className="tag tag-ai">AI</span>
+      <p className="min-w-0 flex-1">{BANNER_TEXT}</p>
       <button type="button" onClick={dismiss} className={buttonClass}>Got it</button>
     </div>
   );
@@ -85,24 +86,24 @@ export function StoryEditor({ story }: { story: Story | null }) {
   const idPrefix = story?.id ?? "new";
 
   return (
-    <section className="rounded border border-neutral-400 p-4" aria-label={story ? `Story: ${story.title}` : "New story"}>
-      <label htmlFor={`${idPrefix}-title`} className="block text-sm font-medium">Title</label>
-      <input id={`${idPrefix}-title`} className={`${fieldClass} min-h-11`} value={title} onChange={(e) => setTitle(e.target.value)} />
-      <label htmlFor={`${idPrefix}-body`} className="mt-3 block text-sm font-medium">Your story</label>
-      <textarea id={`${idPrefix}-body`} className={fieldClass} rows={6} value={body} onChange={(e) => setBody(e.target.value)} />
-      {label ? <p className="mt-1 text-sm text-neutral-800">Label: {label}</p> : null}
-      <div className="mt-3 flex flex-wrap items-center gap-3">
+    <section className="card" aria-label={story ? `Story: ${story.title}` : "New story"}>
+      <label htmlFor={`${idPrefix}-title`} className="label">Title</label>
+      <input id={`${idPrefix}-title`} className={`${fieldClass} mt-1 font-serif text-lg font-semibold`} value={title} onChange={(e) => setTitle(e.target.value)} />
+      <label htmlFor={`${idPrefix}-body`} className="label mt-4">Your story</label>
+      <textarea id={`${idPrefix}-body`} className={`${fieldClass} mt-1 leading-relaxed`} rows={6} value={body} onChange={(e) => setBody(e.target.value)} />
+      {label ? <p className="mt-2"><span className="tag tag-ai">{label}</span></p> : null}
+      <div className="mt-4 flex flex-wrap items-center gap-3">
         <button type="button" className={primaryClass} onClick={save} disabled={pending}>
           {story ? "Save story" : "Add story"}
         </button>
         {notice ? (
-          <p role={notice.kind === "error" ? "alert" : "status"} className={notice.kind === "error" ? "text-red-800" : "text-green-900"}>
+          <p role={notice.kind === "error" ? "alert" : "status"} className={notice.kind === "error" ? "font-medium text-danger" : "font-medium text-success"}>
             {notice.text}
           </p>
         ) : null}
       </div>
       {story ? (
-        <div className="mt-4 grid gap-4">
+        <div className="mt-6 grid gap-4 border-t border-line pt-6">
           <FollowUpPanel idPrefix={idPrefix} storyBody={body} onAddAnswer={appendAnswer} />
           <LanguagePanel idPrefix={idPrefix} text={body} onAccept={acceptLanguage} disabled={pending} />
         </div>

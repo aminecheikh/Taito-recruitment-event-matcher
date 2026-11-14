@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PageHeader } from "@/app/components/PageHeader";
 import { visibleApplicantName } from "@/lib/domain/cards";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
@@ -13,27 +14,27 @@ export default async function MeetingsPage() {
   ];
 
   return (
-    <main className="mx-auto max-w-3xl p-4">
-      <h1 className="text-2xl font-semibold">Meetings</h1>
-      <div className="mt-3">
-        <RefreshButton />
-      </div>
+    <main className="page">
+      <PageHeader title="Meetings" actions={<RefreshButton />} />
       {groups.map((g) => {
         const items = mine.filter((m) => m.status === g.status);
         return (
-          <section key={g.status} className="mt-6">
-            <h2 className="text-lg font-semibold">{g.title}</h2>
+          <section key={g.status} className="mt-10">
+            <h2 className="h2">{g.title}</h2>
             {items.length === 0 ? (
-              <p className="mt-2 text-neutral-700">{g.empty}</p>
+              <p className="empty-slot mt-3">{g.empty}</p>
             ) : (
-              <ul className="mt-2 space-y-2">
+              <ul className="mt-3 space-y-2">
                 {items.map((m) => (
                   <li key={m.id}>
                     <Link
                       href={`/recruiter/meetings/${m.id}`}
-                      className="block min-h-11 rounded border border-neutral-700 px-3 py-2 text-neutral-900 underline"
+                      className="group flex min-h-14 items-center justify-between gap-4 rounded-xl border border-line bg-surface px-5 py-3 font-semibold transition-colors hover:border-accent"
                     >
-                      {visibleApplicantName(db, session.companyId, m.applicantId)}
+                      <span className="underline decoration-line-strong underline-offset-4 group-hover:decoration-accent">
+                        {visibleApplicantName(db, session.companyId, m.applicantId)}
+                      </span>
+                      <span aria-hidden="true" className="text-accent-ink transition-transform group-hover:translate-x-1">→</span>
                     </Link>
                   </li>
                 ))}

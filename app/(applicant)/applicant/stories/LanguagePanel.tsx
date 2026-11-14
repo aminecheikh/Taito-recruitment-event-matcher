@@ -55,42 +55,42 @@ export function LanguagePanel({
   const canTranslate = !empty && sourceLanguage.trim() !== "";
 
   return (
-    <div className="rounded border border-neutral-300 bg-neutral-50 p-3">
-      <h3 className="font-medium">Language help</h3>
-      <p className="text-sm text-neutral-800">Works on the text above, as saved or typed. You decide whether to use the result.</p>
-      <div className="mt-2 flex flex-wrap items-end gap-3">
+    <div className="panel">
+      <h3 className="h3">Language help</h3>
+      <p className="hint">Works on the text above, as saved or typed. You decide whether to use the result.</p>
+      <div className="mt-3 flex flex-wrap items-end gap-3">
         <button type="button" className={buttonClass} onClick={() => run("grammar")} disabled={loading || empty}>
           Fix language
         </button>
         <div>
-          <label htmlFor={`${idPrefix}-source-language`} className="block text-sm font-medium">Written in</label>
-          <input id={`${idPrefix}-source-language`} className={`${fieldClass} min-h-11`} placeholder="for example Ukrainian" value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)} />
+          <label htmlFor={`${idPrefix}-source-language`} className="label">Written in</label>
+          <input id={`${idPrefix}-source-language`} className={`${fieldClass} mt-1`} placeholder="for example Ukrainian" value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)} />
         </div>
         <button type="button" className={buttonClass} onClick={() => run("translate")} disabled={loading || !canTranslate}>
           Translate from {sourceLanguage.trim() || "…"} to English
         </button>
       </div>
-      {error ? <p role="alert" className="mt-2 text-red-800">{error}</p> : null}
+      {error ? <p role="alert" className="mt-2 font-medium text-danger">{error}</p> : null}
       {suggestion ? (
-        <div className="mt-3" aria-live="polite">
-          <p className="text-sm font-medium text-neutral-800">AI suggestion ({suggestion.label})</p>
-          {suggestion.fallback ? <p className="text-sm text-neutral-800">{FALLBACK_NOTICE}</p> : null}
-          {suggestion.example ? <p className="text-sm text-neutral-800">{EXAMPLE_MODE_NOTICE}</p> : null}
-          {unchanged ? <p className="mt-2 font-medium text-neutral-900">No changes suggested</p> : null}
+        <div className="mt-4" aria-live="polite">
+          <p><span className="tag tag-ai">AI suggestion ({suggestion.label})</span></p>
+          {suggestion.fallback ? <p className="hint mt-1">{FALLBACK_NOTICE}</p> : null}
+          {suggestion.example ? <p className="hint mt-1">{EXAMPLE_MODE_NOTICE}</p> : null}
+          {unchanged ? <p className="mt-2 font-medium">No changes suggested</p> : null}
           {unchanged ? null : (
-          <div className="mt-2 grid gap-3 sm:grid-cols-2">
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <div>
-              <h4 className="text-sm font-medium">Before (yours)</h4>
-              <p className="mt-1 whitespace-pre-wrap rounded border border-neutral-400 bg-white p-2">{suggestion.original}</p>
+              <h4 className="label">Before (yours)</h4>
+              <p className="mt-1 whitespace-pre-wrap rounded-lg border border-line bg-surface p-3 text-[0.9375rem]">{suggestion.original}</p>
             </div>
             <div>
-              <h4 className="text-sm font-medium">After (AI suggestion)</h4>
-              <p className="mt-1 whitespace-pre-wrap rounded border border-neutral-400 bg-white p-2">{suggestion.text}</p>
+              <h4 className="label">After (AI suggestion)</h4>
+              <p className="ai-panel mt-1 whitespace-pre-wrap p-3 text-[0.9375rem]">{suggestion.text}</p>
             </div>
           </div>
           )}
-          {stale ? <p role="alert" className="mt-2 text-red-800">Your story changed — ask again</p> : null}
-          <div className="mt-3 flex gap-3">
+          {stale ? <p role="alert" className="mt-2 font-medium text-danger">Your story changed — ask again</p> : null}
+          <div className="mt-3 flex flex-wrap gap-3">
             {unchanged ? null : (
               <button type="button" className={primaryClass} disabled={disabled || stale} onClick={() => { onAccept(suggestion.text, suggestion.label); setSuggestion(null); }}>
                 Use this version

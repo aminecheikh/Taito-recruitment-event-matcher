@@ -10,11 +10,9 @@ const EXTRACT_URL = "/api/ai/extract-requirements";
 type Item = { req: Requirement; suggested: boolean };
 type Notice = { kind: "error" | "success"; text: string } | null;
 
-const button =
-  "min-h-11 rounded border border-neutral-700 bg-white px-3 text-sm text-neutral-900 disabled:cursor-not-allowed disabled:text-neutral-500 disabled:border-neutral-400";
-const primary =
-  "min-h-11 rounded bg-neutral-900 px-4 text-sm font-medium text-white disabled:bg-neutral-600";
-const field = "min-h-11 w-full rounded border border-neutral-700 bg-white px-3 text-neutral-900";
+const button = "btn";
+const primary = "btn btn-primary";
+const field = "field";
 
 function companyNumber(companyId: string): string {
   return companyId.replace(/^company-/, "");
@@ -121,10 +119,13 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
   };
 
   return (
-    <div className="mt-6 space-y-6">
-      <section aria-labelledby="paste-heading" className="space-y-2">
-        <h2 id="paste-heading" className="text-lg font-semibold">Paste an old job ad</h2>
-        <label htmlFor="job-ad" className="block text-sm text-neutral-800">
+    <div className="mt-10 space-y-10">
+      <section aria-labelledby="paste-heading" className="panel space-y-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 id="paste-heading" className="h3">Paste an old job ad</h2>
+          <span className="tag tag-ai">Optional AI help</span>
+        </div>
+        <label htmlFor="job-ad" className="hint block">
           We suggest requirement phrases from it. You decide which to keep.
         </label>
         <textarea
@@ -138,37 +139,44 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
           {extracting ? "Reading the ad…" : "Suggest requirements"}
         </button>
         {aiNote && (
-          <p role="status" className="text-sm text-neutral-900">
+          <p role="status" className="hint">
             {aiNote}
           </p>
         )}
       </section>
 
-      <section aria-labelledby="list-heading" className="space-y-3">
-        <h2 id="list-heading" className="text-lg font-semibold">
-          Requirements, most important first ({coreCount} of {MAX_CORE_REQUIREMENTS} core)
-        </h2>
-        {items.length === 0 && <p>No requirements yet. Paste a job ad or add one below.</p>}
+      <section aria-labelledby="list-heading" className="space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <h2 id="list-heading" className="h2">
+            Requirements, most important first{" "}
+            <span className="whitespace-nowrap font-sans text-base font-semibold text-muted">({coreCount} of {MAX_CORE_REQUIREMENTS} core)</span>
+          </h2>
+          <div aria-hidden="true" className="flex gap-1.5">
+            {Array.from({ length: MAX_CORE_REQUIREMENTS }, (_, i) => (
+              <span key={i} className={`h-2.5 w-6 rounded-full ${i < coreCount ? "bg-accent" : "border border-line-strong"}`} />
+            ))}
+          </div>
+        </div>
+        {items.length === 0 && <p className="empty-slot">No requirements yet. Paste a job ad or add one below.</p>}
         <ol className="space-y-3">
           {items.map((item, index) => {
             const { req } = item;
             return (
-              <li key={req.id} className="border border-neutral-400 p-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium">
-                    {index + 1}. {req.text}
-                  </span>
-                  {item.suggested && (
-                    <span className="border border-neutral-700 px-2 text-sm">AI suggestion</span>
-                  )}
+              <li
+                key={req.id}
+                className={`card !p-4 sm:!p-5 ${req.isCore ? "border-accent bg-accent-soft/40" : ""}`}
+              >
+                <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
+                  <span className="w-6 shrink-0 pt-0.5 font-serif text-muted">{index + 1}</span>
+                  <span className="min-w-0 flex-1 font-semibold">{req.text}</span>
+                  {item.suggested && <span className="tag tag-ai">AI suggestion</span>}
                 </div>
-                <div className="mt-2 flex flex-wrap items-center gap-3">
-                  <label className="flex min-h-11 items-center gap-2">
+                <div className="mt-3 flex flex-wrap items-center gap-2 sm:pl-9">
+                  <label className="choice mr-3 font-semibold">
                     <input
                       type="checkbox"
                       checked={req.isCore}
                       onChange={(e) => toggleCore(index, e.target.checked)}
-                      className="h-5 w-5"
                     />
                     Core
                   </label>
@@ -188,16 +196,18 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
                     </button>
                   )}
                 </div>
-                <label className="mt-2 block text-sm" htmlFor={`practice-${req.id}`}>
-                  In practice: what does this look like on the job?
-                </label>
-                <input
-                  id={`practice-${req.id}`}
-                  type="text"
-                  value={req.inPractice}
-                  onChange={(e) => patch(index, { inPractice: e.target.value })}
-                  className={field}
-                />
+                <div className="mt-3 sm:pl-9">
+                  <label className="hint block" htmlFor={`practice-${req.id}`}>
+                    In practice: what does this look like on the job?
+                  </label>
+                  <input
+                    id={`practice-${req.id}`}
+                    type="text"
+                    value={req.inPractice}
+                    onChange={(e) => patch(index, { inPractice: e.target.value })}
+                    className={`${field} mt-1`}
+                  />
+                </div>
               </li>
             );
           })}
@@ -212,8 +222,8 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
           }}
         >
           <div className="min-w-48 flex-1">
-            <label htmlFor="new-req" className="block text-sm">Add a requirement</label>
-            <input id="new-req" type="text" value={newText} onChange={(e) => setNewText(e.target.value)} className={field} />
+            <label htmlFor="new-req" className="label">Add a requirement</label>
+            <input id="new-req" type="text" value={newText} onChange={(e) => setNewText(e.target.value)} className={`${field} mt-1`} />
           </div>
           <button type="submit" className={button} disabled={newText.trim() === ""}>
             Add
@@ -221,14 +231,14 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
         </form>
       </section>
 
-      <div className="space-y-2">
+      <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line bg-canvas px-4 py-4 sm:mx-0 sm:rounded-xl sm:border sm:bg-surface sm:px-5">
         <button type="button" onClick={save} disabled={saving || coreCount === 0} className={primary}>
           {saving ? "Saving…" : "Save requirements"}
         </button>
-        {coreCount === 0 && <p className="text-sm">Pick at least one core requirement to save.</p>}
+        {coreCount === 0 && <p className="hint">Pick at least one core requirement to save.</p>}
         <p
           role={notice?.kind === "error" ? "alert" : "status"}
-          className={notice?.kind === "error" ? "font-medium text-red-800" : "font-medium text-green-900"}
+          className={notice?.kind === "error" ? "font-medium text-danger" : "font-medium text-success"}
         >
           {notice?.text}
         </p>

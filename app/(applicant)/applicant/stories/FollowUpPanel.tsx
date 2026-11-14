@@ -47,19 +47,22 @@ export function FollowUpPanel({ idPrefix, storyBody, onAddAnswer }: { idPrefix: 
   };
 
   return (
-    <div className="rounded border border-neutral-300 bg-neutral-50 p-3">
-      <h3 className="font-medium">Need a nudge?</h3>
+    <div className="panel">
+      <h3 className="h3">Need a nudge?</h3>
+      <p className="hint">An AI asks one question at a time to help you remember details.</p>
       <button type="button" className={`${buttonClass} mt-2`} onClick={ask} disabled={loading || storyBody.trim() === ""}>
         {loading ? "Thinking" : current ? "Ask me another question" : "Ask me a question"}
       </button>
-      {error ? <p role="alert" className="mt-2 text-red-800">{error}</p> : null}
+      {error ? <p role="alert" className="mt-2 font-medium text-danger">{error}</p> : null}
       {current ? (
-        <div className="mt-3" aria-live="polite">
-          <p className="text-sm font-medium text-neutral-800">AI question</p>
-          {current.fallback ? <p className="text-sm text-neutral-800">{FALLBACK_NOTICE}</p> : null}
-          <p className="mt-1">{current.question}</p>
-          <label htmlFor={`${idPrefix}-follow-up-answer`} className="mt-3 block text-sm font-medium">Your answer, in your own words</label>
-          <textarea id={`${idPrefix}-follow-up-answer`} className={fieldClass} rows={3} value={answer} onChange={(e) => setAnswer(e.target.value)} />
+        <div className="mt-4" aria-live="polite">
+          <div className="ai-panel">
+            <p><span className="tag tag-ai">AI question</span></p>
+            {current.fallback ? <p className="hint mt-1">{FALLBACK_NOTICE}</p> : null}
+            <p className="mt-2 font-serif text-lg leading-snug">{current.question}</p>
+          </div>
+          <label htmlFor={`${idPrefix}-follow-up-answer`} className="label mt-4">Your answer, in your own words</label>
+          <textarea id={`${idPrefix}-follow-up-answer`} className={`${fieldClass} mt-1`} rows={3} value={answer} onChange={(e) => setAnswer(e.target.value)} />
           <button type="button" className={`${buttonClass} mt-2`} onClick={addToStory} disabled={answer.trim() === ""}>
             Add to my story
           </button>

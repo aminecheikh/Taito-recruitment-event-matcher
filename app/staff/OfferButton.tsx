@@ -7,7 +7,7 @@ export function OfferButton({ pseudonym }: { pseudonym: string }) {
 
   if (offered) {
     return (
-      <span className="inline-flex min-h-11 items-center text-sm font-medium text-neutral-900">
+      <span className="tag tag-success min-h-11 px-4">
         Offered
       </span>
     );
@@ -17,7 +17,7 @@ export function OfferButton({ pseudonym }: { pseudonym: string }) {
       type="button"
       onClick={() => setOffered(true)}
       aria-label={`Offer coaching session to ${pseudonym}`}
-      className="min-h-11 rounded border border-neutral-900 bg-neutral-900 px-3 text-sm font-medium text-white"
+      className="btn btn-primary"
     >
       Offer coaching session
     </button>

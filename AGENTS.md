@@ -39,6 +39,8 @@ Speed comes from never blocking each other, not from skipping checks. This repo 
 6. **Ask the human, don't guess,** on product questions; keep going on purely technical ones.
 7. **Several agents in one checkout:** stage named files only (`git add path/…`), never `git add -A`. For parallel or risky work use a worktree: `git worktree add .claude/worktrees/<task> -b feat/<task>` and merge it the same day.
 
+UI: use the classes in `app/globals.css` (`page`, `h1`/`h2`, `card`, `panel`, `btn`/`btn-primary`, `field`, `tag-ai`, `notice-error`…) and semantic colours (`text-muted`, `border-line`, `bg-surface`), never raw `neutral-*`/`red-*`, or dark mode breaks. Anything AI-generated gets `tag tag-ai` or `ai-panel`.
+
 Tests: write them for logic whose failure would embarrass us in the demo (matching/suggestion logic, data transforms, anything computing a number shown to users). UI and glue code don't need tests. No coverage gate.
 
 ## Git
@@ -111,6 +113,7 @@ When something you learn would change how the next agent works (a decision, a go
 | 2026-11-14 | Stack: Next.js + TypeScript (one app, UI + API routes), Tailwind, Vitest | One thing to run, easy to split by page across 3 people |
 | 2026-11-14 | AI is provider-agnostic: Claude, Gemini or OpenAI chosen by env var, plus a scripted `mock` provider | Team has keys for all three; mock keeps the demo working offline and makes AI logic testable |
 | 2026-11-14 | MVP scope: thin full journey on synthetic data, depth on the story + AI-link step | Judges see the whole concept; the AI-link step is the most novel part |
+| 2026-11-14 | UI design system: tokens + component classes in `app/globals.css` (paper canvas, spruce accent, ochre reserved for AI), Source Serif 4 + Public Sans, `PageHeader` component; light + dark | Calm Nordic public-service look from `docs/design/stitch-brief.md`; one AI marker everywhere makes AI content recognisable |
 
 <!-- BEGIN:nextjs-agent-rules -->
 

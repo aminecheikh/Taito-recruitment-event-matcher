@@ -1,3 +1,4 @@
+import { PageHeader } from "@/app/components/PageHeader";
 import { buildCard, coverage, filterByCoverage } from "@/lib/domain/cards";
 import { slotsLeft } from "@/lib/domain/meetings";
 import { coreRequirements } from "@/lib/domain/requirements";
@@ -30,9 +31,8 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
 
   if (!company) {
     return (
-      <main className="mx-auto max-w-3xl p-4">
-        <h1 className="text-2xl font-semibold">Who signalled us</h1>
-        <p className="mt-3">Pick a company in the top bar.</p>
+      <main className="page">
+        <PageHeader title="Who signalled us">Pick a company in the top bar.</PageHeader>
       </main>
     );
   }
@@ -58,18 +58,28 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
   const options = Array.from({ length: total + 1 }, (_, i) => total - i);
 
   return (
-    <main className="mx-auto max-w-3xl p-4">
-      <h1 className="text-2xl font-semibold">Who signalled {company.name}</h1>
-      <p className="mt-2 font-medium">
-        {left} of {slotTotal} meeting slots left
-      </p>
-      <form method="get" className="mt-4 flex flex-wrap items-center gap-3">
-        <label htmlFor="min">Coverage</label>
+    <main className="page page-wide">
+      <PageHeader
+        eyebrow={company.name}
+        title={<>Who signalled {company.name}</>}
+        actions={
+          <p className="rounded-xl border border-line bg-surface px-4 py-3 text-right">
+            <span className="block font-serif text-3xl font-semibold leading-none">
+              {left}<span className="text-lg text-muted"> / {slotTotal}</span>
+            </span>
+            <span className="hint mt-1 block">{left} of {slotTotal} meeting slots left</span>
+          </p>
+        }
+      >
+        Anonymous evidence cards, in alphabetical order. No names, no photos, no AI score. You choose who to meet.
+      </PageHeader>
+      <form method="get" className="panel mt-8 flex flex-wrap items-center gap-3">
+        <label htmlFor="min" className="label">Coverage</label>
         <select
           id="min"
           name="min"
           defaultValue={String(min)}
-          className="min-h-11 rounded border border-neutral-700 bg-white px-2 text-neutral-900"
+          className="field field-inline"
         >
           {options.map((n) => (
             <option key={n} value={n}>
@@ -77,21 +87,20 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
             </option>
           ))}
         </select>
-        <button type="submit" className="min-h-11 rounded border border-neutral-700 bg-white px-3 text-sm text-neutral-900">
+        <button type="submit" className="btn">
           Apply
         </button>
+        <span className="hint ml-auto">{shown.length} shown</span>
         <RefreshButton />
       </form>
       {shown.length === 0 ? (
-        <p className="mt-6">No applicants match. Try a lower coverage.</p>
+        <p className="empty-slot mt-6">No applicants match. Try a lower coverage.</p>
       ) : (
         <ul className="mt-6 space-y-6">
           {shown.map((id) => (
             <li key={id}>
-              <p className="mb-1 text-sm text-neutral-700">
-                Covers {coverage(db, company.id, id).covered} of {total}
-              </p>
               <ScoredCard
+                coverageText={`Covers ${coverage(db, company.id, id).covered} of ${total}`}
                 card={buildCard(db, company.id, id)}
                 initialScores={scoresFor(db, company.id, id)}
                 meetingRequested={requested.has(id)}

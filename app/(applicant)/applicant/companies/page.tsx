@@ -1,3 +1,4 @@
+import { PageHeader } from "@/app/components/PageHeader";
 import { coverage } from "@/lib/domain/cards";
 import { coreRequirements } from "@/lib/domain/requirements";
 import { getSession } from "@/lib/session";
@@ -16,9 +17,8 @@ export default async function CompaniesPage() {
 
   if (!applicant) {
     return (
-      <main className="mx-auto max-w-3xl p-4">
-        <h1 className="text-2xl font-semibold">Companies</h1>
-        <p className="mt-3">Pick an applicant in the top bar</p>
+      <main className="page">
+        <PageHeader title="Companies">Pick an applicant in the top bar</PageHeader>
       </main>
     );
   }
@@ -39,31 +39,38 @@ export default async function CompaniesPage() {
   const stories = db.stories.filter((s) => s.applicantId === applicant.id);
 
   return (
-    <main className="mx-auto max-w-3xl p-4">
-      <h1 className="text-2xl font-semibold">Companies</h1>
-      <p className="mt-2 text-neutral-800">
+    <main className="page">
+      <PageHeader eyebrow={applicant.pseudonym} title="Companies">
         What each company looks for, and where your own stories fit. The AI only suggests; you decide, and it never changes your story.
-      </p>
-      <ul className="mt-4 space-y-6">
+      </PageHeader>
+      <ul className="mt-8 space-y-5">
         {view.map(({ company, reqs, covered, total, missing }) => (
-          <li key={company.id}>
-            <h2 className="text-xl font-semibold">{company.name}</h2>
-            <p className="text-sm text-neutral-800">{company.sector}</p>
-            <p className="mt-1 font-medium">{examplesLine(covered, total, missing)}</p>
-            <ol className="mt-2 space-y-2">
+          <li key={company.id} className="card">
+            <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+              <div>
+                <h2 className="h2">{company.name}</h2>
+                <p className="hint mt-0.5">{company.sector}</p>
+              </div>
+              <span className={`tag ${missing.length === 0 ? "tag-success" : "tag-accent"}`}>{examplesLine(covered, total, missing)}</span>
+            </div>
+            <ol className="mt-5 divide-y divide-line border-t border-line">
               {reqs.map((r, i) => (
-                <li key={r.id}>
-                  <p><span className="font-medium">#{i + 1}</span> {r.text}</p>
-                  <p className="text-sm text-neutral-800">In practice: {r.inPractice}</p>
+                <li key={r.id} className="flex gap-4 py-3">
+                  <span className="w-6 shrink-0 pt-0.5 font-serif text-muted">#{i + 1}</span>
+                  <div>
+                    <p className="font-semibold">{r.text}</p>
+                    <p className="hint mt-0.5">In practice: {r.inPractice}</p>
+                  </div>
                 </li>
               ))}
             </ol>
           </li>
         ))}
       </ul>
-      <h2 className="mt-8 text-xl font-semibold">Where your stories fit</h2>
-      {stories.length === 0 ? <p className="mt-2">Write a story first, then come back to link it.</p> : null}
-      <ul className="mt-3 space-y-4">
+      <h2 className="h2 mt-12">Where your stories fit</h2>
+      <p className="hint mt-1">Ask for a suggestion, or link a story yourself. Nothing is linked until you accept it.</p>
+      {stories.length === 0 ? <p className="empty-slot mt-4">Write a story first, then come back to link it.</p> : null}
+      <ul className="mt-4 space-y-4">
         {stories.map((story) => (
           <li key={story.id}>
             <LinkSuggestions

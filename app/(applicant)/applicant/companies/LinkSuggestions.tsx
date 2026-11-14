@@ -16,18 +16,18 @@ function PendingSuggestion({ link, options, busy, onDone }: { link: StoryLink; o
   const [target, setTarget] = useState(sameCompany[0]?.id ?? "");
   if (!current) return null;
   return (
-    <li className="rounded border border-neutral-300 p-3">
-      <p className="text-sm font-medium text-neutral-800">AI suggestion</p>
-      <p className="mt-1">{label(current)}</p>
-      {link.aiReason ? <p className="mt-1 text-neutral-800">Why: {link.aiReason}</p> : null}
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        <button type="button" className={buttonClass} disabled={busy} onClick={() => onDone(() => acceptSuggestion(link.id))}>Accept</button>
+    <li className="ai-panel">
+      <p><span className="tag tag-ai">AI suggestion</span></p>
+      <p className="mt-2 font-semibold">{label(current)}</p>
+      {link.aiReason ? <p className="mt-1 text-[0.9375rem] text-muted">Why: {link.aiReason}</p> : null}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <button type="button" className={`${buttonClass} btn-primary`} disabled={busy} onClick={() => onDone(() => acceptSuggestion(link.id))}>Accept</button>
         <button type="button" className={buttonClass} disabled={busy} onClick={() => onDone(() => rejectSuggestion(link.id))}>Reject</button>
       </div>
       {sameCompany.length > 0 ? (
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <label htmlFor={`${link.id}-move`} className="text-sm">Move to another requirement of {current.companyName}</label>
-          <select id={`${link.id}-move`} className={`${fieldClass} min-h-11 w-auto`} value={target} onChange={(e) => setTarget(e.target.value)}>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <label htmlFor={`${link.id}-move`} className="hint w-full">Move to another requirement of {current.companyName}</label>
+          <select id={`${link.id}-move`} className={`${fieldClass} field-inline`} value={target} onChange={(e) => setTarget(e.target.value)}>
             {sameCompany.map((o) => <option key={o.id} value={o.id}>{`#${o.position}: ${o.text}`}</option>)}
           </select>
           <button type="button" className={buttonClass} disabled={busy || target === ""} onClick={() => onDone(() => moveSuggestion(link.id, target))}>Move</button>
@@ -77,31 +77,38 @@ export function LinkSuggestions({ idPrefix, story, links, options }: { idPrefix:
   const accepted = links.filter((l) => l.status === "accepted" && byId.has(l.requirementId));
 
   return (
-    <section className="rounded border border-neutral-300 p-3" aria-labelledby={`${idPrefix}-heading`}>
-      <h3 id={`${idPrefix}-heading`} className="font-medium">{story.title || "Untitled story"}</h3>
-      <button type="button" className={`${buttonClass} mt-2`} disabled={busy} onClick={suggest}>
-        {busy ? "Working" : "Suggest where this fits"}
-      </button>
-      {fallback ? <p className="mt-2 text-sm text-neutral-800">{FALLBACK_NOTICE}</p> : null}
-      {empty ? <p className="mt-2 text-neutral-800" aria-live="polite">No new suggestions for this story.</p> : null}
-      {error ? <p role="alert" className="mt-2 text-red-800">{error}</p> : null}
+    <section className="card" aria-labelledby={`${idPrefix}-heading`}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 id={`${idPrefix}-heading`} className="font-serif text-xl font-semibold">{story.title || "Untitled story"}</h3>
+        <button type="button" className={buttonClass} disabled={busy} onClick={suggest}>
+          {busy ? "Working" : "Suggest where this fits"}
+        </button>
+      </div>
+      {fallback ? <p className="hint mt-2">{FALLBACK_NOTICE}</p> : null}
+      {empty ? <p className="hint mt-2" aria-live="polite">No new suggestions for this story.</p> : null}
+      {error ? <p role="alert" className="mt-2 font-medium text-danger">{error}</p> : null}
       {pending.length > 0 ? (
         <ul className="mt-3 space-y-3" aria-live="polite">
           {pending.map((l) => <PendingSuggestion key={l.id} link={l} options={options} busy={busy} onDone={settle} />)}
         </ul>
       ) : null}
       {accepted.length > 0 ? (
-        <div className="mt-3">
-          <p className="text-sm font-medium">Linked examples</p>
-          <ul className="mt-1 list-disc pl-5">
-            {accepted.map((l) => <li key={l.id}>{label(byId.get(l.requirementId)!)}{l.origin === "ai-suggested" ? " (AI suggestion, accepted by you)" : " (linked by you)"}</li>)}
+        <div className="mt-4">
+          <p className="label">Linked examples</p>
+          <ul className="mt-2 space-y-2">
+            {accepted.map((l) => (
+              <li key={l.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-line px-3 py-2">
+                <span className="flex-1 font-medium">{label(byId.get(l.requirementId)!)}</span>
+                <span className="tag tag-success">{l.origin === "ai-suggested" ? "AI suggestion, accepted by you" : "Linked by you"}</span>
+              </li>
+            ))}
           </ul>
         </div>
       ) : null}
       {options.length > 0 ? (
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <label htmlFor={`${idPrefix}-manual`} className="text-sm font-medium">Link it myself to</label>
-          <select id={`${idPrefix}-manual`} className={`${fieldClass} min-h-11 w-auto max-w-full`} value={manual} onChange={(e) => setManual(e.target.value)}>
+        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-4">
+          <label htmlFor={`${idPrefix}-manual`} className="label w-full">Link it myself to</label>
+          <select id={`${idPrefix}-manual`} className={`${fieldClass} field-inline min-w-0 flex-1`} value={manual} onChange={(e) => setManual(e.target.value)}>
             {options.map((o) => <option key={o.id} value={o.id}>{label(o)}</option>)}
           </select>
           <button type="button" className={buttonClass} disabled={busy || manual === ""} onClick={() => settle(() => linkMyself(story.id, manual))}>Link it myself</button>

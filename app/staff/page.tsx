@@ -1,3 +1,4 @@
+import { PageHeader } from "@/app/components/PageHeader";
 import { needsHelp } from "@/lib/domain/readiness";
 import { readDb } from "@/lib/store/db";
 import { OfferButton } from "./OfferButton";
@@ -7,18 +8,19 @@ export default async function StaffPage() {
   const rows = needsHelp(await readDb());
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-6">
-      <h1 className="text-2xl font-semibold text-neutral-900">Applicants who might need help preparing</h1>
-      <p className="mt-2 text-neutral-800">
+    <main className="page">
+      <PageHeader eyebrow="Event staff" title="Applicants who might need help preparing">
         These applicants have no story yet, or no accepted example. A person decides whether to offer a coaching session.
-      </p>
+      </PageHeader>
 
       {rows.length === 0 ? (
-        <p className="mt-6 text-neutral-900">Everyone has at least one story and one accepted example.</p>
+        <p className="empty-slot mt-8">Everyone has at least one story and one accepted example.</p>
       ) : (
-        <table className="mt-6 w-full text-left">
+        <div className="card mt-8 !py-2">
+        <table className="w-full text-left">
+          <caption className="sr-only">Listed alphabetically. No scores.</caption>
           <thead className="sr-only sm:not-sr-only">
-            <tr className="border-b border-neutral-400 text-sm text-neutral-800">
+            <tr className="border-b border-line text-sm text-muted">
               <th scope="col" className="py-2 pr-3 font-semibold">Applicant</th>
               <th scope="col" className="py-2 pr-3 font-semibold">Stories</th>
               <th scope="col" className="py-2 pr-3 font-semibold">Accepted examples</th>
@@ -29,26 +31,27 @@ export default async function StaffPage() {
             {rows.map((row) => (
               <tr
                 key={row.applicantId}
-                className="block border-b border-neutral-300 py-3 sm:table-row"
+                className="block border-b border-line py-4 last:border-b-0 sm:table-row"
               >
-                <th scope="row" className="block font-medium text-neutral-900 sm:table-cell sm:py-3 sm:pr-3">
+                <th scope="row" className="block font-semibold sm:table-cell sm:py-4 sm:pr-3">
                   {row.pseudonym}
                 </th>
-                <td className="block text-neutral-900 sm:table-cell sm:py-3 sm:pr-3">
-                  <span className="text-neutral-700 sm:hidden">Stories: </span>
+                <td className="block sm:table-cell sm:py-4 sm:pr-3">
+                  <span className="text-muted sm:hidden">Stories: </span>
                   {row.stories}
                 </td>
-                <td className="block text-neutral-900 sm:table-cell sm:py-3 sm:pr-3">
-                  <span className="text-neutral-700 sm:hidden">Accepted examples: </span>
+                <td className="block sm:table-cell sm:py-4 sm:pr-3">
+                  <span className="text-muted sm:hidden">Accepted examples: </span>
                   {row.acceptedLinks}
                 </td>
-                <td className="block pt-2 sm:table-cell sm:py-3 sm:pt-3">
+                <td className="block pt-2 sm:table-cell sm:py-4 sm:text-right">
                   <OfferButton pseudonym={row.pseudonym} />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </main>
   );

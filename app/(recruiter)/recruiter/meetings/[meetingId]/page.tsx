@@ -19,13 +19,13 @@ function ApplicantShared({ db, meetingId }: { db: Db; meetingId: string }) {
     ...(part?.cvUrl ? ([["CV", part.cvUrl]] as [string, string][]) : []),
     ...(part?.links ?? []).map((l): [string, string] => ["Link", l]),
   ];
-  if (rows.length === 0) return <p className="mt-2">The applicant has not shared contact details yet. Refresh later.</p>;
+  if (rows.length === 0) return <p className="empty-slot mt-3">The applicant has not shared contact details yet. Refresh later.</p>;
   return (
-    <dl className="mt-2 space-y-1">
+    <dl className="mt-3 space-y-2">
       {rows.map(([label, value], i) => (
         <div key={`${label}-${i}`}>
-          <dt className="inline font-medium">{label}: </dt>
-          <dd className="inline break-all">{value}</dd>
+          <dt className="label">{label}</dt>
+          <dd className="mt-0.5 break-all">{value}</dd>
         </div>
       ))}
     </dl>
@@ -37,10 +37,10 @@ function Outcome({ db, meeting }: { db: Db; meeting: Meeting }) {
   const mine = db.decisions.some((d) => d.meetingId === meeting.id && d.side === "company");
   if (reveal.status === "waiting") {
     return (
-      <section className="mt-6">
-        <h2 className="text-lg font-semibold">{mine ? "Waiting for the applicant" : "Waiting for your decision"}</h2>
-        <p className="mt-1">Decisions are shown only when both sides have decided.</p>
-        <div className="mt-2">
+      <section className="card mt-8 border-l-4 border-l-accent">
+        <h2 className="h2">{mine ? "Waiting for the applicant" : "Waiting for your decision"}</h2>
+        <p className="mt-2 text-muted">Decisions are shown only when both sides have decided.</p>
+        <div className="mt-4">
           <RefreshButton />
         </div>
       </section>
@@ -48,13 +48,14 @@ function Outcome({ db, meeting }: { db: Db; meeting: Meeting }) {
   }
   if (!reveal.match) {
     return (
-      <section className="mt-6">
-        <h2 className="text-lg font-semibold">Not a match</h2>
+      <section className="card mt-8">
+        <h2 className="h2">Not a match</h2>
         {reveal.feedback && (
-          <ul className="mt-2 list-disc pl-5">
+          <ul className="mt-4 divide-y divide-line border-t border-line">
             {coreRequirements(db, meeting.companyId).map((r) => (
-              <li key={r.id}>
-                {r.text}: {reveal.feedback?.[r.id]}
+              <li key={r.id} className="py-3">
+                <p className="font-semibold">{r.text}</p>
+                <p className="mt-0.5">{reveal.feedback?.[r.id]}</p>
               </li>
             ))}
           </ul>
@@ -64,21 +65,28 @@ function Outcome({ db, meeting }: { db: Db; meeting: Meeting }) {
   }
   const company = db.shares.find((s) => s.meetingId === meeting.id)?.company;
   return (
-    <section className="mt-6">
-      <h2 className="text-lg font-semibold">Match — shared details</h2>
-      <h3 className="mt-3 font-medium">From the applicant</h3>
-      <ApplicantShared db={db} meetingId={meeting.id} />
-      <h3 className="mt-3 font-medium">From your company</h3>
-      {company ? (
-        <dl className="mt-2 space-y-1">
-          <div><dt className="inline font-medium">Contact person: </dt><dd className="inline">{company.contactPerson}</dd></div>
-          <div><dt className="inline font-medium">Next step: </dt><dd className="inline">{company.nextStep}</dd></div>
-          <div><dt className="inline font-medium">Timeline: </dt><dd className="inline">{company.timeline}</dd></div>
-        </dl>
-      ) : (
-        <ShareForm meetingId={meeting.id} />
-      )}
-      <div className="mt-3">
+    <section className="card mt-8 border-l-4 border-l-[var(--success)]">
+      <p><span className="tag tag-success">Both chose to continue</span></p>
+      <h2 className="h2 mt-3">Match — shared details</h2>
+      <div className="mt-6 grid gap-8 md:grid-cols-2">
+        <div>
+          <h3 className="h3">From the applicant</h3>
+          <ApplicantShared db={db} meetingId={meeting.id} />
+        </div>
+        <div>
+          <h3 className="h3">From your company</h3>
+          {company ? (
+            <dl className="mt-3 space-y-2">
+              <div><dt className="label">Contact person</dt><dd className="mt-0.5">{company.contactPerson}</dd></div>
+              <div><dt className="label">Next step</dt><dd className="mt-0.5">{company.nextStep}</dd></div>
+              <div><dt className="label">Timeline</dt><dd className="mt-0.5">{company.timeline}</dd></div>
+            </dl>
+          ) : (
+            <ShareForm meetingId={meeting.id} />
+          )}
+        </div>
+      </div>
+      <div className="mt-6">
         <RefreshButton />
       </div>
     </section>
@@ -94,30 +102,32 @@ export default async function MeetingPage({ params }: { params: Params }) {
   const requirements = coreRequirements(db, meeting.companyId).map((r) => ({ id: r.id, text: r.text }));
 
   return (
-    <main className="mx-auto max-w-3xl p-4">
+    <main className="page page-wide">
       <p>
-        <Link href="/recruiter/meetings" className="underline">
-          All meetings
+        <Link href="/recruiter/meetings" className="link">
+          ← All meetings
         </Link>
       </p>
-      <h1 className="mt-2 text-2xl font-semibold">Meeting with {card.label}</h1>
-      <div className="mt-4">
+      <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <h1 className="h1">Meeting with {card.label}</h1>
+        {meeting.status === "requested" ? null : (
+          <Link href={`/card/${meeting.id}/print`} className="btn">
+            Printable card
+          </Link>
+        )}
+      </div>
+      <div className="mt-8">
         <EvidenceCard card={card} />
       </div>
       {meeting.status === "requested" ? (
-        <section className="mt-6">
-          <h2 className="text-lg font-semibold">Waiting for the applicant to accept</h2>
-          <div className="mt-2">
+        <section className="card mt-8 border-l-4 border-l-accent">
+          <h2 className="h2">Waiting for the applicant to accept</h2>
+          <div className="mt-4">
             <RefreshButton />
           </div>
         </section>
       ) : (
         <>
-          <p className="mt-4">
-            <Link href={`/card/${meeting.id}/print`} className="underline">
-              Printable card
-            </Link>
-          </p>
           {decided ? <Outcome db={db} meeting={meeting} /> : <DecideForm meetingId={meeting.id} requirements={requirements} />}
         </>
       )}

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getSession, ROLES, type Role } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
 import { enterRole, setSession } from "@/app/actions/session";
@@ -13,8 +14,8 @@ const ROLE_LABELS: Record<Role, string> = {
   staff: "Event staff",
 };
 
-const control =
-  "min-h-11 rounded border border-neutral-700 bg-white px-3 text-sm text-neutral-900";
+const control = "btn min-h-10 px-3 text-sm";
+const select = "field field-inline min-h-10 py-1 text-sm";
 
 export async function RoleBar() {
   const [session, db] = await Promise.all([getSession(), readDb()]);
@@ -37,53 +38,69 @@ export async function RoleBar() {
 
   return (
     <>
-    <nav aria-label="Demo controls" className="flex flex-wrap items-center gap-3 border-b border-neutral-300 bg-neutral-100 px-4 py-3">
-      <form action={enterRole} className="flex gap-1" role="group" aria-label="Role">
-        {ROLES.map((role) => (
-          <button
-            key={role}
-            type="submit"
-            name="role"
-            value={role}
-            aria-pressed={session.role === role}
-            className={`min-h-11 rounded border px-3 text-sm font-medium ${
-              session.role === role
-                ? "border-neutral-900 bg-neutral-900 text-white"
-                : "border-neutral-700 bg-white text-neutral-900"
-            }`}
+      <div data-app-chrome className="border-b border-line bg-sunken">
+        <nav
+          aria-label="Demo controls"
+          className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2 sm:px-6"
+        >
+          <span className="eyebrow">Demo</span>
+          <form
+            action={enterRole}
+            role="group"
+            aria-label="Role"
+            className="flex rounded-lg border border-line-strong bg-surface p-0.5"
           >
-            {ROLE_LABELS[role]}
-          </button>
-        ))}
-      </form>
-
-      {session.role === "recruiter" && (
-        <form action={pickCompany} className="flex items-center gap-2">
-          <label htmlFor="companyId" className="text-sm">Company</label>
-          <select id="companyId" name="companyId" defaultValue={session.companyId} className={control}>
-            {companies.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
+            {ROLES.map((role) => (
+              <button
+                key={role}
+                type="submit"
+                name="role"
+                value={role}
+                aria-pressed={session.role === role}
+                className={`min-h-10 rounded-md px-3 text-sm font-semibold transition-colors ${
+                  session.role === role ? "bg-accent text-[var(--on-accent)]" : "text-ink hover:bg-sunken"
+                }`}
+              >
+                {ROLE_LABELS[role]}
+              </button>
             ))}
-          </select>
-          <button type="submit" className={control}>Switch</button>
-        </form>
-      )}
+          </form>
 
-      {session.role === "applicant" && (
-        <form action={pickApplicant} className="flex items-center gap-2">
-          <label htmlFor="applicantId" className="text-sm">Applicant</label>
-          <select id="applicantId" name="applicantId" defaultValue={session.applicantId} className={control}>
-            {applicants.map((a) => (
-              <option key={a.id} value={a.id}>{a.label}</option>
-            ))}
-          </select>
-          <button type="submit" className={control}>Switch</button>
-        </form>
-      )}
+          {session.role === "recruiter" && (
+            <form action={pickCompany} className="flex items-center gap-2">
+              <label htmlFor="companyId" className="text-sm text-muted">Company</label>
+              <select id="companyId" name="companyId" defaultValue={session.companyId} className={select}>
+                {companies.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+              <button type="submit" className={control}>Switch</button>
+            </form>
+          )}
 
-      {resetEnabled() ? <ResetButton action={resetDemoData} className={control} /> : null}
-    </nav>
-    <RoleNav items={ROLE_NAV[session.role]} />
+          {session.role === "applicant" && (
+            <form action={pickApplicant} className="flex items-center gap-2">
+              <label htmlFor="applicantId" className="text-sm text-muted">Applicant</label>
+              <select id="applicantId" name="applicantId" defaultValue={session.applicantId} className={select}>
+                {applicants.map((a) => (
+                  <option key={a.id} value={a.id}>{a.label}</option>
+                ))}
+              </select>
+              <button type="submit" className={control}>Switch</button>
+            </form>
+          )}
+
+          {resetEnabled() ? <ResetButton action={resetDemoData} className="btn btn-quiet min-h-10 px-3 text-sm" /> : null}
+        </nav>
+      </div>
+      <header data-app-chrome className="border-b border-line bg-surface">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-8 px-4 sm:px-6">
+          <Link href="/" className="flex min-h-12 items-center font-serif text-lg font-semibold tracking-tight text-ink">
+            No CV, No Job Ad
+          </Link>
+          <RoleNav items={ROLE_NAV[session.role]} />
+        </div>
+      </header>
     </>
   );
 }

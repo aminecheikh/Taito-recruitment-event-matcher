@@ -6,13 +6,12 @@ import { decideAction, saveApplicantShareAction } from "@/app/actions/applicantM
 import type { ShareChoice } from "@/lib/domain/shareInput";
 import { meetingErrorText } from "../errors";
 
-const BUTTON = "min-h-11 px-4 py-2";
-const FIELD = "mt-1 min-h-11 w-full border border-neutral-700 bg-white px-2 text-neutral-900";
+const FIELD = "field mt-1 ml-8 w-[calc(100%-2rem)]";
 
 function ErrorNote({ text }: { text: string | null }) {
   if (!text) return null;
   return (
-    <p role="alert" className="mt-2 border border-red-800 bg-red-50 p-3 text-red-900">
+    <p role="alert" className="notice notice-error mt-3">
       {text}
     </p>
   );
@@ -29,12 +28,12 @@ export function DecisionButtons({ meetingId }: { meetingId: string }) {
       router.refresh();
     });
   return (
-    <div className="mt-3">
+    <div className="mt-4">
       <div className="flex flex-wrap gap-3">
-        <button type="button" disabled={pending} onClick={() => decide(true)} className={`${BUTTON} bg-neutral-900 text-white disabled:bg-neutral-200 disabled:text-neutral-700`}>
+        <button type="button" disabled={pending} onClick={() => decide(true)} className="btn btn-primary">
           Continue
         </button>
-        <button type="button" disabled={pending} onClick={() => decide(false)} className={`${BUTTON} border border-neutral-700 text-neutral-900`}>
+        <button type="button" disabled={pending} onClick={() => decide(false)} className="btn">
           Not this time
         </button>
       </div>
@@ -61,14 +60,14 @@ export function ShareForm({ meetingId, email, initial }: { meetingId: string; em
     });
   };
   return (
-    <form onSubmit={submit} className="mt-3 space-y-4">
-      <label className="flex min-h-11 items-center gap-3">
-        <input type="checkbox" className="size-5" checked={choice.shareEmail} onChange={(e) => update({ shareEmail: e.target.checked })} />
+    <form onSubmit={submit} className="panel mt-5 space-y-3">
+      <label className="choice">
+        <input type="checkbox" checked={choice.shareEmail} onChange={(e) => update({ shareEmail: e.target.checked })} />
         Share my email ({email})
       </label>
       <div>
-        <label className="flex min-h-11 items-center gap-3">
-          <input type="checkbox" className="size-5" checked={choice.shareCv} onChange={(e) => update({ shareCv: e.target.checked })} />
+        <label className="choice">
+          <input type="checkbox" checked={choice.shareCv} onChange={(e) => update({ shareCv: e.target.checked })} />
           Share a link to my CV
         </label>
         {choice.shareCv ? (
@@ -76,18 +75,18 @@ export function ShareForm({ meetingId, email, initial }: { meetingId: string; em
         ) : null}
       </div>
       <div>
-        <label className="flex min-h-11 items-center gap-3">
-          <input type="checkbox" className="size-5" checked={choice.sharePortfolio} onChange={(e) => update({ sharePortfolio: e.target.checked })} />
+        <label className="choice">
+          <input type="checkbox" checked={choice.sharePortfolio} onChange={(e) => update({ sharePortfolio: e.target.checked })} />
           Share a link to my portfolio
         </label>
         {choice.sharePortfolio ? (
           <input type="url" aria-label="Portfolio link" placeholder="https://" value={choice.portfolioUrl} onChange={(e) => update({ portfolioUrl: e.target.value })} className={FIELD} />
         ) : null}
       </div>
-      <button type="submit" disabled={pending} className={`${BUTTON} bg-neutral-900 text-white disabled:bg-neutral-200 disabled:text-neutral-700`}>
+      <button type="submit" disabled={pending} className="btn btn-primary">
         Save what I share
       </button>
-      {saved ? <p role="status" className="text-green-900">Saved. The company sees only what you ticked.</p> : null}
+      {saved ? <p role="status" className="font-medium text-success">Saved. The company sees only what you ticked.</p> : null}
       <ErrorNote text={error} />
     </form>
   );
