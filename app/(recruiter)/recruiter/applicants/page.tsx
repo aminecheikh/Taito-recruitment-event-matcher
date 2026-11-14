@@ -1,13 +1,15 @@
 import { PageHeader } from "@/app/components/PageHeader";
-import { buildCard, coverage, filterByCoverage } from "@/lib/domain/cards";
+import { isMarked, recruiterList } from "@/lib/domain/applicantList";
+import { buildCard, coverage } from "@/lib/domain/cards";
 import { companyCalendar, companyOpenSlots } from "@/lib/domain/calendar";
 import { coreRequirements } from "@/lib/domain/requirements";
 import type { Db } from "@/lib/domain/types";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
-import { RefreshButton, ScoredCard } from "./ScoreInputs";
+import { ApplicantList, type ApplicantRow } from "./ApplicantList";
+import { RefreshButton } from "./ScoreInputs";
 
-type SearchParams = Promise<{ min?: string | string[] }>;
+type SearchParams = Promise<{ min?: string | string[]; marked?: string | string[] }>;
 
 function optionLabel(min: number, total: number): string {
   if (min >= total) return `Covers all ${total}`;
@@ -39,21 +41,18 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
 
   const total = coreRequirements(db, company.id).length;
   const min = parseMin(params.min, total);
-  const signalled = db.signals
-    .filter((s) => s.eventId === session.eventId && s.companyId === company.id)
-    .map((s) => s.applicantId);
-  const pseudonym = (id: string) => db.applicants.find((a) => a.id === id)?.pseudonym ?? id;
-  const shown = filterByCoverage(db, company.id, signalled, min).sort((a, b) =>
-    pseudonym(a).localeCompare(pseudonym(b)),
-  );
+  const markedOnly = (Array.isArray(params.marked) ? params.marked[0] : params.marked) === "1";
+  const shown = recruiterList(db, session.eventId, company.id, { minCovered: min, markedOnly });
+  const rows: ApplicantRow[] = shown.map((id) => ({
+    id,
+    card: buildCard(db, company.id, id),
+    initialScores: scoresFor(db, company.id, id),
+    coverageText: `Covers ${coverage(db, company.id, id).covered} of ${total}`,
+    marked: isMarked(db, session.eventId, company.id, id),
+  }));
 
   const left = companyOpenSlots(db, session.eventId, company.id);
   const slotTotal = companyCalendar(db, session.eventId, company.id).total;
-  const requested = new Set(
-    db.meetings
-      .filter((m) => m.eventId === session.eventId && m.companyId === company.id)
-      .map((m) => m.applicantId),
-  );
   const options = Array.from({ length: total + 1 }, (_, i) => total - i);
 
   return (
@@ -70,7 +69,7 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
           </p>
         }
       >
-        Anonymous evidence cards, in alphabetical order. No names, no photos, no AI score. You choose who to meet.
+        Anonymous evidence cards, in alphabetical order. No names, no photos, no AI score. You choose who to meet; invited applicants move to Meetings.
       </PageHeader>
       <form method="get" className="panel mt-8 flex flex-wrap items-center gap-3">
         <label htmlFor="min" className="label">Coverage</label>
@@ -86,29 +85,18 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
             </option>
           ))}
         </select>
+        <label className="choice">
+          <input type="checkbox" name="marked" value="1" defaultChecked={markedOnly} />
+          Only marked for later
+        </label>
         <button type="submit" className="btn">
           Apply
         </button>
         <span className="hint ml-auto">{shown.length} shown</span>
         <RefreshButton />
       </form>
-      {shown.length === 0 ? (
-        <p className="empty-slot mt-6">No applicants match. Try a lower coverage.</p>
-      ) : (
-        <ul className="mt-6 space-y-6">
-          {shown.map((id) => (
-            <li key={id}>
-              <ScoredCard
-                coverageText={`Covers ${coverage(db, company.id, id).covered} of ${total}`}
-                card={buildCard(db, company.id, id)}
-                initialScores={scoresFor(db, company.id, id)}
-                meetingRequested={requested.has(id)}
-                slotsLeft={left}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
+      {/* Keyed by the filters so changing them starts with an empty selection. */}
+      <ApplicantList key={`${min}-${markedOnly}`} rows={rows} slotsLeft={left} minCovered={min} markedOnly={markedOnly} />
     </main>
   );
 }
