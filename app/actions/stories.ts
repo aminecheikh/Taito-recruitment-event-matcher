@@ -47,7 +47,11 @@ export async function createStory(input: { title: string; body: string }): Promi
   return { ok: true, storyId: newest?.id };
 }
 
-/** Only the session applicant's own stories can be edited; anything else is "not-found". */
+/**
+ * Only the session applicant's own stories can be edited; anything else is "not-found".
+ * Known MVP limit: the label is validated for shape only. With no auth the server cannot
+ * prove it came from an AI result, so label honesty is enforced in the UI (docs/constraints.md).
+ */
 export async function saveStory(
   storyId: string,
   patch: { title?: string; body?: string; languageLabel?: string },

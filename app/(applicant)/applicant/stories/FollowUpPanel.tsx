@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FALLBACK_NOTICE, buttonClass, fieldClass } from "./ui";
+import { FALLBACK_NOTICE, FollowUpResponseSchema, buttonClass, fieldClass } from "./ui";
 
 const FOLLOW_UP_URL = "/api/ai/follow-up";
 
@@ -9,7 +9,7 @@ type Turn = { question: string; answer: string };
 type Current = { question: string; fallback: boolean };
 
 /** Shows one AI question at a time. It never writes into the story; only the applicant's own typed answer can be added. */
-export function FollowUpPanel({ storyBody, onAddAnswer }: { storyBody: string; onAddAnswer: (answer: string) => void }) {
+export function FollowUpPanel({ idPrefix, storyBody, onAddAnswer }: { idPrefix: string; storyBody: string; onAddAnswer: (answer: string) => void }) {
   const [history, setHistory] = useState<Turn[]>([]);
   const [current, setCurrent] = useState<Current | null>(null);
   const [answer, setAnswer] = useState("");
@@ -27,7 +27,7 @@ export function FollowUpPanel({ storyBody, onAddAnswer }: { storyBody: string; o
         body: JSON.stringify({ storyBody, history: nextHistory }),
       });
       if (!res.ok) throw new Error("bad status");
-      const data = (await res.json()) as { value: string; source: string };
+      const data = FollowUpResponseSchema.parse(await res.json());
       setHistory(nextHistory);
       setCurrent({ question: data.value, fallback: data.source === "mock-fallback" });
       setAnswer("");
@@ -58,8 +58,8 @@ export function FollowUpPanel({ storyBody, onAddAnswer }: { storyBody: string; o
           <p className="text-sm font-medium text-neutral-800">AI question</p>
           {current.fallback ? <p className="text-sm text-neutral-800">{FALLBACK_NOTICE}</p> : null}
           <p className="mt-1">{current.question}</p>
-          <label htmlFor="follow-up-answer" className="mt-3 block text-sm font-medium">Your answer, in your own words</label>
-          <textarea id="follow-up-answer" className={fieldClass} rows={3} value={answer} onChange={(e) => setAnswer(e.target.value)} />
+          <label htmlFor={`${idPrefix}-follow-up-answer`} className="mt-3 block text-sm font-medium">Your answer, in your own words</label>
+          <textarea id={`${idPrefix}-follow-up-answer`} className={fieldClass} rows={3} value={answer} onChange={(e) => setAnswer(e.target.value)} />
           <button type="button" className={`${buttonClass} mt-2`} onClick={addToStory} disabled={answer.trim() === ""}>
             Add to my story
           </button>

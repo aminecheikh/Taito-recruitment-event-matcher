@@ -103,8 +103,8 @@ export function StoryEditor({ story }: { story: Story | null }) {
       </div>
       {story ? (
         <div className="mt-4 grid gap-4">
-          <FollowUpPanel storyBody={body} onAddAnswer={appendAnswer} />
-          <LanguagePanel text={body} onAccept={acceptLanguage} disabled={pending} />
+          <FollowUpPanel idPrefix={idPrefix} storyBody={body} onAddAnswer={appendAnswer} />
+          <LanguagePanel idPrefix={idPrefix} text={body} onAccept={acceptLanguage} disabled={pending} />
         </div>
       ) : null}
     </section>

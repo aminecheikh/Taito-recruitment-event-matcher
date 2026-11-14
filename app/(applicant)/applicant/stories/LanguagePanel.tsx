@@ -2,18 +2,21 @@
 
 import { useState } from "react";
 import type { LanguageLabel } from "@/lib/domain/types";
-import { FALLBACK_NOTICE, buttonClass, fieldClass, primaryClass } from "./ui";
+import { FALLBACK_NOTICE, LanguageResponseSchema, buttonClass, fieldClass, primaryClass } from "./ui";
 
 const LANGUAGE_URL = "/api/ai/language";
 const TARGET_LANGUAGE = "English";
 
-type Suggestion = { text: string; label: LanguageLabel; fallback: boolean };
+/** `original` is the text as it was when the suggestion was requested. */
+type Suggestion = { original: string; text: string; label: LanguageLabel; fallback: boolean };
 
 export function LanguagePanel({
+  idPrefix,
   text,
   onAccept,
   disabled,
 }: {
+  idPrefix: string;
   text: string;
   onAccept: (text: string, label: LanguageLabel) => void;
   disabled: boolean;
@@ -37,8 +40,8 @@ export function LanguagePanel({
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("bad status");
-      const data = (await res.json()) as { value: { text: string; label: LanguageLabel }; source: string };
-      setSuggestion({ text: data.value.text, label: data.value.label, fallback: data.source === "mock-fallback" });
+      const data = LanguageResponseSchema.parse(await res.json());
+      setSuggestion({ original: text, text: data.value.text, label: data.value.label, fallback: data.source === "mock-fallback" });
     } catch {
       setError("Could not get a suggestion right now. Try again in a moment.");
     } finally {
@@ -46,6 +49,7 @@ export function LanguagePanel({
     }
   };
 
+  const stale = suggestion !== null && suggestion.original !== text;
   const empty = text.trim() === "";
   const canTranslate = !empty && sourceLanguage.trim() !== "";
 
@@ -58,8 +62,8 @@ export function LanguagePanel({
           Fix language
         </button>
         <div>
-          <label htmlFor="source-language" className="block text-sm font-medium">Written in</label>
-          <input id="source-language" className={`${fieldClass} min-h-11`} placeholder="for example Ukrainian" value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)} />
+          <label htmlFor={`${idPrefix}-source-language`} className="block text-sm font-medium">Written in</label>
+          <input id={`${idPrefix}-source-language`} className={`${fieldClass} min-h-11`} placeholder="for example Ukrainian" value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)} />
         </div>
         <button type="button" className={buttonClass} onClick={() => run("translate")} disabled={loading || !canTranslate}>
           Translate from {sourceLanguage.trim() || "…"} to English
@@ -73,15 +77,16 @@ export function LanguagePanel({
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
             <div>
               <h4 className="text-sm font-medium">Before (yours)</h4>
-              <p className="mt-1 whitespace-pre-wrap rounded border border-neutral-400 bg-white p-2">{text}</p>
+              <p className="mt-1 whitespace-pre-wrap rounded border border-neutral-400 bg-white p-2">{suggestion.original}</p>
             </div>
             <div>
               <h4 className="text-sm font-medium">After (AI suggestion)</h4>
               <p className="mt-1 whitespace-pre-wrap rounded border border-neutral-400 bg-white p-2">{suggestion.text}</p>
             </div>
           </div>
+          {stale ? <p role="alert" className="mt-2 text-red-800">Your story changed — ask again</p> : null}
           <div className="mt-3 flex gap-3">
-            <button type="button" className={primaryClass} disabled={disabled} onClick={() => { onAccept(suggestion.text, suggestion.label); setSuggestion(null); }}>
+            <button type="button" className={primaryClass} disabled={disabled || stale} onClick={() => { onAccept(suggestion.text, suggestion.label); setSuggestion(null); }}>
               Use this version
             </button>
             <button type="button" className={buttonClass} onClick={() => setSuggestion(null)}>Keep mine</button>
