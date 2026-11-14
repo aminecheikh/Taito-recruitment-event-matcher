@@ -4,7 +4,7 @@
 <!-- Update Now when you start something and push right away; teammates' agents read it at session start. -->
 
 ## Now
-- 
+- UI polish pass: `app/globals.css`, `app/components/*`, page markup across roles (visual only, no logic)
 
 ## Next
 - 
