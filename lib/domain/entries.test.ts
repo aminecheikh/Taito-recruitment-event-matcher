@@ -15,7 +15,7 @@ const must = (r: { ok: boolean; value?: Db; error?: string }): Db => {
 
 describe("writeAnswer", () => {
   test("writeAnswer_validInput_createsTrimmedEntryAndAnswer", () => {
-    const db = makeDb();
+    const db = makeDb({ entries: [], answers: [] });
     const snapshot = JSON.stringify(db);
     const next = must(writeAnswer(db, A, "req-01-1", { body: "  I did it  " }));
     expect(next.entries).toEqual([{ id: "entry-1", applicantId: A, body: "I did it" }]);
@@ -35,7 +35,7 @@ describe("writeAnswer", () => {
       ok: false, error: "not-found",
     }));
   test("writeAnswer_existingAnswer_replacesItAndKeepsOldEntry", () => {
-    const first = must(writeAnswer(makeDb(), A, "req-01-1", { body: "one" }));
+    const first = must(writeAnswer(makeDb({ entries: [], answers: [] }), A, "req-01-1", { body: "one" }));
     const second = must(writeAnswer(first, A, "req-01-1", { body: "two" }));
     expect(second.entries.map((e) => e.id)).toEqual(["entry-1", "entry-2"]);
     expect(second.answers).toEqual([answer("req-01-1", "entry-2")]);
@@ -48,17 +48,19 @@ describe("writeAnswer", () => {
   test("writeAnswer_storyWithLabel_copiesLabelAndSource", () => {
     const base = makeDb();
     const db = makeDb({
+      entries: [],
+      answers: [],
       stories: base.stories.map((s) => (s.id === "story-017-a" ? { ...s, languageLabel: "language edited" as const } : s)),
     });
     const next = must(writeAnswer(db, A, "req-01-1", { body: "x", sourceStoryId: "story-017-a" }));
     expect(next.entries[0]).toMatchObject({ languageLabel: "language edited", sourceStoryId: "story-017-a" });
   });
   test("writeAnswer_storyWithoutLabel_omitsLabelKey", () => {
-    const next = must(writeAnswer(makeDb(), A, "req-01-1", { body: "x", sourceStoryId: "story-017-a" }));
+    const next = must(writeAnswer(makeDb({ entries: [], answers: [] }), A, "req-01-1", { body: "x", sourceStoryId: "story-017-a" }));
     expect("languageLabel" in next.entries[0]).toBe(false);
   });
   test("writeAnswer_pendingLinkForStoryAndRequirement_becomesAccepted", () => {
-    const next = must(writeAnswer(makeDb(), A, "req-01-3", { body: "x", sourceStoryId: "story-017-b" }));
+    const next = must(writeAnswer(makeDb({ entries: [], answers: [] }), A, "req-01-3", { body: "x", sourceStoryId: "story-017-b" }));
     expect(next.links.find((l) => l.id === "link-017-2")?.status).toBe("accepted");
     expect(next.links.find((l) => l.id === "link-017-3")?.status).toBe("rejected");
   });

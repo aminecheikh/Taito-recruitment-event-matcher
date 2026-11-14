@@ -54,20 +54,15 @@ export function EvidenceCard({ card, scores, onScore, meta, footer }: EvidenceCa
               </div>
             </div>
             <div>
-              {slot.examples.length === 0 ? (
+              {slot.example === null ? (
                 <p className="empty-slot">No example yet</p>
               ) : (
-                <div className="space-y-4">
-                  {slot.examples.map((ex) => (
-                    <div key={ex.story.id} className="border-l-2 border-accent pl-4">
-                      <p className="font-semibold">{ex.story.title}</p>
-                      <p className="mt-1 whitespace-pre-wrap text-[0.9375rem] leading-relaxed">{ex.story.body}</p>
-                      <p className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
-                        <span>Linked by applicant</span>
-                        {ex.story.languageLabel ? <span className="tag tag-ai">{ex.story.languageLabel}</span> : null}
-                      </p>
-                    </div>
-                  ))}
+                <div className="border-l-2 border-accent pl-4">
+                  <p className="whitespace-pre-wrap text-[0.9375rem] leading-relaxed">{slot.example.entry.body}</p>
+                  <p className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
+                    <span>Written by applicant</span>
+                    {slot.example.entry.languageLabel ? <span className="tag tag-ai">{slot.example.entry.languageLabel}</span> : null}
+                  </p>
                 </div>
               )}
               {onScore && (

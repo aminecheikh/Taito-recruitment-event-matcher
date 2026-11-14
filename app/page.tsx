@@ -17,26 +17,25 @@ const STEPS = [
   ["People decide", "Recruiters meet anonymous evidence. Both sides answer; a match needs both."],
 ] as const;
 
-type Slot = { company: string; rank: number; requirement: string; inPractice: string; label: string; title: string; body: string };
+type Slot = { company: string; rank: number; requirement: string; inPractice: string; label: string; body: string };
 
 const order = (i: number) => ({ "--i": i }) as React.CSSProperties;
 
-/** One real requirement slot with an accepted example from the synthetic store, shown as the hero picture. */
+/** One real requirement slot with an answered example from the synthetic store, shown as the hero picture. */
 function firstFilledSlot(db: Db): Slot | null {
   for (const company of db.companies) {
     for (const [index, req] of coreRequirements(db, company.id).entries()) {
-      const link = db.links.find((l) => l.requirementId === req.id && l.status === "accepted");
-      const story = link && db.stories.find((s) => s.id === link.storyId);
-      const applicant = story && db.applicants.find((a) => a.id === story.applicantId);
-      if (story && applicant) {
+      const answer = db.answers.find((a) => a.requirementId === req.id);
+      const entry = answer && db.entries.find((e) => e.id === answer.entryId && e.applicantId === answer.applicantId);
+      const applicant = entry && db.applicants.find((a) => a.id === entry.applicantId);
+      if (entry && applicant) {
         return {
           company: company.name,
           rank: index + 1,
           requirement: req.text,
           inPractice: req.inPractice,
           label: applicant.pseudonym,
-          title: story.title,
-          body: story.body,
+          body: entry.body,
         };
       }
     }
@@ -64,9 +63,8 @@ function SlotFigure({ slot }: { slot: Slot }) {
           </div>
         </div>
         <div className="slot-fill mt-5 border-l-2 border-accent pl-4 sm:ml-10">
-          <p className="font-semibold">{slot.title}</p>
-          <p className="mt-1 line-clamp-4 text-[0.9375rem] leading-relaxed">{slot.body}</p>
-          <p className="mt-2 text-sm text-muted">Linked by the applicant</p>
+          <p className="line-clamp-4 text-[0.9375rem] leading-relaxed">{slot.body}</p>
+          <p className="mt-2 text-sm text-muted">Written by the applicant</p>
         </div>
       </div>
     </figure>

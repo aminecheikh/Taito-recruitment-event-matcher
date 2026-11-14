@@ -8,7 +8,8 @@ const withCompanies = (n: number): Db => {
   const extra = Array.from({ length: n }, (_, i) => ({ id: `company-x${i}`, name: `X${i}`, sector: "s", sizeRange: "1" }));
   const reqs = extra.map((c) => ({ id: `req-${c.id}`, companyId: c.id, text: "t", inPractice: "p", rank: 1, isCore: true }));
   const links = extra.map((c) => ({ id: `l-${c.id}`, storyId: "story-017-a", requirementId: `req-${c.id}`, origin: "applicant" as const, status: "accepted" as const }));
-  return { ...db, companies: [...db.companies, ...extra], requirements: [...db.requirements, ...reqs], links: [...db.links, ...links] };
+  const answers = extra.map((c) => ({ applicantId: "talent-017", requirementId: `req-${c.id}`, entryId: "entry-story-017-a" }));
+  return { ...db, companies: [...db.companies, ...extra], requirements: [...db.requirements, ...reqs], links: [...db.links, ...links], answers: [...db.answers, ...answers] };
 };
 
 describe("signals", () => {
@@ -40,14 +41,14 @@ describe("signals", () => {
     if (!first.ok) throw new Error(first.error);
     expect(spendSignal(first.value, "event-01", "talent-017", "company-01")).toEqual({ ok: false, error: "already-signalled" });
   });
-  test("spendSignal_noAcceptedLinks_refusesNoAcceptedExample", () => {
-    const noLinks = makeDb({ signals: [], links: [] });
+  test("spendSignal_noAnswers_refusesNoAcceptedExample", () => {
+    const noLinks = makeDb({ signals: [], answers: [] });
     expect(spendSignal(noLinks, "event-01", "talent-017", "company-01")).toEqual({ ok: false, error: "no-accepted-example" });
   });
-  test("spendSignal_onlyAcceptedLinkIsNonCore_refusesNoAcceptedExample", () => {
+  test("spendSignal_onlyAnswerIsNonCore_refusesNoAcceptedExample", () => {
     const db = makeDb({
       signals: [],
-      links: [{ id: "l", storyId: "story-017-a", requirementId: "req-01-5", origin: "applicant", status: "accepted" }],
+      answers: [{ applicantId: "talent-017", requirementId: "req-01-5", entryId: "entry-story-017-a" }],
     });
     expect(spendSignal(db, "event-01", "talent-017", "company-01")).toEqual({ ok: false, error: "no-accepted-example" });
   });
