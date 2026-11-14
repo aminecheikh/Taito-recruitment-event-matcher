@@ -20,5 +20,10 @@ if [ ! -f "$board" ]; then
   echo "Created $board: fill in Now, then commit and push it."
 fi
 
+if [ ! -f .env ] && [ -f .env.example ]; then
+  cp .env.example .env
+  echo "Created .env from .env.example (AI_PROVIDER=mock). Add your own API key there if you need a real provider."
+fi
+
 command -v node >/dev/null || echo "warning: node not found. The agent hooks in .agents/hooks need Node 20+." >&2
 echo "Setup done for '$name'. Hooks: .githooks. Check: scripts/check.sh"
