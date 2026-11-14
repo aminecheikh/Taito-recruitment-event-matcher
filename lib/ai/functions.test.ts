@@ -110,6 +110,24 @@ describe("with a real model", () => {
     expect(out.source).toBe("mock-fallback");
   });
 
+  test("follow-up question with scoring language falls back to the mock", async () => {
+    const ai = createAiFunctions(() => modelReturning(JSON.stringify({ question: "What score would you give it?" })));
+    expect((await ai.nextFollowUpQuestion({ storyBody: "x", history: [] })).source).toBe("mock-fallback");
+  });
+
+  test("language assist output with scoring language falls back to the mock", async () => {
+    const ai = createAiFunctions(() => modelReturning(JSON.stringify({ text: "Hello. Match score 90%." })));
+    const out = await ai.languageAssist({ text: "Hello", mode: "grammar" });
+    expect(out).toEqual({ source: "mock-fallback", value: { text: "Hello", label: "language edited" } });
+  });
+
+  test("extracted phrases that score a person are dropped, others kept", async () => {
+    const ai = createAiFunctions(() =>
+      modelReturning(JSON.stringify({ requirements: ["Python", "Candidate score above 80%"] })),
+    );
+    expect(await ai.extractRequirements("ad")).toEqual({ source: "model", value: ["Python"] });
+  });
+
   test("language label comes from code, not the model", async () => {
     const ai = createAiFunctions(() => modelReturning(JSON.stringify({ text: "Hei maailma" })));
     const out = await ai.languageAssist({ text: "Hello", mode: "translate", sourceLanguage: "English", targetLanguage: "Finnish" });

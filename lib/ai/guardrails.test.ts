@@ -1,5 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { cleanLinkSuggestions, cleanQuestion, labelFor } from "./guardrails";
+import {
+  cleanLanguageText,
+  cleanLinkSuggestions,
+  cleanQuestion,
+  cleanRequirementPhrases,
+  labelFor,
+} from "./guardrails";
 
 const reqs = [{ id: "req-01-1" }, { id: "req-01-2" }];
 const many = [
@@ -46,13 +52,81 @@ describe("cleanLinkSuggestions", () => {
 
 describe("cleanQuestion", () => {
   test("accepts exactly one question", () => {
-    expect(cleanQuestion("What did you do yourself?")).toBe("What did you do yourself?");
-    expect(cleanQuestion("What happened? And who helped?")).toBeNull();
-    expect(cleanQuestion("Great story! You should say you led the team.")).toBeNull();
+    expect(cleanQuestion("What did you do yourself?", "story")).toBe("What did you do yourself?");
+    expect(cleanQuestion("What happened? And who helped?", "story")).toBeNull();
+    expect(cleanQuestion("Great story! You should say you led the team.", "story")).toBeNull();
   });
 
   test("rejects questions over 200 characters", () => {
-    expect(cleanQuestion(`${"a".repeat(200)}?`)).toBeNull();
+    expect(cleanQuestion(`${"a".repeat(200)}?`, "story")).toBeNull();
+  });
+});
+
+describe("cleanQuestion scoring language", () => {
+  test("rejects a question that adds a score, rating, rank or percentage", () => {
+    expect(cleanQuestion("What score would you give yourself?", "I fixed a fault.")).toBeNull();
+    expect(cleanQuestion("Why do you think you rank 90% here?", "I fixed a fault.")).toBeNull();
+  });
+
+  test("accepts a normal recall question", () => {
+    const q = "What did you do yourself?";
+    expect(cleanQuestion(q, "I fixed a fault.")).toBe(q);
+  });
+
+  test("accepts a question quoting a percentage from the applicant's own story", () => {
+    const q = "How did you get the defect rate down by 30%?";
+    expect(cleanQuestion(q, "I cut the defect rate by 30% in a month.")).toBe(q);
+  });
+});
+
+describe("cleanLanguageText", () => {
+  test("returns the trimmed text when it is clean", () => {
+    expect(cleanLanguageText(" Hei maailma ", "Hello world")).toBe("Hei maailma");
+  });
+
+  test("rejects empty output and output that adds scoring language", () => {
+    expect(cleanLanguageText("  ", "Hello")).toBeNull();
+    expect(cleanLanguageText("Hello. Match score 90%.", "Hello")).toBeNull();
+  });
+
+  test("keeps scoring words the applicant wrote themselves", () => {
+    const input = "I kept the ranked list of tickets up to date.";
+    expect(cleanLanguageText(input, input)).toBe(input);
+  });
+});
+
+describe("cleanRequirementPhrases", () => {
+  test("drops phrases that score or rate a person", () => {
+    const out = cleanRequirementPhrases([
+      "Python",
+      "Candidate score above 80%",
+      "Rank applicants by experience",
+      "Rating of the candidate",
+      "Best match for the team",
+      "Fit score of 70",
+      "90% fit for the role",
+      "Top candidates only",
+      "Compare applicants",
+      "Hire rating",
+      "Rank employees by output",
+    ]);
+    expect(out).toEqual(["Python"]);
+  });
+
+  test("keeps job content that merely uses the words", () => {
+    const out = cleanRequirementPhrases([
+      "Ranked list maintenance",
+      "Reduce costs by 20%",
+      "Rating system integration",
+    ]);
+    expect(out).toHaveLength(3);
+  });
+
+  test("trims, drops blanks and caps at 15", () => {
+    const many15 = Array.from({ length: 20 }, (_, i) => ` Skill ${i} `);
+    const out = cleanRequirementPhrases(["", "  ", ...many15]);
+    expect(out).toHaveLength(15);
+    expect(out[0]).toBe("Skill 0");
   });
 });
 
