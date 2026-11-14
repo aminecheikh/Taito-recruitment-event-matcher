@@ -124,7 +124,11 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
         added > 0
           ? `Added ${added} suggested requirement${added === 1 ? "" : "s"} at the bottom of the list.`
           : "No new requirements found — they are already in the list.";
-      setAiNote(data.source === "mock-fallback" ? `AI unavailable — showing example. ${result}` : result);
+      const prefix: Record<string, string> = {
+        mock: "No AI connected (offline example: one line of the ad per item). ",
+        "mock-fallback": "AI unavailable — showing example. ",
+      };
+      setAiNote(`${prefix[data.source] ?? ""}${result}`);
       setPasted("");
     } catch {
       setAiNote("AI unavailable");

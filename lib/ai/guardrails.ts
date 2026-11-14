@@ -7,8 +7,8 @@ const UNKNOWN_LANGUAGE = "another language";
 const SCORING_LANGUAGE = /\d+\s*%|\bscore\b|\brating\b|\brank|\bbest match\b/i;
 
 export const MAX_REQUIREMENT_PHRASES = 15;
-// The prompt asks for at most ~200 characters; anything far longer is an essay, not a hint.
-export const MAX_IN_PRACTICE_LENGTH = 300;
+// The prompt asks for at most 45 words (~280 characters); anything longer is an essay, not a hint.
+export const MAX_IN_PRACTICE_LENGTH = 350;
 // A requirement phrase is dropped only when it scores, rates or ranks a person, so job content such as
 // "ranked list maintenance" stays.
 const PERSON_NOUN = "(?:candidates?|applicants?|persons?|people|talents?|jobseekers?|hires?|employees?)";
@@ -66,13 +66,31 @@ export function cleanLanguageText(output: string, input: string): string | null 
 
 /** A requirement the AI suggests from a job ad; inPractice is "" when the title explains itself. */
 export type ExtractedRequirement = { text: string; inPractice: string };
+/** What the model returns: the requirement plus a quote from the ad that supports it. */
+export type GroundedRequirement = ExtractedRequirement & { evidence: string };
 
-/** Drops requirements that score a person, blanks an inPractice line that does or runs too long, dedupes, caps. */
+// Case, spacing, punctuation and quote styles vary between the ad and the model's copy of it.
+function normalise(text: string): string {
+  return ` ${(text.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []).join(" ")} `;
+}
+
+/** True when the quote really appears in the ad, so the item is grounded and not invented. */
+export function isQuotedFrom(evidence: string, jobAd: string): boolean {
+  const quote = normalise(evidence);
+  return quote.trim().length > 0 && normalise(jobAd).includes(quote);
+}
+
+/**
+ * Drops items whose evidence is not in the ad or that score a person, dedupes, caps, and blanks an
+ * inPractice line that scores a person or runs too long. Evidence is used here only, not shown.
+ */
 export function cleanExtractedRequirements(
-  items: readonly ExtractedRequirement[],
+  items: readonly GroundedRequirement[],
+  jobAd: string,
 ): ExtractedRequirement[] {
   const seen = new Set<string>();
   return items
+    .filter((item) => isQuotedFrom(item.evidence, jobAd))
     .map((item) => ({ text: item.text.trim(), inPractice: item.inPractice.trim() }))
     .filter((item) => item.text.length > 0 && !SCORES_A_PERSON.test(item.text))
     .filter((item) => {

@@ -26,7 +26,7 @@ export type AiSource = "model" | "mock" | "mock-fallback";
 export type AiResult<T> = { value: T; source: AiSource };
 
 const RequirementsSchema = z.object({
-  requirements: z.array(z.object({ text: z.string(), inPractice: z.string() })),
+  requirements: z.array(z.object({ text: z.string(), inPractice: z.string(), evidence: z.string() })),
 });
 const QuestionSchema = z.object({ question: z.string() });
 const SuggestionsSchema = z.object({
@@ -102,7 +102,7 @@ export function createAiFunctions(getModelFn: GetModel) {
           extractPrompt.buildUser({ jobAd }),
           aiExtractTimeoutMs(),
         );
-        const cleaned = cleanExtractedRequirements(requirements);
+        const cleaned = cleanExtractedRequirements(requirements, jobAd);
         return cleaned.length > 0 ? cleaned : null;
       },
       () => mockExtractRequirements(jobAd),

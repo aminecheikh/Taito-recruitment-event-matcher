@@ -76,7 +76,9 @@ describe("provider timeout", () => {
     vi.stubEnv("AI_EXTRACT_TIMEOUT_MS", "1000");
     const ai = createAiFunctions(() =>
       slowModelReturning(
-        JSON.stringify({ requirements: [{ text: "Robotics AI architecture", inPractice: "" }] }),
+        JSON.stringify({
+          requirements: [{ text: "Robotics AI architecture", inPractice: "", evidence: "long job ad" }],
+        }),
         150,
       ),
     );
@@ -183,16 +185,26 @@ describe("with a real model", () => {
       modelReturning(
         JSON.stringify({
           requirements: [
-            { text: "Python", inPractice: "Small data scripts." },
-            { text: "Candidate score above 80%", inPractice: "" },
+            { text: "Python", inPractice: "Small data scripts.", evidence: "Python" },
+            { text: "Candidate score above 80%", inPractice: "", evidence: "Python" },
           ],
         }),
       ),
     );
-    expect(await ai.extractRequirements("ad")).toEqual({
+    expect(await ai.extractRequirements("We use Python daily.")).toEqual({
       source: "model",
       value: [{ text: "Python", inPractice: "Small data scripts." }],
     });
+  });
+
+  test("extractRequirements_allEvidenceInvented_fallsBackToMock", async () => {
+    const ai = createAiFunctions(() =>
+      modelReturning(
+        JSON.stringify({ requirements: [{ text: "Kubernetes", inPractice: "", evidence: "run Kubernetes clusters" }] }),
+      ),
+    );
+    const out = await ai.extractRequirements("- Python");
+    expect(out).toEqual({ source: "mock-fallback", value: [{ text: "Python", inPractice: "" }] });
   });
 
   test("the old bare-string reply shape is rejected and falls back to the mock", async () => {

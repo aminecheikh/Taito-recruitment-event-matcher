@@ -1,6 +1,6 @@
 // Prompt-tuning harness for lib/ai/prompts/extractRequirements.ts.
 // Runs extractRequirements on fictional job ads and prints each result next to simple checks.
-// Usage: AI_PROVIDER=google|anthropic|openai npm run ai:eval-extract   (keys from .env)
+// Usage: npm run ai:eval-extract   (provider, model and key from .env; "source: mock" means no AI is connected)
 // All ads below are fictional (synthetic data rule); companies end in "(fictional)".
 import { extractRequirements, type ExtractedRequirement } from "@/lib/ai/functions";
 import { MAX_REQUIREMENT_PHRASES } from "@/lib/ai/guardrails";
@@ -14,8 +14,8 @@ type Case = {
   mustNotMention: string[];
 };
 
-const MAX_TITLE_WORDS = 6;
-const MAX_IN_PRACTICE_CHARS = 200;
+const MAX_TITLE_WORDS = 10;
+const MAX_IN_PRACTICE_CHARS = 300;
 // A name that repeats this many consecutive words of the ad is copied, not inferred.
 const COPIED_RUN_WORDS = 5;
 const TASK_PHRASING = /^(you will|you'll|ability to|experience (with|in)|we )/i;
