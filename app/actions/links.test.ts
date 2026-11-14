@@ -28,7 +28,7 @@ beforeEach(() => {
 
 describe("link actions", () => {
   test("saveSuggestions_ownStoryCoreTarget_storesPendingLink", async () => {
-    expect(await saveSuggestions("story-017-a", [{ requirementId: "req-01-1", reason: "why" }])).toEqual({ ok: true });
+    expect(await saveSuggestions("story-017-a", [{ requirementId: "req-01-1", reason: "why" }])).toEqual({ ok: true, added: 1 });
     expect(await link("link-story-017-a-req-01-1")).toMatchObject({ status: "pending", origin: "ai-suggested", aiReason: "why" });
   });
   test("saveSuggestions_otherApplicantsStory_refusedAndNothingStored", async () => {
@@ -36,8 +36,24 @@ describe("link actions", () => {
     expect(await saveSuggestions("story-020-a", [{ requirementId: "req-01-1", reason: "why" }])).toEqual(NOT_FOUND);
     expect((await readDb()).links).toHaveLength(before);
   });
-  test("saveSuggestions_nonCoreTarget_refused", async () => {
-    expect(await saveSuggestions("story-017-a", [{ requirementId: "req-01-5", reason: "why" }])).toEqual(NOT_FOUND);
+  test("saveSuggestions_partiallyInvalidBatch_storesValidDropsInvalid", async () => {
+    const before = (await readDb()).links.length;
+    const res = await saveSuggestions("story-017-a", [
+      { requirementId: "req-01-5", reason: "stale" },
+      { requirementId: "req-01-1", reason: "ok" },
+    ]);
+    expect(res).toEqual({ ok: true, added: 1 });
+    expect((await readDb()).links).toHaveLength(before + 1);
+    expect(await link("link-story-017-a-req-01-5")).toBeUndefined();
+    expect(await link("link-story-017-a-req-01-1")).toBeDefined();
+  });
+  test("saveSuggestions_allInvalid_okAndNothingStored", async () => {
+    const before = (await readDb()).links.length;
+    expect(await saveSuggestions("story-017-a", [{ requirementId: "req-01-5", reason: "stale" }])).toEqual({ ok: true, added: 0 });
+    expect((await readDb()).links).toHaveLength(before);
+  });
+  test("saveSuggestions_allDuplicates_okWithZeroAdded", async () => {
+    expect(await saveSuggestions("story-017-b", [{ requirementId: "req-01-3", reason: "dup" }])).toEqual({ ok: true, added: 0 });
   });
   test("acceptSuggestion_ownPending_accepted", async () => {
     expect(await acceptSuggestion("link-017-2")).toEqual({ ok: true });

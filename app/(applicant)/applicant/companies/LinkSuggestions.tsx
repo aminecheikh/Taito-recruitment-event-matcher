@@ -43,11 +43,13 @@ export function LinkSuggestions({ idPrefix, story, links, options }: { idPrefix:
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fallback, setFallback] = useState(false);
+  const [empty, setEmpty] = useState(false);
   const [manual, setManual] = useState(options[0]?.id ?? "");
 
   const settle = async (fn: () => Promise<LinkStatus>) => {
     setBusy(true);
     setError(null);
+    setEmpty(false);
     try {
       const res = await fn();
       if (!res.ok) setError(res.error);
@@ -65,7 +67,9 @@ export function LinkSuggestions({ idPrefix, story, links, options }: { idPrefix:
       if (!res.ok) throw new Error("bad status");
       const data = SuggestLinksResponseSchema.parse(await res.json());
       setFallback(data.source === "mock-fallback");
-      return saveSuggestions(story.id, data.value);
+      const saved = await saveSuggestions(story.id, data.value);
+      setEmpty(saved.ok && !saved.added);
+      return saved;
     });
 
   const byId = new Map(options.map((o) => [o.id, o]));
@@ -79,6 +83,7 @@ export function LinkSuggestions({ idPrefix, story, links, options }: { idPrefix:
         {busy ? "Working" : "Suggest where this fits"}
       </button>
       {fallback ? <p className="mt-2 text-sm text-neutral-800">{FALLBACK_NOTICE}</p> : null}
+      {empty ? <p className="mt-2 text-neutral-800" aria-live="polite">No new suggestions for this story.</p> : null}
       {error ? <p role="alert" className="mt-2 text-red-800">{error}</p> : null}
       {pending.length > 0 ? (
         <ul className="mt-3 space-y-3" aria-live="polite">

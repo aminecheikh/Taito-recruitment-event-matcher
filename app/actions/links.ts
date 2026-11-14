@@ -22,7 +22,7 @@ const Suggestions = z
   .array(z.object({ requirementId: Id, reason: z.string().min(1).max(MAX_REASON_CHARS) }))
   .max(MAX_SUGGESTIONS);
 
-export type LinkStatus = { ok: true } | { ok: false; error: string };
+export type LinkStatus = { ok: true; added?: number } | { ok: false; error: string };
 
 type Scope = { applicantId: string; eventId: string };
 
@@ -46,14 +46,15 @@ const ownsLink = (db: Db, linkId: string, applicantId: string) => {
 /** Runs a change after the session applicant, ownership and core-requirement checks done by `guard`. */
 async function run(
   guard: (db: Db, scope: Scope, core: Set<string>) => string | null,
-  change: (db: Db) => Result<Db>,
+  change: (db: Db, core: Set<string>) => Result<Db>,
 ): Promise<LinkStatus> {
   const session = await getSession();
   const scope = { applicantId: session.applicantId, eventId: session.eventId };
   const result = await updateDb((db) => {
     if (!db.applicants.some((a) => a.id === scope.applicantId)) return { ok: false, error: "no-applicant" };
-    const refusal = guard(db, scope, coreIdsAtEvent(db, scope.eventId));
-    return refusal ? { ok: false, error: refusal } : change(db);
+    const core = coreIdsAtEvent(db, scope.eventId);
+    const refusal = guard(db, scope, core);
+    return refusal ? { ok: false, error: refusal } : change(db, core);
   });
   if (!result.ok) {
     return { ok: false, error: result.error === "no-applicant" ? "Pick an applicant in the top bar" : (ERROR_MESSAGES[result.error] ?? result.error) };
@@ -64,15 +65,24 @@ async function run(
 
 const invalid: LinkStatus = { ok: false, error: "That request could not be read." };
 
-/** Stores AI suggestions as pending links. Targets must be current core requirements at the event. */
+/**
+ * Stores AI suggestions as pending links. Suggestions whose target is not a current core
+ * requirement at the event (stale ids) are dropped; the rest are kept. `added` counts new links.
+ */
 export async function saveSuggestions(storyId: string, suggestions: { requirementId: string; reason: string }[]): Promise<LinkStatus> {
   const parsed = Suggestions.safeParse(suggestions);
   if (!Id.safeParse(storyId).success || !parsed.success) return invalid;
-  return run(
-    (db, { applicantId }, core) =>
-      !ownsStory(db, storyId, applicantId) || parsed.data.some((s) => !core.has(s.requirementId)) ? "not-found" : null,
-    (db) => ({ ok: true, value: addSuggestions(db, storyId, parsed.data) }),
+  let added = 0;
+  const status = await run(
+    (db, { applicantId }) => (ownsStory(db, storyId, applicantId) ? null : "not-found"),
+    (db, core) => {
+      const valid = parsed.data.filter((s) => core.has(s.requirementId));
+      const next = addSuggestions(db, storyId, valid);
+      added = next.links.length - db.links.length;
+      return { ok: true, value: next };
+    },
   );
+  return status.ok ? { ok: true, added } : status;
 }
 
 export async function acceptSuggestion(linkId: string): Promise<LinkStatus> {
