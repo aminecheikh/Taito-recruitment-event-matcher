@@ -1,4 +1,4 @@
-# Pipeline — No CV, No Job Ad
+# Pipeline — Taito
 
 Working concept for the Espoo challenge. Evidence for each choice is in [research/README.md](research/README.md).
 
@@ -27,6 +27,7 @@ The CV can still be shared — after the conversation, if both sides want to con
 | Signalling | An applicant needs at least 1 accepted example for a company before they can signal it. The recruiter sees every core-requirement slot; empty ones show "no example yet". |
 | Shortlisting | The recruiter filters by coverage: how many core requirements have an example (all first, then one fewer, …). The rule is visible to applicants. |
 | Story → requirement links | Applicant tells stories first. AI suggests which company requirement a story could be evidence for, with a visible reason; the applicant accepts, rejects or moves each link. AI never changes the story. Cards show "linked by applicant". |
+| Product name | **Taito**, Finnish for "ability" (replaces the working title "No CV, No Job Ad"): the product is about what people can do, not their documents |
 | Hackathon demo | Thin full journey: every step works end to end on synthetic data; the story + AI-link step gets the most depth. |
 
 ## The journey

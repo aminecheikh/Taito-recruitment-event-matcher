@@ -7,7 +7,7 @@ const sans = Hanken_Grotesk({ subsets: ["latin", "latin-ext"], variable: "--font
 const serif = Newsreader({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-newsreader", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "No CV, No Job Ad",
+  title: "Taito",
   description: "Applicants show evidence for what a company asks for; recruiters meet them on it.",
 };
 

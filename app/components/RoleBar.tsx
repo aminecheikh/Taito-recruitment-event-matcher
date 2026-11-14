@@ -98,8 +98,8 @@ export async function RoleBar() {
       </div>
       <header data-app-chrome className="border-b border-line bg-surface">
         <div className="shell flex flex-wrap items-center gap-x-10">
-          <Link href="/" className="flex min-h-14 items-center font-serif text-[1.375rem] tracking-[-0.01em] text-ink">
-            No CV, No Job Ad
+          <Link href="/" className="flex min-h-14 items-center font-serif text-[1.625rem] tracking-[-0.015em] text-ink">
+            Taito
           </Link>
           <RoleNav items={ROLE_NAV[session.role]} />
         </div>

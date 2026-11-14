@@ -6,7 +6,7 @@ Paste everything inside the box into Google Stitch (stitch.withgoogle.com). Ask 
 
 ```
 Design a web app (desktop + phone) for recruitment matchmaking events run by a city's
-employment services. Product name: not decided — show "[Product]" as a placeholder.
+employment services. Product name: Taito (Finnish for "ability").
 Do not use any real city or company logo or branding.
 
 THE IDEA

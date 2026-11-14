@@ -78,7 +78,7 @@ export default async function Home() {
     <main className="page page-wide">
       <section data-enter className="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
         <div>
-          <p className="eyebrow" style={order(0)}>A recruitment event concept for the City of Espoo</p>
+          <p className="eyebrow" style={order(0)}>Taito is Finnish for ability. A recruitment event concept for Espoo</p>
           <h1 className="display mt-4" style={order(1)}>Hire on what people have done</h1>
           <p className="lede" style={order(2)}>
             No CVs and no job ads. Recruiters name the few things they hire on; applicants show real
