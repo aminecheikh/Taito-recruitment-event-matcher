@@ -18,7 +18,7 @@ data/synthetic/
   generate.mjs     seeded generator (SEED constant at top); `node data/synthetic/generate.mjs` rewrites the three JSON files
   seed.test.ts     Vitest: merged files parse with DbSchema, plus persona invariants
   companies/companies.json   { companies, requirements }
-  talent/talent.json         { applicants, stories, links, signals }
+  talent/talent.json         { applicants, stories, links, signals, entries, answers }
   events/events.json         { events, companyEvents }
 ```
 
@@ -33,6 +33,8 @@ Other `Db` arrays (meetings, decisions, shares, scores) start empty. Types: `lib
 | talent | applicants | id `talent-0xx`, pseudonym `Applicant 0xx`, displayName (fictional), contact.email `@example.org` |
 | talent | stories | id `story-0xx-n`, applicantId, title, body, languageLabel (optional) |
 | talent | links | id `link-NNN`, storyId, requirementId, origin, aiReason (ai-suggested only), status |
+| talent | entries | id `entry-n`, applicantId, body (copy of the story body), languageLabel (optional), sourceStoryId; one per story that has accepted links |
+| talent | answers | applicantId, requirementId (core only), entryId; one per accepted link, so one entry can answer several requirements |
 | talent | signals | eventId, applicantId, companyId |
 | events | events | id `event-NN`, name (ends `(fictional)`), date `YYYY-MM-DD`, startTime, endTime (`HH:MM`), location (ends `(fictional)`), signalsPerApplicant 3 |
 | events | companyEvents | companyId, eventId (which companies attend which event; no slot count) |

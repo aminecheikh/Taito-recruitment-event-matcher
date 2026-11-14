@@ -128,6 +128,24 @@ describe("synthetic seed", () => {
     for (const l of acme) expect(core.has(l.requirementId), l.id).toBe(true);
   });
 
+  it("test_entries_and_answers_when_seeded_resolve_and_cover_accepted_links", () => {
+    const applicants = new Set(db.applicants.map((a) => a.id));
+    const entries = new Map(db.entries.map((e) => [e.id, e]));
+    const core = new Set(db.requirements.filter((r) => r.isCore).map((r) => r.id));
+    expect(db.entries.length).toBeGreaterThan(0);
+    for (const e of db.entries) expect(applicants.has(e.applicantId), e.id).toBe(true);
+    const seen = new Set<string>();
+    for (const a of db.answers) {
+      const e = entries.get(a.entryId);
+      expect(e, a.entryId).toBeDefined();
+      expect(e?.applicantId).toBe(a.applicantId);
+      expect(core.has(a.requirementId), a.requirementId).toBe(true);
+      const key = `${a.applicantId}|${a.requirementId}`;
+      expect(seen.has(key), key).toBe(false);
+      seen.add(key);
+    }
+  });
+
   it("test_generator_when_called_twice_is_deterministic", () => {
     expect(buildSeed()).toEqual(buildSeed());
   });

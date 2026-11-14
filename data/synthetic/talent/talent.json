@@ -381,5 +381,205 @@
       "applicantId": "talent-026",
       "companyId": "company-01"
     }
+  ],
+  "entries": [
+    {
+      "id": "entry-1",
+      "applicantId": "talent-003",
+      "body": "I volunteer at a neighbourhood food bank on Saturdays. Stock was tracked on paper and we kept running out of tinned goods. I wrote a short Python script that reads the weekly donations spreadsheet and prints what to ask for. We stopped running out within a month.",
+      "sourceStoryId": "story-003-1"
+    },
+    {
+      "id": "entry-2",
+      "applicantId": "talent-003",
+      "body": "After ten years as a nurse I was the only one at the food bank who could explain things calmly to people who were anxious about computers. I ran two short sessions on the new sign-up tool and wrote a one-page guide with screenshots. Nobody dropped out over it.",
+      "sourceStoryId": "story-003-2"
+    },
+    {
+      "id": "entry-3",
+      "applicantId": "talent-003",
+      "body": "Our wholesaler delivered late three weeks in a row. I phoned their dispatcher, learned their cut-off time, and moved our order to fit it. Deliveries have been on time since.",
+      "sourceStoryId": "story-003-3"
+    },
+    {
+      "id": "entry-4",
+      "applicantId": "talent-005",
+      "body": "At an electronics plant abroad I handled returns of smart meters that rebooted at random. I traced the resets to a brownout on one supply rail, wrote a Python script to scan the test logs for the same signature across 4,000 units, and the design team changed the capacitor.",
+      "sourceStoryId": "story-005-1"
+    },
+    {
+      "id": "entry-5",
+      "applicantId": "talent-005",
+      "body": "When we replaced paper test sheets with a dashboard, the operators distrusted it. I sat on the line for a week, explained each number in plain words, and let them correct me. Adoption went from half the shifts to all of them.",
+      "sourceStoryId": "story-005-2"
+    },
+    {
+      "id": "entry-6",
+      "applicantId": "talent-005",
+      "body": "A sensor supplier shipped a batch outside tolerance. I documented the failures with measurements, called their quality contact, and agreed a replacement batch plus a tighter incoming check. The line was stopped for one day instead of two weeks.",
+      "sourceStoryId": "story-005-3"
+    },
+    {
+      "id": "entry-7",
+      "applicantId": "talent-009",
+      "body": "I never finished school but I taught myself Python from library books. I wrote a script that turns the kitchen's daily sales into a supplier order list. The restaurant now wastes less fresh produce.",
+      "sourceStoryId": "story-009-1"
+    },
+    {
+      "id": "entry-8",
+      "applicantId": "talent-009",
+      "body": "The cook did not trust the till reports. I walked through one day's numbers on a napkin, explained where each figure came from, and showed which ones to ignore. He now reads the report himself every morning.",
+      "sourceStoryId": "story-009-2"
+    },
+    {
+      "id": "entry-9",
+      "applicantId": "talent-011",
+      "body": "I left work to care for my father after his stroke. I coordinated three siblings, a home nurse and the municipality, kept everyone informed with a weekly message, and stayed steady through hard nights.",
+      "sourceStoryId": "story-011-1"
+    },
+    {
+      "id": "entry-10",
+      "applicantId": "talent-011",
+      "body": "I kept a daily diary of medication, meals and mood so that any relative or nurse could take over without a phone call. The home nurse started using the same format for her own visits.",
+      "sourceStoryId": "story-011-2"
+    },
+    {
+      "id": "entry-11",
+      "applicantId": "talent-014",
+      "body": "My family runs a small electronics repair shop. A batch of handheld radios kept coming back with weak audio. I compared the failures, found they all had a cracked solder joint near the jack, and changed how we reflow it. The repeat returns stopped.",
+      "sourceStoryId": "story-014-1"
+    },
+    {
+      "id": "entry-12",
+      "applicantId": "talent-021",
+      "body": "I was a student when the power failed across my district for two days. I volunteered with the local engineers, helped find that a transformer fuse had tripped because of an overloaded feeder, and held the safety line while the crew worked.",
+      "languageLabel": "translated from Arabic",
+      "sourceStoryId": "story-021-1"
+    },
+    {
+      "id": "entry-13",
+      "applicantId": "talent-021",
+      "body": "I carried messages between the municipal crew and a private contractor who did not share a language. I wrote the steps in both languages so nobody had to guess, and the work finished a day early.",
+      "languageLabel": "translated from Arabic",
+      "sourceStoryId": "story-021-2"
+    },
+    {
+      "id": "entry-14",
+      "applicantId": "talent-026",
+      "body": "During my service I was the technician for a unit's field radios. I found that a batch lost range because of corroded antenna connectors, replaced them, and wrote a short checklist so the next crew would check them first.",
+      "languageLabel": "language edited",
+      "sourceStoryId": "story-026-1"
+    },
+    {
+      "id": "entry-15",
+      "applicantId": "talent-026",
+      "body": "I explained the new radio kit to new recruits who had never used one, using plain words and a live demonstration. Every recruit passed the practical test on the first try.",
+      "languageLabel": "language edited",
+      "sourceStoryId": "story-026-2"
+    },
+    {
+      "id": "entry-16",
+      "applicantId": "talent-026",
+      "body": "Spare parts from the central depot were slow. I phoned their planner, learned their ordering cycle and moved our requests to fit it. Wait time fell from three weeks to one.",
+      "languageLabel": "language edited",
+      "sourceStoryId": "story-026-3"
+    }
+  ],
+  "answers": [
+    {
+      "applicantId": "talent-003",
+      "requirementId": "req-01-4",
+      "entryId": "entry-1"
+    },
+    {
+      "applicantId": "talent-003",
+      "requirementId": "req-01-2",
+      "entryId": "entry-2"
+    },
+    {
+      "applicantId": "talent-003",
+      "requirementId": "req-01-3",
+      "entryId": "entry-3"
+    },
+    {
+      "applicantId": "talent-005",
+      "requirementId": "req-01-1",
+      "entryId": "entry-4"
+    },
+    {
+      "applicantId": "talent-005",
+      "requirementId": "req-01-4",
+      "entryId": "entry-4"
+    },
+    {
+      "applicantId": "talent-005",
+      "requirementId": "req-01-2",
+      "entryId": "entry-5"
+    },
+    {
+      "applicantId": "talent-005",
+      "requirementId": "req-01-3",
+      "entryId": "entry-6"
+    },
+    {
+      "applicantId": "talent-009",
+      "requirementId": "req-01-4",
+      "entryId": "entry-7"
+    },
+    {
+      "applicantId": "talent-009",
+      "requirementId": "req-01-2",
+      "entryId": "entry-8"
+    },
+    {
+      "applicantId": "talent-011",
+      "requirementId": "req-03-1",
+      "entryId": "entry-9"
+    },
+    {
+      "applicantId": "talent-011",
+      "requirementId": "req-03-3",
+      "entryId": "entry-9"
+    },
+    {
+      "applicantId": "talent-011",
+      "requirementId": "req-03-2",
+      "entryId": "entry-10"
+    },
+    {
+      "applicantId": "talent-014",
+      "requirementId": "req-01-1",
+      "entryId": "entry-11"
+    },
+    {
+      "applicantId": "talent-021",
+      "requirementId": "req-04-1",
+      "entryId": "entry-12"
+    },
+    {
+      "applicantId": "talent-021",
+      "requirementId": "req-04-2",
+      "entryId": "entry-12"
+    },
+    {
+      "applicantId": "talent-021",
+      "requirementId": "req-04-5",
+      "entryId": "entry-13"
+    },
+    {
+      "applicantId": "talent-026",
+      "requirementId": "req-01-1",
+      "entryId": "entry-14"
+    },
+    {
+      "applicantId": "talent-026",
+      "requirementId": "req-01-2",
+      "entryId": "entry-15"
+    },
+    {
+      "applicantId": "talent-026",
+      "requirementId": "req-01-3",
+      "entryId": "entry-16"
+    }
   ]
 }

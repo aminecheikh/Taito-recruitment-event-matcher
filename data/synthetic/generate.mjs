@@ -162,7 +162,8 @@ const SIGNAL_DEFS = {
   11: ["company-03"], 21: ["company-04"],
 };
 
-function buildTalent(rng) {
+function buildTalent(rng, requirements) {
+  const coreIds = new Set(requirements.filter((r) => r.isCore).map((r) => r.id));
   const pick = (items) => items[Math.floor(rng() * items.length)];
   const applicants = [];
   const stories = [];
@@ -196,7 +197,33 @@ function buildTalent(rng) {
       signals.push({ eventId: EVENT_ID, applicantId: `talent-${tn}`, companyId });
     }
   }
-  return { applicants, stories, links, signals };
+  const { entries, answers } = buildEntries(stories, links, coreIds);
+  return { applicants, stories, links, signals, entries, answers };
+}
+
+/** One entry per story with accepted links (numbered by story order); one answer per accepted link.
+ *  Only core requirements get answers, and the first accepted link wins per (applicant, requirement). */
+function buildEntries(stories, links, coreIds) {
+  const entries = [];
+  const answers = [];
+  const taken = new Set();
+  for (const story of stories) {
+    const accepted = links.filter((l) => l.storyId === story.id && l.status === "accepted");
+    if (accepted.length === 0) continue;
+    const id = `entry-${entries.length + 1}`;
+    entries.push({
+      id, applicantId: story.applicantId, body: story.body,
+      ...(story.languageLabel ? { languageLabel: story.languageLabel } : {}),
+      sourceStoryId: story.id,
+    });
+    for (const { requirementId } of accepted) {
+      const key = `${story.applicantId}|${requirementId}`;
+      if (!coreIds.has(requirementId) || taken.has(key)) continue;
+      taken.add(key);
+      answers.push({ applicantId: story.applicantId, requirementId, entryId: id });
+    }
+  }
+  return { entries, answers };
 }
 
 const EVENT_DEFS = [
@@ -237,7 +264,7 @@ function buildEvents(companies, applicants) {
 export function buildSeed() {
   const rng = makeRng(SEED);
   const companyData = buildCompanies();
-  const talentData = buildTalent(rng);
+  const talentData = buildTalent(rng, companyData.requirements);
   return {
     "companies/companies.json": companyData,
     "talent/talent.json": talentData,
