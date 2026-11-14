@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PageHeader } from "@/app/components/PageHeader";
 import { coverage } from "@/lib/domain/cards";
 import { coreRequirements } from "@/lib/domain/requirements";
@@ -24,19 +25,18 @@ export default async function CompaniesPage() {
 
   const atEvent = new Set(companiesAt(db, session.eventId));
   const companies = db.companies.filter((c) => atEvent.has(c.id)).sort((a, b) => a.name.localeCompare(b.name));
-  const own = new Set(db.stories.filter((s) => s.applicantId === applicant.id).map((s) => s.id));
 
   const view = companies.map((company) => {
     const reqs = coreRequirements(db, company.id);
-    const accepted = new Set(db.links.filter((l) => l.status === "accepted" && own.has(l.storyId)).map((l) => l.requirementId));
-    const missing = reqs.flatMap((r, i) => (accepted.has(r.id) ? [] : [i + 1]));
+    const answered = new Set(db.answers.filter((a) => a.applicantId === applicant.id).map((a) => a.requirementId));
+    const missing = reqs.flatMap((r, i) => (answered.has(r.id) ? [] : [i + 1]));
     return { company, reqs, missing, ...coverage(db, company.id, applicant.id) };
   });
 
   return (
     <main className="page">
       <PageHeader eyebrow={applicant.pseudonym} title="Companies">
-        What each company looks for, and where your own stories fit. The AI only suggests; you decide, and it never changes your story.
+        What each company looks for. Open a company to fill in one card per requirement; the AI only suggests, you decide.
       </PageHeader>
       <ul className="mt-8 space-y-5">
         {view.map(({ company, reqs, covered, total, missing }) => (
@@ -59,6 +59,7 @@ export default async function CompaniesPage() {
                 </li>
               ))}
             </ol>
+            <p className="mt-5"><Link href={`/applicant/companies/${company.id}`} className="btn btn-primary">Fill in requirement cards</Link></p>
           </li>
         ))}
       </ul>
