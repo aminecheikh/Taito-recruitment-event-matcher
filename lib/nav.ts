@@ -11,6 +11,7 @@ export const ROLE_NAV: Record<Role, readonly NavItem[]> = {
   applicant: [
     { label: "My stories", href: "/applicant/stories" },
     { label: "Companies", href: "/applicant/companies" },
+    { label: "Saved entries", href: "/applicant/entries" },
     { label: "Signals", href: "/applicant/signals" },
     { label: "Meetings", href: "/applicant/meetings" },
   ],

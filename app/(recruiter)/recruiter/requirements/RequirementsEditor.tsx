@@ -99,7 +99,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
     const confirmed =
       !savedIds.has(req.id) ||
       window.confirm(
-        `Delete "${req.text}"? When you save, examples applicants linked to it and any scores on it are removed too.`,
+        `Delete "${req.text}"? When you save, applicants' answers on that card and any scores on it are removed too; their saved entries stay.`,
       );
     if (!confirmed) return;
     setItems((prev) => prev.filter((_, i) => i !== index));

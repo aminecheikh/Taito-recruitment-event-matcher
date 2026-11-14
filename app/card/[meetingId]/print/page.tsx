@@ -27,16 +27,13 @@ export default async function PrintCardPage({ params }: { params: Promise<{ meet
           <li key={slot.requirement.id} className="break-inside-avoid py-5">
             <h2 className="font-serif text-xl font-semibold">{slot.requirement.text}</h2>
             <p className="mt-1 text-sm text-neutral-700">In practice: {slot.requirement.inPractice}</p>
-            {slot.examples.length === 0 ? (
+            {slot.example === null ? (
               <p className="mt-3 border border-dashed border-neutral-500 px-3 py-2 text-neutral-700">No example yet</p>
             ) : (
-              slot.examples.map((ex) => (
-                <div key={ex.story.id} className="mt-3 border-l-2 border-black pl-4">
-                  <p className="font-medium">{ex.story.title}</p>
-                  {ex.story.languageLabel ? <p className="text-sm italic">{ex.story.languageLabel}</p> : null}
-                  <p>{ex.story.body}</p>
-                </div>
-              ))
+              <div className="mt-3 border-l-2 border-black pl-4">
+                {slot.example.entry.languageLabel ? <p className="text-sm italic">{slot.example.entry.languageLabel}</p> : null}
+                <p>{slot.example.entry.body}</p>
+              </div>
             )}
           </li>
         ))}

@@ -23,8 +23,9 @@ export function setRequirements(db: Db, companyId: string, reqs: Requirement[]):
     value: {
       ...db,
       requirements: [...others, ...reqs],
-      // A deleted requirement takes the examples linked to it and the scores given on it with it.
+      // A deleted requirement takes the examples linked or answered on it and the scores given on it with it.
       links: db.links.filter((l) => !removedIds.has(l.requirementId)),
+      answers: db.answers.filter((a) => !removedIds.has(a.requirementId)),
       scores: db.scores.filter((s) => !removedIds.has(s.requirementId)),
     },
   };

@@ -1,4 +1,4 @@
-import { emptyDb, type Applicant, type Db, type Link, type Requirement, type Story } from "./types";
+import { emptyDb, type Answer, type Applicant, type Db, type Entry, type Link, type Requirement, type Story } from "./types";
 
 const COMPANY_ID = "company-01";
 const EVENT_ID = "event-01";
@@ -31,6 +31,14 @@ function makeStory(id: string, applicantId: string): Story {
 
 function makeLink(id: string, storyId: string, requirementId: string, status: Link["status"]): Link {
   return { id, storyId, requirementId, origin: "applicant", status };
+}
+
+function makeEntry(storyId: string, applicantId: string): Entry {
+  return { id: `entry-${storyId}`, applicantId, body: `Body of ${storyId}`, sourceStoryId: storyId };
+}
+
+function makeAnswer(applicantId: string, requirementId: string, storyId: string): Answer {
+  return { applicantId, requirementId, entryId: `entry-${storyId}` };
 }
 
 /** Test-only builder: one company (4 core of 6 requirements), two applicants, stories, links. */
@@ -66,6 +74,18 @@ export function makeDb(overrides: Partial<Db> = {}): Db {
       makeLink("link-020-1", "story-020-a", "req-01-1", "accepted"),
       makeLink("link-020-2", "story-020-a", "req-01-3", "accepted"),
       makeLink("link-020-3", "story-020-b", "req-01-4", "accepted"),
+    ],
+    // Mirror the accepted links above: one entry per story, one answer per accepted link.
+    entries: [
+      makeEntry("story-017-a", "talent-017"),
+      makeEntry("story-020-a", "talent-020"),
+      makeEntry("story-020-b", "talent-020"),
+    ],
+    answers: [
+      makeAnswer("talent-017", "req-01-2", "story-017-a"),
+      makeAnswer("talent-020", "req-01-1", "story-020-a"),
+      makeAnswer("talent-020", "req-01-3", "story-020-a"),
+      makeAnswer("talent-020", "req-01-4", "story-020-b"),
     ],
     signals: ["talent-017", "talent-020"].map((applicantId) => ({
       eventId: EVENT_ID,

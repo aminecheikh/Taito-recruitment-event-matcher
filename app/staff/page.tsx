@@ -14,11 +14,11 @@ export default async function StaffPage() {
   return (
     <main className="page">
       <PageHeader eyebrow="Event staff" title="Applicants who might need help preparing">
-        These applicants have no story yet, or no accepted example. A person decides whether to offer a coaching session.
+        These applicants have no story yet, or no requirement card filled in. A person decides whether to offer a coaching session.
       </PageHeader>
 
       {rows.length === 0 ? (
-        <p className="empty-slot mt-8">Everyone has at least one story and one accepted example.</p>
+        <p className="empty-slot mt-8">Everyone has at least one story and one filled-in requirement card.</p>
       ) : (
         <div className="card mt-8 !py-2">
         <table className="w-full text-left">
@@ -27,7 +27,7 @@ export default async function StaffPage() {
             <tr className="border-b border-line text-sm text-muted">
               <th scope="col" className="py-2 pr-3 font-semibold">Applicant</th>
               <th scope="col" className="py-2 pr-3 font-semibold">Stories</th>
-              <th scope="col" className="py-2 pr-3 font-semibold">Accepted examples</th>
+              <th scope="col" className="py-2 pr-3 font-semibold">Cards filled in</th>
               <th scope="col" className="py-2 font-semibold"><span className="sr-only">Action</span></th>
             </tr>
           </thead>
@@ -45,8 +45,8 @@ export default async function StaffPage() {
                   {row.stories}
                 </td>
                 <td className="block sm:table-cell sm:py-4 sm:pr-3">
-                  <span className="text-muted sm:hidden">Accepted examples: </span>
-                  {row.acceptedLinks}
+                  <span className="text-muted sm:hidden">Cards filled in: </span>
+                  {row.answers}
                 </td>
                 <td className="block pt-2 sm:table-cell sm:py-4 sm:text-right">
                   <OfferButton pseudonym={row.pseudonym} />

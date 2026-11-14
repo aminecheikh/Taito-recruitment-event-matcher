@@ -27,9 +27,9 @@ The CV can still be shared — after the conversation, if both sides want to con
 | Signalling | An applicant needs at least 1 accepted example for a company before they can signal it. The recruiter sees every core-requirement slot; empty ones show "no example yet". |
 | Shortlisting | The recruiter filters by coverage: how many core requirements have an example (all first, then one fewer, …). The rule is visible to applicants. |
 | Job ad → suggested requirements | Job ads describe tasks, not needs. AI infers the skills, knowledge and tools the described work relies on (concise names, optional "in practice" line), each grounded in the ad; never identity traits. Shown as "AI suggestion"; the recruiter keeps, edits or deletes each one. |
-| Story → requirement links | Applicant tells stories first. AI suggests which company requirement a story could be evidence for, with a visible reason; the applicant accepts, rejects or moves each link. AI never changes the story. Cards show "linked by applicant". |
+| Requirement cards and stories | Applicants fill in each company's core-requirement cards individually. Stories are helpers: AI recommends a story for a requirement with a visible reason, and the applicant can start the card from it or dismiss it. AI never changes the story. Every card answer is saved in the applicant's registry of saved entries and can be reused on any card asking for the same or a similar requirement (similarity = shared words, shown as the reason). Cards show "Written by applicant". |
 | Product name | **Taito**, Finnish for "ability" (replaces the working title "No CV, No Job Ad"): the product is about what people can do, not their documents |
-| Hackathon demo | Thin full journey: every step works end to end on synthetic data; the story + AI-link step gets the most depth. |
+| Hackathon demo | Thin full journey: every step works end to end on synthetic data; the requirement cards and the AI story recommendation get the most depth. |
 
 ## The journey
 
@@ -42,9 +42,10 @@ The CV can still be shared — after the conversation, if both sides want to con
 
 **2. Applicant builds evidence cards**
 - Browses companies by their core requirements — no job ads.
-- Builds a personal library of examples. AI asks recall questions (situation → what *you* did → what changed); the applicant writes or speaks the answer.
+- Opens a company and fills in one card per core requirement, in their own words.
+- Stories are optional helpers: AI recommends a story for a requirement with a visible reason; the applicant can start the card from it or dismiss it. AI asks recall questions (situation → what *you* did → what changed).
 - Examples can come from anywhere: work, volunteering, studies, family business, caregiving.
-- One example can serve several companies when they ask for the same thing.
+- Every card answer is saved in "Saved entries" and can be reused on any card asking for the same or a similar requirement; similarity is shared words, shown as the reason.
 - Grammar fixes and translation are labelled on the card.
 
 **3. Applicant spends signals**
@@ -99,7 +100,7 @@ Pain point #5: *"Many professionals find it difficult to describe their competen
 
 The evidence card handles "describe what you did". Still open:
 
-1. ~~**Transferable skills**~~ — **decided:** story first, AI-suggested links the applicant confirms (see Decisions so far).
+1. ~~**Transferable skills**~~ — **decided:** per-company requirement cards, stories as AI-recommended helpers, saved entries reused across cards (see Decisions so far).
 2. **Value proposition** — beyond single examples, how does the applicant say in one line what they bring, in their own voice?
 3. **Getting attention** — what makes a recruiter stop on a card, without rewarding polish over substance?
 

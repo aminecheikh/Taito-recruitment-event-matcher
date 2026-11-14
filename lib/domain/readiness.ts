@@ -1,14 +1,15 @@
 import type { Db } from "./types";
 
-export type ReadinessRow = { applicantId: string; pseudonym: string; stories: number; acceptedLinks: number };
+export type ReadinessRow = { applicantId: string; pseudonym: string; stories: number; answers: number };
 
 export function needsHelp(db: Db): ReadinessRow[] {
   return db.applicants
-    .map((a) => {
-      const storyIds = new Set(db.stories.filter((s) => s.applicantId === a.id).map((s) => s.id));
-      const acceptedLinks = db.links.filter((l) => l.status === "accepted" && storyIds.has(l.storyId)).length;
-      return { applicantId: a.id, pseudonym: a.pseudonym, stories: storyIds.size, acceptedLinks };
-    })
-    .filter((row) => row.stories === 0 || row.acceptedLinks === 0)
+    .map((a) => ({
+      applicantId: a.id,
+      pseudonym: a.pseudonym,
+      stories: db.stories.filter((s) => s.applicantId === a.id).length,
+      answers: db.answers.filter((ans) => ans.applicantId === a.id).length,
+    }))
+    .filter((row) => row.stories === 0 || row.answers === 0)
     .sort((a, b) => a.pseudonym.localeCompare(b.pseudonym));
 }

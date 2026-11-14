@@ -6,7 +6,7 @@ describe("needsHelp", () => {
   test("needsHelp_everyoneReady_returnsEmpty", () => {
     expect(needsHelp(makeDb())).toEqual([]);
   });
-  test("needsHelp_noStoriesOrNoAcceptedLinks_listsAlphabeticallyByPseudonym", () => {
+  test("needsHelp_noStoriesOrNoAnswers_listsAlphabeticallyByPseudonym", () => {
     const base = makeDb();
     const db = makeDb({
       applicants: [
@@ -15,21 +15,21 @@ describe("needsHelp", () => {
         { id: "talent-031", pseudonym: "Amy", displayName: "d", contact: { email: "e" } },
       ],
       stories: [...base.stories, { id: "s-030", applicantId: "talent-030", title: "t", body: "b" }],
-      links: base.links.filter((l) => l.storyId !== "story-020-a" && l.storyId !== "story-020-b"),
+      answers: base.answers.filter((a) => a.applicantId !== "talent-020"),
     });
     expect(needsHelp(db)).toEqual([
-      { applicantId: "talent-031", pseudonym: "Amy", stories: 0, acceptedLinks: 0 },
-      { applicantId: "talent-020", pseudonym: "Applicant 020", stories: 2, acceptedLinks: 0 },
-      { applicantId: "talent-030", pseudonym: "Zed", stories: 1, acceptedLinks: 0 },
+      { applicantId: "talent-031", pseudonym: "Amy", stories: 0, answers: 0 },
+      { applicantId: "talent-020", pseudonym: "Applicant 020", stories: 2, answers: 0 },
+      { applicantId: "talent-030", pseudonym: "Zed", stories: 1, answers: 0 },
     ]);
   });
-  test("needsHelp_pendingAndRejectedOnly_countsAsNoAcceptedLinks", () => {
+  test("needsHelp_acceptedLinksButNoAnswers_countsAsNoAnswers", () => {
     const base = makeDb();
-    const db = makeDb({ links: base.links.filter((l) => l.id === "link-017-2" || l.id === "link-017-3" || l.id.startsWith("link-020")) });
-    expect(needsHelp(db)).toEqual([{ applicantId: "talent-017", pseudonym: "Applicant 017", stories: 2, acceptedLinks: 0 }]);
+    const db = makeDb({ answers: base.answers.filter((a) => a.applicantId !== "talent-017") });
+    expect(needsHelp(db)).toEqual([{ applicantId: "talent-017", pseudonym: "Applicant 017", stories: 2, answers: 0 }]);
   });
   test("needsHelp_doesNotMutateInput", () => {
-    const db = makeDb({ links: [] });
+    const db = makeDb({ answers: [] });
     const copy = structuredClone(db);
     needsHelp(db);
     expect(db).toEqual(copy);

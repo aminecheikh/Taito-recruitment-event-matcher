@@ -77,6 +77,23 @@ export const LinkSchema = z.object({
   status: z.enum(["pending", "accepted", "rejected"]),
 });
 
+/** One example the applicant wrote; lives in their registry and can answer several requirements. */
+export const EntrySchema = z.object({
+  id: z.string(),
+  applicantId: z.string(),
+  body: z.string(),
+  languageLabel: LanguageLabelSchema.optional(),
+  /** The story the applicant started from, if any (provenance only). */
+  sourceStoryId: z.string().optional(),
+});
+
+/** The applicant's answer on one requirement card: which saved entry fills it. One per (applicant, requirement). */
+export const AnswerSchema = z.object({
+  applicantId: z.string(),
+  requirementId: z.string(),
+  entryId: z.string(),
+});
+
 export const SignalSchema = z.object({
   eventId: z.string(),
   applicantId: z.string(),
@@ -134,6 +151,8 @@ export type ApplicantEvent = z.infer<typeof ApplicantEventSchema>;
 export type Applicant = z.infer<typeof ApplicantSchema>;
 export type Story = z.infer<typeof StorySchema>;
 export type Link = z.infer<typeof LinkSchema>;
+export type Entry = z.infer<typeof EntrySchema>;
+export type Answer = z.infer<typeof AnswerSchema>;
 export type Signal = z.infer<typeof SignalSchema>;
 export type Meeting = z.infer<typeof MeetingSchema>;
 export type Decision = z.infer<typeof DecisionSchema>;
@@ -149,6 +168,8 @@ export type Db = {
   applicants: Applicant[];
   stories: Story[];
   links: Link[];
+  entries: Entry[];
+  answers: Answer[];
   signals: Signal[];
   meetings: Meeting[];
   decisions: Decision[];
@@ -165,6 +186,8 @@ export const DbSchema: z.ZodType<Db> = z.object({
   applicants: z.array(ApplicantSchema),
   stories: z.array(StorySchema),
   links: z.array(LinkSchema),
+  entries: z.array(EntrySchema).default([]),
+  answers: z.array(AnswerSchema).default([]),
   signals: z.array(SignalSchema),
   meetings: z.array(MeetingSchema),
   decisions: z.array(DecisionSchema),
@@ -182,6 +205,8 @@ export function emptyDb(): Db {
     applicants: [],
     stories: [],
     links: [],
+    entries: [],
+    answers: [],
     signals: [],
     meetings: [],
     decisions: [],
