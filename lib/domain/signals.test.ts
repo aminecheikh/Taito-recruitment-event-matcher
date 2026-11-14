@@ -31,6 +31,10 @@ describe("signals", () => {
     }
     expect(spendSignal(db, "event-01", "talent-017", "company-x3")).toEqual({ ok: false, error: "no-signals-left" });
   });
+  test("test_spendSignal_applicantNotRegistered_rejects", () => {
+    const db = makeDb({ signals: [], applicantEvents: [] });
+    expect(spendSignal(db, "event-01", "talent-017", "company-01")).toEqual({ ok: false, error: "not-at-event" });
+  });
   test("spendSignal_sameCompanyTwice_refusesAlreadySignalled", () => {
     const first = spendSignal(makeDb({ signals: [] }), "event-01", "talent-017", "company-01");
     if (!first.ok) throw new Error(first.error);

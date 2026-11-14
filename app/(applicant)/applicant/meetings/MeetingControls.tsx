@@ -28,10 +28,15 @@ export function AcceptButton({ meetingId, companyName, freeSlots }: AcceptProps)
   const [slot, setSlot] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const chosen = freeSlots.includes(slot) ? slot : "";
   const accept = () =>
     start(async () => {
-      const status = await acceptMeetingAction(meetingId, slot);
-      if (!status.ok) return setError(meetingErrorText(status.error));
+      const status = await acceptMeetingAction(meetingId, chosen);
+      if (!status.ok) {
+        setError(meetingErrorText(status.error));
+        if (status.error === "slot-unavailable") router.refresh();
+        return;
+      }
       router.refresh();
     });
   return (
@@ -48,14 +53,14 @@ export function AcceptButton({ meetingId, companyName, freeSlots }: AcceptProps)
                   type="radio"
                   name={`slot-${meetingId}`}
                   value={start}
-                  checked={slot === start}
+                  checked={chosen === start}
                   onChange={() => setSlot(start)}
                 />
                 {`${start}\u2013${slotEnd(start)}`}
               </label>
             ))}
           </div>
-          <button type="button" onClick={accept} disabled={pending || slot === ""} className="btn btn-primary">
+          <button type="button" onClick={accept} disabled={pending || chosen === ""} className="btn btn-primary">
             Book this time
           </button>
         </fieldset>

@@ -16,6 +16,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   "already-requested": "You already requested this meeting.",
   "no-slots-left": "No meeting slots left.",
   "invalid-score": "Scores are whole numbers from 0 to 10.",
+  "not-at-event": "This applicant or your company is not registered for this event.",
   "not-core": "That is not one of your core requirements.",
 };
 

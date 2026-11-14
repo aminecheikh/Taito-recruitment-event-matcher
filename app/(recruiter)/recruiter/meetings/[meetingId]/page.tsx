@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { slotEnd } from "@/lib/domain/calendar";
+import { formatEventDate } from "@/lib/domain/eventFormat";
 import { buildCard } from "@/lib/domain/cards";
 import { revealDecisions } from "@/lib/domain/decisions";
 import { coreRequirements } from "@/lib/domain/requirements";
@@ -99,6 +100,7 @@ export default async function MeetingPage({ params }: { params: Params }) {
   const meeting = db.meetings.find((m) => m.id === meetingId && m.companyId === session.companyId);
   if (!meeting) notFound();
   const card = buildCard(db, meeting.companyId, meeting.applicantId);
+  const meetingEvent = db.events.find((e) => e.id === meeting.eventId);
   const decided = db.decisions.some((d) => d.meetingId === meeting.id && d.side === "company");
   const requirements = coreRequirements(db, meeting.companyId).map((r) => ({ id: r.id, text: r.text }));
 
@@ -118,7 +120,10 @@ export default async function MeetingPage({ params }: { params: Params }) {
         )}
       </div>
       {meeting.slotStart ? (
-        <p className="lede">Booked time: {`${meeting.slotStart}\u2013${slotEnd(meeting.slotStart)}`}</p>
+        <p className="lede">
+          Booked time: {`${meeting.slotStart}\u2013${slotEnd(meeting.slotStart)}`}
+          {meetingEvent ? ` · ${meetingEvent.name}, ${formatEventDate(meetingEvent.date)}` : ""}
+        </p>
       ) : null}
       <div className="mt-8">
         <EvidenceCard card={card} />

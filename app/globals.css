@@ -792,49 +792,51 @@
   }
 }
 
-/* Event calendar: one row per 30-minute slot. State is always written out, never colour alone. */
-.cal-list {
-  border: 1px solid var(--line);
-  border-radius: 0.5rem;
-  overflow: hidden;
-}
-.cal-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.25rem 1rem;
-  padding: 0.5rem 1rem;
-  background: var(--sunken);
-  color: var(--muted);
-}
-.cal-row + .cal-row {
-  border-top: 1px solid var(--line);
-}
-.cal-row-booked {
-  background: var(--surface);
-  color: inherit;
-  border-left: 3px solid var(--accent);
-}
-.cal-time {
-  min-width: 7.5rem;
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-}
-.cal-state {
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-.slot-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--line);
-  border-radius: 0.5rem;
-  background: var(--surface);
-  cursor: pointer;
-}
-.slot-option:has(input:checked) {
-  border-color: var(--accent);
-  background: var(--accent-soft);
+@layer components {
+  /* Event calendar: one row per 30-minute slot. State is always written out, never colour alone. */
+  .cal-list {
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  .cal-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--sunken);
+    color: var(--muted);
+  }
+  .cal-row + .cal-row {
+    border-top: 1px solid var(--line);
+  }
+  .cal-row-booked {
+    background: var(--surface);
+    color: inherit;
+    border-left: 3px solid var(--accent);
+  }
+  .cal-time {
+    min-width: 7.5rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+  .cal-state {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .slot-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    background: var(--surface);
+    cursor: pointer;
+  }
+  .slot-option:has(input:checked) {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
 }

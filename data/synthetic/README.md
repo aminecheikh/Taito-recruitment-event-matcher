@@ -34,8 +34,17 @@ Other `Db` arrays (meetings, decisions, shares, scores) start empty. Types: `lib
 | talent | stories | id `story-0xx-n`, applicantId, title, body, languageLabel (optional) |
 | talent | links | id `link-NNN`, storyId, requirementId, origin, aiReason (ai-suggested only), status |
 | talent | signals | eventId, applicantId, companyId |
-| events | events | id `event-01`, name, date, signalsPerApplicant 3 |
-| events | companyEvents | companyId, eventId, meetingSlots 10 |
+| events | events | id `event-NN`, name (ends `(fictional)`), date `YYYY-MM-DD`, startTime, endTime (`HH:MM`), location (ends `(fictional)`), signalsPerApplicant 3 |
+| events | companyEvents | companyId, eventId (which companies attend which event; no slot count) |
+| events | applicantEvents | applicantId, eventId (which applicants are registered for which event) |
+
+### Events and meeting capacity
+
+Meeting capacity is not stored. An event's window (`startTime` to `endTime`) is split into 30-minute slots, and that grid is every attendee's calendar for the event; a booked meeting carries its `slotStart`. Three seeded events on different days:
+
+- `event-01` Winter Meetup Espoo, 2026-12-05, 14:00-18:00, four companies.
+- `event-02` Tech Evening Otaniemi, 2027-01-21, 16:00-19:00, two companies.
+- `event-03` Green Industry Day, 2027-02-11, 10:00-13:00, two companies.
 
 ## Demo personas
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Calendar } from "@/lib/domain/calendar";
+import { formatEventDate, formatWindow } from "@/lib/domain/eventFormat";
 import type { Event, Meeting } from "@/lib/domain/types";
 
 type Props = {
@@ -17,7 +18,7 @@ export function EventCalendar({ event, calendar, nameFor, hrefFor }: Props) {
     <section aria-labelledby="event-calendar-title" className="cal">
       <h2 id="event-calendar-title" className="h2">Your calendar for {event.name}</h2>
       <p className="mt-1 text-muted">
-        {event.startTime}{EN_DASH}{event.endTime} · {calendar.booked} of {calendar.total} slots booked
+        {formatEventDate(event.date)} · {formatWindow(event)} · {calendar.booked} of {calendar.total} slots booked
       </p>
       {calendar.full ? (
         <p className="notice mt-3">Your calendar for this event is full. That is your maximum for this event.</p>

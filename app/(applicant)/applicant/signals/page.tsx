@@ -9,6 +9,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   "no-signals-left": "You've used all your signals for this event.",
   "already-signalled": "You already signalled this company.",
   "no-accepted-example": "Add at least one example first.",
+  "not-at-event": "You are not registered for this event.",
   "not-found": "Something went wrong — refresh and try again.",
 };
 

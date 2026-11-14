@@ -9,6 +9,9 @@ export function signalsLeft(db: Db, eventId: string, applicantId: string): numbe
 
 export function spendSignal(db: Db, eventId: string, applicantId: string, companyId: string): Result<Db> {
   if (!db.events.some((e) => e.id === eventId)) return { ok: false, error: "not-found" };
+  if (!db.applicantEvents.some((ae) => ae.eventId === eventId && ae.applicantId === applicantId)) {
+    return { ok: false, error: "not-at-event" };
+  }
   if (signalsLeft(db, eventId, applicantId) <= 0) return { ok: false, error: "no-signals-left" };
   const duplicate = db.signals.some(
     (s) => s.eventId === eventId && s.applicantId === applicantId && s.companyId === companyId,

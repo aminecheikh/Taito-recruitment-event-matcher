@@ -77,7 +77,7 @@ export function ScoredCard({ card, initialScores, meetingRequested, slotsLeft, c
         }
       />
       {slotsLeft <= 0 && !meetingRequested ? (
-        <p className="mt-2 text-muted">Your calendar for this event is full.</p>
+        <p className="mt-2 text-muted">No open slots left for this event (booked or requested).</p>
       ) : null}
       {error && (
         <p role="alert" className="notice notice-error mt-2">
