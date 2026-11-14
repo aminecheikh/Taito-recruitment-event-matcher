@@ -88,8 +88,12 @@ async function tryModel<T>(
   if (!model) return { value: null, source: "mock" };
   try {
     const value = await run(model);
+    if (value === null) console.warn("[ai] model reply was rejected by the guardrails; showing the example");
     return value === null ? { value: null, source: "mock-fallback" } : { value, source: "model" };
-  } catch {
+  } catch (error) {
+    // Server log only, so a failed call is diagnosable from the dev-server terminal. Provider errors carry no key.
+    const reason = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    console.warn(`[ai] model call failed; showing the example. ${reason}`);
     return { value: null, source: "mock-fallback" };
   }
 }
