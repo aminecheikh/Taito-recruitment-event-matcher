@@ -4,11 +4,11 @@
  * Design tokens. Palette "blueprint on cream" (dealt by the design-taste skill for a
  * people-hiring service): a creamy white ground, white working surfaces, warm near-black ink,
  * one blueprint-blue action colour. Ochre stays reserved for AI content so it never mixes
- * with an action. Two themes: Bright (default) and Dark. The dark "prototype strip" uses the
+ * with an action. Two themes: Light (cream, default) and Dark. The dark "prototype strip" uses the
  * palette's inverse so demo controls never read as product. All text pairs meet WCAG AA in both.
  */
 :root,
-:root[data-theme="bright"] {
+:root[data-theme="light"] {
   color-scheme: light;
   --canvas: #fbf8f1;
   --surface: #ffffff;
@@ -42,9 +42,9 @@
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
-/* Dark: follows the system unless the viewer picked Bright; or picked Dark */
+/* Dark: follows the system unless the viewer picked Light; or picked Dark */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="bright"]) {
+  :root:not([data-theme="light"]) {
     color-scheme: dark;
     --canvas: #1b1a17;
     --surface: #24231f;
