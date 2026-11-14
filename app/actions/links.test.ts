@@ -86,7 +86,7 @@ describe("link actions", () => {
     seed({
       ...base,
       companies: [...base.companies, { id: "company-02", name: "Other", sector: "x", sizeRange: "1-10" }],
-      companyEvents: [...base.companyEvents, { companyId: "company-02", eventId: "event-01", meetingSlots: 1 }],
+      companyEvents: [...base.companyEvents, { companyId: "company-02", eventId: "event-01" }],
       requirements: [...base.requirements, { id: "req-02-1", companyId: "company-02", text: "t", inPractice: "p", rank: 1, isCore: true }],
     });
     expect(await moveSuggestion("link-017-2", "req-02-1")).toEqual({ ok: false, error: "You can only move a link to another requirement of the same company." });

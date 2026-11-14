@@ -1,6 +1,7 @@
 const MESSAGES = new Map<string, string>([
   ["not-found", "We could not find that meeting. Refresh and try again."],
   ["not-requested", "This meeting is already booked."],
+  ["slot-unavailable", "That time is no longer free for both of you. Pick another time."],
   ["not-booked", "Accept the meeting before deciding."],
   ["already-decided", "You already decided on this meeting."],
   ["not-a-match", "Sharing opens only when both sides chose Continue."],

@@ -1,6 +1,6 @@
 import { PageHeader } from "@/app/components/PageHeader";
 import { buildCard, coverage, filterByCoverage } from "@/lib/domain/cards";
-import { slotsLeft } from "@/lib/domain/meetings";
+import { companyCalendar, companyOpenSlots } from "@/lib/domain/calendar";
 import { coreRequirements } from "@/lib/domain/requirements";
 import type { Db } from "@/lib/domain/types";
 import { getSession } from "@/lib/session";
@@ -47,9 +47,8 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
     pseudonym(a).localeCompare(pseudonym(b)),
   );
 
-  const left = slotsLeft(db, session.eventId, company.id);
-  const slotTotal =
-    db.companyEvents.find((c) => c.eventId === session.eventId && c.companyId === company.id)?.meetingSlots ?? 0;
+  const left = companyOpenSlots(db, session.eventId, company.id);
+  const slotTotal = companyCalendar(db, session.eventId, company.id).total;
   const requested = new Set(
     db.meetings
       .filter((m) => m.eventId === session.eventId && m.companyId === company.id)
@@ -67,7 +66,7 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
             <span className="block font-serif text-3xl font-semibold leading-none">
               {left}<span className="text-lg text-muted"> / {slotTotal}</span>
             </span>
-            <span className="hint mt-1 block">{left} of {slotTotal} meeting slots left</span>
+            <span className="hint mt-1 block">{left} of {slotTotal} meeting slots open</span>
           </p>
         }
       >

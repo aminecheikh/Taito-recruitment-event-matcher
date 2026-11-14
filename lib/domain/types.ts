@@ -20,17 +20,31 @@ export const RequirementSchema = z.object({
   isCore: z.boolean(),
 });
 
-export const EventSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  date: z.string(),
-  signalsPerApplicant: z.number().int().min(0),
-});
+const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+const TimeSchema = z.string().regex(TIME_PATTERN);
 
+export const EventSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    date: z.string(),
+    location: z.string(),
+    startTime: TimeSchema,
+    endTime: TimeSchema,
+    signalsPerApplicant: z.number().int().min(0),
+  })
+  .refine((e) => e.endTime > e.startTime, { message: "endTime must be after startTime", path: ["endTime"] });
+
+/** The company attends the event. */
 export const CompanyEventSchema = z.object({
   companyId: z.string(),
   eventId: z.string(),
-  meetingSlots: z.number().int().min(0),
+});
+
+/** The applicant is registered for the event. */
+export const ApplicantEventSchema = z.object({
+  applicantId: z.string(),
+  eventId: z.string(),
 });
 
 export const ApplicantSchema = z.object({
@@ -75,6 +89,8 @@ export const MeetingSchema = z.object({
   companyId: z.string(),
   applicantId: z.string(),
   status: z.enum(["requested", "booked"]),
+  /** Slot start (HH:MM). Set when booked; a requested meeting has none. */
+  slotStart: TimeSchema.optional(),
 });
 
 export const DecisionSchema = z.object({
@@ -114,6 +130,7 @@ export type Company = z.infer<typeof CompanySchema>;
 export type Requirement = z.infer<typeof RequirementSchema>;
 export type Event = z.infer<typeof EventSchema>;
 export type CompanyEvent = z.infer<typeof CompanyEventSchema>;
+export type ApplicantEvent = z.infer<typeof ApplicantEventSchema>;
 export type Applicant = z.infer<typeof ApplicantSchema>;
 export type Story = z.infer<typeof StorySchema>;
 export type Link = z.infer<typeof LinkSchema>;
@@ -128,6 +145,7 @@ export type Db = {
   requirements: Requirement[];
   events: Event[];
   companyEvents: CompanyEvent[];
+  applicantEvents: ApplicantEvent[];
   applicants: Applicant[];
   stories: Story[];
   links: Link[];
@@ -143,6 +161,7 @@ export const DbSchema: z.ZodType<Db> = z.object({
   requirements: z.array(RequirementSchema),
   events: z.array(EventSchema),
   companyEvents: z.array(CompanyEventSchema),
+  applicantEvents: z.array(ApplicantEventSchema),
   applicants: z.array(ApplicantSchema),
   stories: z.array(StorySchema),
   links: z.array(LinkSchema),
@@ -159,6 +178,7 @@ export function emptyDb(): Db {
     requirements: [],
     events: [],
     companyEvents: [],
+    applicantEvents: [],
     applicants: [],
     stories: [],
     links: [],

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageHeader } from "@/app/components/PageHeader";
+import { sharedFreeSlots } from "@/lib/domain/calendar";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
 import { AcceptButton, RefreshButton } from "./MeetingControls";
@@ -36,7 +37,7 @@ export default async function MeetingsPage() {
             <p className="mt-2 text-muted">
               If you accept, your name will now be shown to {name}. Until then they only see your anonymous card.
             </p>
-            <AcceptButton meetingId={meeting.id} companyName={name} />
+            <AcceptButton meetingId={meeting.id} companyName={name} freeSlots={sharedFreeSlots(db, meeting.id)} />
           </li>
         ))}
       </ul>

@@ -39,8 +39,19 @@ export function makeDb(overrides: Partial<Db> = {}): Db {
     ...emptyDb(),
     companies: [{ id: COMPANY_ID, name: "Demo Company", sector: "Services", sizeRange: "50-200" }],
     requirements: Array.from({ length: REQUIREMENT_COUNT }, (_, i) => makeRequirement(i + 1)),
-    events: [{ id: EVENT_ID, name: "Demo Event", date: "2026-11-14", signalsPerApplicant: 3 }],
-    companyEvents: [{ companyId: COMPANY_ID, eventId: EVENT_ID, meetingSlots: 10 }],
+    events: [
+      {
+        id: EVENT_ID,
+        name: "Demo Event",
+        date: "2026-11-14",
+        location: "Demo Hall",
+        startTime: "14:00",
+        endTime: "18:00",
+        signalsPerApplicant: 3,
+      },
+    ],
+    companyEvents: [{ companyId: COMPANY_ID, eventId: EVENT_ID }],
+    applicantEvents: ["talent-017", "talent-020"].map((applicantId) => ({ applicantId, eventId: EVENT_ID })),
     applicants: [makeApplicant("017"), makeApplicant("020")],
     stories: [
       makeStory("story-017-a", "talent-017"),

@@ -1,4 +1,5 @@
 {
-  "events": [ { "id": "event-01", "name": "Fixture Event", "date": "2026-11-15", "signalsPerApplicant": 3 } ],
-  "companyEvents": [ { "companyId": "company-01", "eventId": "event-01", "meetingSlots": 2 } ]
+  "events": [ { "id": "event-01", "name": "Fixture Event", "date": "2026-11-15", "location": "Fixture Hall", "startTime": "14:00", "endTime": "18:00", "signalsPerApplicant": 3 } ],
+  "companyEvents": [ { "companyId": "company-01", "eventId": "event-01" } ],
+  "applicantEvents": [ { "applicantId": "talent-017", "eventId": "event-01" } ]
 }

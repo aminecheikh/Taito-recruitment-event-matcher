@@ -1,54 +1,73 @@
 import { describe, expect, test } from "vitest";
 import { makeDb } from "./fixtures";
-import { acceptMeeting, requestMeeting, slotsLeft } from "./meetings";
-import type { Db } from "./types";
+import { acceptMeeting, requestMeeting } from "./meetings";
+import type { Db, Meeting } from "./types";
 
-const withSlots = (n: number): Db => {
-  const db = makeDb();
-  return { ...db, companyEvents: db.companyEvents.map((c) => ({ ...c, meetingSlots: n })) };
-};
+const EVENT = "event-01";
 
-describe("meetings", () => {
+function requested(db: Db, applicantId = "talent-017", companyId = "company-01"): Db {
+  const r = requestMeeting(db, EVENT, companyId, applicantId);
+  if (!r.ok) throw new Error(r.error);
+  return r.value;
+}
+
+function withBooking(db: Db, companyId: string, applicantId: string, slotStart: string): Db {
+  const m: Meeting = { id: `b-${slotStart}`, eventId: EVENT, companyId, applicantId, status: "booked", slotStart };
+  return { ...db, meetings: [...db.meetings, m] };
+}
+
+describe("requestMeeting", () => {
   test("requestMeeting_withSignal_addsRequestedMeetingWithoutMutating", () => {
     const db = makeDb();
-    const r = requestMeeting(db, "event-01", "company-01", "talent-017");
+    const r = requestMeeting(db, EVENT, "company-01", "talent-017");
     expect(r.ok && r.value.meetings).toMatchObject([{ status: "requested", applicantId: "talent-017" }]);
+    expect(r.ok && r.value.meetings[0]?.slotStart).toBeUndefined();
     expect(db.meetings).toEqual([]);
   });
   test("requestMeeting_noSignal_rejects", () =>
-    expect(requestMeeting({ ...makeDb(), signals: [] }, "event-01", "company-01", "talent-017")).toEqual({ ok: false, error: "no-signal" }));
-  test("requestMeeting_noSlotsLeft_rejects", () => {
-    const first = requestMeeting(withSlots(1), "event-01", "company-01", "talent-017");
-    if (!first.ok) throw new Error(first.error);
-    expect(requestMeeting(first.value, "event-01", "company-01", "talent-020")).toEqual({ ok: false, error: "no-slots-left" });
+    expect(requestMeeting({ ...makeDb(), signals: [] }, EVENT, "company-01", "talent-017")).toEqual({ ok: false, error: "no-signal" }));
+  test("requestMeeting_companyNotAtEvent_rejectsNotAtEvent", () =>
+    expect(requestMeeting({ ...makeDb(), companyEvents: [] }, EVENT, "company-01", "talent-017")).toEqual({ ok: false, error: "not-at-event" }));
+  test("requestMeeting_applicantNotRegistered_rejectsNotAtEvent", () =>
+    expect(requestMeeting({ ...makeDb(), applicantEvents: [] }, EVENT, "company-01", "talent-017")).toEqual({ ok: false, error: "not-at-event" }));
+  test("requestMeeting_noOpenSlots_rejects", () => {
+    const db = makeDb();
+    const full = ["14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"].reduce(
+      (acc, s, i) => withBooking(acc, "company-01", `talent-x${i}`, s),
+      db,
+    );
+    expect(requestMeeting(full, EVENT, "company-01", "talent-017")).toEqual({ ok: false, error: "no-slots-left" });
   });
-  test("requestMeeting_twice_rejectsAlreadyRequested", () => {
-    const first = requestMeeting(makeDb(), "event-01", "company-01", "talent-017");
-    if (!first.ok) throw new Error(first.error);
-    expect(requestMeeting(first.value, "event-01", "company-01", "talent-017")).toEqual({ ok: false, error: "already-requested" });
+  test("requestMeeting_twice_rejectsAlreadyRequested", () =>
+    expect(requestMeeting(requested(makeDb()), EVENT, "company-01", "talent-017")).toEqual({ ok: false, error: "already-requested" }));
+});
+
+describe("acceptMeeting", () => {
+  test("acceptMeeting_freeSlot_booksWithSlotStartWithoutMutating", () => {
+    const db = requested(makeDb());
+    const id = db.meetings[0]!.id;
+    const r = acceptMeeting(db, id, "15:00");
+    expect(r.ok && r.value.meetings[0]).toMatchObject({ status: "booked", slotStart: "15:00" });
+    expect(db.meetings[0]).toMatchObject({ status: "requested" });
   });
-  test("slotsLeft_countsRequestedAndBooked", () => {
-    const first = requestMeeting(withSlots(3), "event-01", "company-01", "talent-017");
-    if (!first.ok) throw new Error(first.error);
-    expect(slotsLeft(withSlots(3), "event-01", "company-01")).toBe(3);
-    expect(slotsLeft(first.value, "event-01", "company-01")).toBe(2);
-    const booked = acceptMeeting(first.value, first.value.meetings[0].id);
-    expect(booked.ok && slotsLeft(booked.value, "event-01", "company-01")).toBe(2);
+  test("acceptMeeting_slotTakenByCompany_rejectsSlotUnavailable", () => {
+    const db = withBooking(requested(makeDb()), "company-01", "talent-020", "15:00");
+    expect(acceptMeeting(db, db.meetings[0]!.id, "15:00")).toEqual({ ok: false, error: "slot-unavailable" });
   });
-  test("slotsLeft_noCompanyEvent_isZero", () => expect(slotsLeft(makeDb(), "event-01", "nobody")).toBe(0));
-  test("acceptMeeting_requested_becomesBooked", () => {
-    const first = requestMeeting(makeDb(), "event-01", "company-01", "talent-017");
-    if (!first.ok) throw new Error(first.error);
-    const r = acceptMeeting(first.value, first.value.meetings[0].id);
-    expect(r.ok && r.value.meetings[0].status).toBe("booked");
-    expect(first.value.meetings[0].status).toBe("requested");
+  test("acceptMeeting_slotTakenByApplicant_rejectsSlotUnavailable", () => {
+    const db = withBooking(requested(makeDb()), "company-02", "talent-017", "15:00");
+    expect(acceptMeeting(db, db.meetings[0]!.id, "15:00")).toEqual({ ok: false, error: "slot-unavailable" });
   });
-  test("acceptMeeting_unknownOrBooked_rejects", () => {
-    expect(acceptMeeting(makeDb(), "nope")).toEqual({ ok: false, error: "not-found" });
-    const first = requestMeeting(makeDb(), "event-01", "company-01", "talent-017");
-    if (!first.ok) throw new Error(first.error);
-    const booked = acceptMeeting(first.value, first.value.meetings[0].id);
+  test("acceptMeeting_slotOutsideEventWindow_rejectsSlotUnavailable", () => {
+    const db = requested(makeDb());
+    expect(acceptMeeting(db, db.meetings[0]!.id, "09:00")).toEqual({ ok: false, error: "slot-unavailable" });
+  });
+  test("acceptMeeting_unknownMeeting_rejectsNotFound", () =>
+    expect(acceptMeeting(makeDb(), "nope", "15:00")).toEqual({ ok: false, error: "not-found" }));
+  test("acceptMeeting_alreadyBooked_rejectsNotRequested", () => {
+    const db = requested(makeDb());
+    const booked = acceptMeeting(db, db.meetings[0]!.id, "15:00");
     if (!booked.ok) throw new Error(booked.error);
-    expect(acceptMeeting(booked.value, booked.value.meetings[0].id)).toEqual({ ok: false, error: "not-requested" });
+    expect(acceptMeeting(booked.value, db.meetings[0]!.id, "16:00")).toEqual({ ok: false, error: "not-requested" });
   });
 });

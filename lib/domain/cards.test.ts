@@ -7,7 +7,7 @@ import type { Db } from "./types";
 function booked(): Db {
   const r = requestMeeting(makeDb(), "event-01", "company-01", "talent-017");
   if (!r.ok) throw new Error(r.error);
-  const a = acceptMeeting(r.value, r.value.meetings[0].id);
+  const a = acceptMeeting(r.value, r.value.meetings[0].id, "14:00");
   if (!a.ok) throw new Error(a.error);
   return a.value;
 }

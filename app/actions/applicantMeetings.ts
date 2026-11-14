@@ -27,8 +27,11 @@ async function ownMeeting(meetingId: string, change: (db: Db) => Result<Db>): Pr
   return { ok: true };
 }
 
-export async function acceptMeetingAction(meetingId: string): Promise<MeetingStatus> {
-  return ownMeeting(meetingId, (db) => acceptMeeting(db, meetingId));
+const SLOT_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+export async function acceptMeetingAction(meetingId: string, slotStart: string): Promise<MeetingStatus> {
+  if (typeof slotStart !== "string" || !SLOT_PATTERN.test(slotStart)) return { ok: false, error: "slot-unavailable" };
+  return ownMeeting(meetingId, (db) => acceptMeeting(db, meetingId, slotStart));
 }
 
 export async function decideAction(meetingId: string, shouldContinue: boolean): Promise<MeetingStatus> {
