@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk } from "next/font/google";
+import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { cookies } from "next/headers";
 import { RoleBar } from "./components/RoleBar";
@@ -7,6 +7,7 @@ import { EventBanner } from "./components/EventBanner";
 import { parseTheme, THEME_COOKIE } from "@/lib/theme";
 
 const sans = Hanken_Grotesk({ subsets: ["latin", "latin-ext"], variable: "--font-hanken", display: "swap" });
+const display = Bricolage_Grotesque({ subsets: ["latin", "latin-ext"], axes: ["opsz", "wdth"], variable: "--font-bricolage", display: "swap" });
 
 export const metadata: Metadata = {
   title: "Taito",
@@ -19,7 +20,7 @@ export const dynamic = "force-dynamic";
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const theme = parseTheme((await cookies()).get(THEME_COOKIE)?.value);
   return (
-    <html lang="en" data-theme={theme} className={sans.variable}>
+    <html lang="en" data-theme={theme} className={`${sans.variable} ${display.variable}`}>
       <body className="flex min-h-screen flex-col">
         <RoleBar />
         <EventBanner />

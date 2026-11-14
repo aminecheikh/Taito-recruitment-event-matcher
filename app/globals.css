@@ -1,127 +1,153 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Palette "Espoo harbour": built from espoo.fi's public colour system and made
- * our own. Espoo blue #0050bb is the one action colour, navy #012169 carries headings and the
- * hover state, the cool grey-blue #dfe5eb draws every hairline. Espoo's warm peach becomes our
- * AI colour, so AI content stays recognisable and never mixes with an action. Flat surfaces,
- * shadows tinted navy. Two themes: Light (cool paper, default) and Dark (Espoo's deep navy).
- * The dark "prototype strip" uses the deep navy so demo controls never read as product.
+ * Design tokens. Palette "Espoo playground": the brighter half of espoo.fi's colour system,
+ * made playful. A blush paper ground (from Espoo's soft peach) with warm ink; Espoo blue
+ * #0050bb is still the one action colour; Espoo pink is the playful highlight (switch thumb,
+ * link underline, hero scribble); highlighter yellow is reserved for AI so AI content never
+ * reads as an action. No blue grounds anywhere. Dark is warm charcoal, not navy. Clickable
+ * cards and primary buttons carry an ink outline and a hard offset shadow (--edge, --hard).
  * All text pairs meet WCAG AA in both themes; borders and focus rings meet 3:1.
  */
 :root,
 :root[data-theme="light"] {
   color-scheme: light;
-  --canvas: #f4f6f9;
+  --canvas: #fdf4ee;
   --surface: #ffffff;
-  --sunken: #e8edf3;
-  --ink: #0d1830;
-  --heading: #012169;
-  --muted: #525a68;
-  --line: #dfe5eb;
-  --line-strong: #7f8896;
+  --sunken: #f9e5da;
+  --ink: #1d1b19;
+  --heading: #1d1b19;
+  --muted: #5d5650;
+  --line: #ecd9cf;
+  --line-strong: #8f8178;
+  --edge: #1d1b19;
+  --hard: #1d1b19;
   --accent: #0050bb;
-  --accent-hover: #012169;
+  --accent-hover: #003a8c;
   --accent-soft: #e3ecf9;
   --accent-ink: #0050bb;
   --on-accent: #ffffff;
-  --chrome: #011135;
-  --chrome-raised: #0b1f4d;
-  --chrome-line: #22356a;
-  --on-chrome: #e8eef7;
-  --on-chrome-muted: #9aa8c4;
-  --ai: #83380c;
-  --ai-soft: #fff0e2;
-  --ai-line: #e8914a;
+  --pop: #fca5c7;
+  --pop-soft: #fde0ec;
+  --pop-ink: #9b1b52;
+  --scribble: #fca5c7;
+  --chrome: #1d1b19;
+  --chrome-raised: #2d2a27;
+  --chrome-line: #45403b;
+  --on-chrome: #fdf4ee;
+  --on-chrome-muted: #b3aaa1;
+  --ai: #5c4500;
+  --ai-soft: #fff3b0;
+  --ai-line: #a07a00;
   --success: #1e6b3a;
-  --success-soft: #e4f2e8;
+  --success-soft: #e2f3e6;
   --danger: #a12a22;
-  --danger-soft: #fdebe9;
-  --shadow-lift: 0 10px 24px -14px rgb(1 33 105 / 0.22);
-  --depth-1: 0 1px 2px rgb(1 33 105 / 0.05);
-  --depth-3: 0 18px 40px -18px rgb(1 33 105 / 0.26), 0 2px 6px rgb(1 33 105 / 0.06);
-  --shadow-rgb: 1 33 105;
+  --danger-soft: #fde8e5;
+  --thumb: var(--pop);
+  --on-thumb: #1d1b19;
+  --shadow-lift: 0 10px 24px -14px rgb(29 27 25 / 0.22);
+  --depth-1: 0 1px 2px rgb(29 27 25 / 0.05);
+  --depth-3: 0 18px 40px -18px rgb(29 27 25 / 0.26), 0 2px 6px rgb(29 27 25 / 0.06);
+  --shadow-rgb: 29 27 25;
 
   /* Easing from Emil Kowalski's animation guidance: strong ease-out for UI, ease-in-out for on-screen moves */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
-/* Dark: Espoo's deep navy. Follows the system unless the viewer picked Light; or picked Dark */
+/* Dark: warm charcoal. Follows the system unless the viewer picked Light; or picked Dark */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --canvas: #081330;
-    --surface: #0e1e46;
-    --sunken: #13285a;
-    --ink: #e9eef6;
+    --canvas: #181614;
+    --surface: #23201d;
+    --sunken: #2c2925;
+    --ink: #f5efe8;
     --heading: #ffffff;
-    --muted: #a5b1c7;
-    --line: #1f3366;
-    --line-strong: #5f7299;
+    --muted: #b5ada4;
+    --line: #3a3631;
+    --line-strong: #7a7269;
+    --edge: #7a7269;
+    --hard: #fca5c7;
     --accent: #8cb8ff;
     --accent-hover: #b4d0ff;
-    --accent-soft: #15306b;
+    --accent-soft: #1c2a42;
     --accent-ink: #9dc2ff;
-    --on-accent: #011135;
-    --chrome: #030a1d;
-    --chrome-raised: #0e1e46;
-    --chrome-line: #1f3366;
-    --on-chrome: #dfe5eb;
-    --on-chrome-muted: #93a1bd;
-    --ai: #ffc386;
-    --ai-soft: #2b1f16;
-    --ai-line: #b9773a;
+    --on-accent: #181614;
+    --pop: #fca5c7;
+    --pop-soft: #4a2434;
+    --pop-ink: #fca5c7;
+    --scribble: #9e3d66;
+  --scribble: #9e3d66;
+    --chrome: #0f0e0c;
+    --chrome-raised: #23201d;
+    --chrome-line: #3a3631;
+    --on-chrome: #f5efe8;
+    --on-chrome-muted: #a39b92;
+    --ai: #ffe17a;
+    --ai-soft: #2e2812;
+    --ai-line: #b39316;
     --success: #8fd0a2;
-    --success-soft: #10291f;
+    --success-soft: #16261b;
     --danger: #ff9a8f;
-    --danger-soft: #34151a;
+    --danger-soft: #36181a;
+    --thumb: var(--pop);
+    --on-thumb: #181614;
     --shadow-lift: 0 10px 24px -14px rgb(0 0 0 / 0.6);
     --depth-1: 0 1px 2px rgb(0 0 0 / 0.3);
-    --thumb: #2a3f75;
     --depth-3: 0 18px 40px -18px rgb(0 0 0 / 0.7), 0 2px 6px rgb(0 0 0 / 0.3);
     --shadow-rgb: 0 0 0;
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --canvas: #081330;
-  --surface: #0e1e46;
-  --sunken: #13285a;
-  --ink: #e9eef6;
+  --canvas: #181614;
+  --surface: #23201d;
+  --sunken: #2c2925;
+  --ink: #f5efe8;
   --heading: #ffffff;
-  --muted: #a5b1c7;
-  --line: #1f3366;
-  --line-strong: #5f7299;
+  --muted: #b5ada4;
+  --line: #3a3631;
+  --line-strong: #7a7269;
+  --edge: #7a7269;
+  --hard: #fca5c7;
   --accent: #8cb8ff;
   --accent-hover: #b4d0ff;
-  --accent-soft: #15306b;
+  --accent-soft: #1c2a42;
   --accent-ink: #9dc2ff;
-  --on-accent: #011135;
-  --chrome: #030a1d;
-  --chrome-raised: #0e1e46;
-  --chrome-line: #1f3366;
-  --on-chrome: #dfe5eb;
-  --on-chrome-muted: #93a1bd;
-  --ai: #ffc386;
-  --ai-soft: #2b1f16;
-  --ai-line: #b9773a;
+  --on-accent: #181614;
+  --pop: #fca5c7;
+  --pop-soft: #4a2434;
+  --pop-ink: #fca5c7;
+  --scribble: #9e3d66;
+  --chrome: #0f0e0c;
+  --chrome-raised: #23201d;
+  --chrome-line: #3a3631;
+  --on-chrome: #f5efe8;
+  --on-chrome-muted: #a39b92;
+  --ai: #ffe17a;
+  --ai-soft: #2e2812;
+  --ai-line: #b39316;
   --success: #8fd0a2;
-  --success-soft: #10291f;
+  --success-soft: #16261b;
   --danger: #ff9a8f;
-  --danger-soft: #34151a;
+  --danger-soft: #36181a;
+  --thumb: var(--pop);
+  --on-thumb: #181614;
   --shadow-lift: 0 10px 24px -14px rgb(0 0 0 / 0.6);
   --depth-1: 0 1px 2px rgb(0 0 0 / 0.3);
-  --thumb: #2a3f75;
   --depth-3: 0 18px 40px -18px rgb(0 0 0 / 0.7), 0 2px 6px rgb(0 0 0 / 0.3);
   --shadow-rgb: 0 0 0;
 }
 
 @theme inline {
   --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
-  /* Headings share the text face (Espoo-style semibold sans); the name stays so pages need no edits */
-  --font-serif: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  /* Display face (Bricolage Grotesque); the utility keeps its old name so pages need no edits */
+  --font-serif: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
   --color-heading: var(--heading);
+  --color-pop: var(--pop);
+  --color-pop-soft: var(--pop-soft);
+  --color-pop-ink: var(--pop-ink);
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
   --color-sunken: var(--sunken);
@@ -167,7 +193,7 @@
     touch-action: manipulation;
   }
   ::selection {
-    background: var(--accent-soft);
+    background: var(--pop-soft);
     color: var(--ink);
   }
   :focus-visible {
@@ -215,10 +241,17 @@
     }
   }
 
-  /* Display text (font-serif utility) is semibold by default; a font-* weight utility still wins */
+  /* Display text (font-serif utility) is bold by default; a font-* weight utility still wins */
   .font-serif {
-    font-weight: 600;
-    letter-spacing: -0.015em;
+    font-weight: 700;
+    letter-spacing: -0.012em;
+  }
+  /* A highlighter stroke behind a word or two: the playful mark, used sparingly */
+  .scribble {
+    background: linear-gradient(transparent 56%, var(--scribble) 56%, var(--scribble) 92%, transparent 92%);
+    padding-inline: 0.06em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
   }
 
   /* Type. Scale: 14 / 15 / 16 / 18 / 24 / 32 / 40 */
@@ -230,9 +263,9 @@
   .h1 {
     font-family: var(--font-serif);
     font-size: 2.25rem;
-    line-height: 1.1;
-    font-weight: 600;
-    letter-spacing: -0.028em;
+    line-height: 1.05;
+    font-weight: 700;
+    letter-spacing: -0.022em;
     color: var(--heading);
     text-wrap: balance;
   }
@@ -244,9 +277,9 @@
   .display {
     font-family: var(--font-serif);
     font-size: 3rem;
-    line-height: 1.02;
-    font-weight: 600;
-    letter-spacing: -0.035em;
+    line-height: 0.98;
+    font-weight: 800;
+    letter-spacing: -0.028em;
     color: var(--heading);
     text-wrap: balance;
   }
@@ -258,9 +291,9 @@
   .h2 {
     font-family: var(--font-serif);
     font-size: 1.625rem;
-    line-height: 1.2;
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.022em;
     color: var(--heading);
     text-wrap: balance;
   }
@@ -294,16 +327,16 @@
     color: var(--accent-ink);
     font-weight: 500;
     text-decoration: none;
-    background-image: linear-gradient(currentColor, currentColor),
+    background-image: linear-gradient(var(--pop), var(--pop)),
       linear-gradient(color-mix(in srgb, currentColor 30%, transparent), color-mix(in srgb, currentColor 30%, transparent));
-    background-size: 0% 1px, 100% 1px;
+    background-size: 0% 2px, 100% 1px;
     background-position: 0 100%, 0 100%;
     background-repeat: no-repeat;
     transition: background-size 150ms var(--ease-out);
   }
   .link:hover,
   .link:focus-visible {
-    background-size: 100% 1px, 100% 1px;
+    background-size: 100% 2px, 100% 1px;
   }
 
   /*
@@ -330,6 +363,7 @@
   .req-no-core {
     background: var(--accent);
     color: var(--on-accent);
+    box-shadow: 2px 2px 0 var(--hard);
   }
   .req-no-muted {
     border-color: var(--line-strong);
@@ -339,8 +373,8 @@
   /* Surfaces: radius grows with the size of the thing */
   .card {
     background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 0.5rem;
+    border: 1.5px solid var(--line);
+    border-radius: 1rem;
     padding: 1.25rem;
     box-shadow: var(--depth-1);
     transition: border-color 150ms ease;
@@ -352,13 +386,14 @@
   }
   .panel {
     background: var(--sunken);
-    border-radius: 0.5rem;
+    border-radius: 0.875rem;
     padding: 1rem 1.25rem;
   }
+  /* AI content reads as a sticky note: highlighter yellow with a dashed edge */
   .ai-panel {
     background: var(--ai-soft);
-    border-left: 3px solid var(--ai-line);
-    border-radius: 0 0.375rem 0.375rem 0;
+    border: 1.5px dashed var(--ai-line);
+    border-radius: 0.875rem;
     padding: 1rem;
   }
   .empty-slot {
@@ -404,17 +439,17 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border-radius: 0.5rem;
-    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    border: 1.5px solid var(--edge);
     background: var(--surface);
-    padding: 0.5rem 1.125rem;
+    padding: 0.5rem 1.25rem;
     font-size: 0.9375rem;
     font-weight: 600;
     line-height: 1.25;
     color: var(--ink);
     cursor: pointer;
     transition: background-color 120ms var(--ease-out), border-color 120ms var(--ease-out), color 120ms var(--ease-out),
-      transform 120ms var(--ease-out);
+      transform 120ms var(--ease-out), box-shadow 120ms var(--ease-out);
   }
   .btn:hover:not(:disabled) {
     background: var(--sunken);
@@ -425,14 +460,18 @@
     color: var(--muted);
     background: transparent;
   }
+  /* Primary sits on a hard ink shadow and presses down into it */
   .btn-primary {
-    border-color: var(--accent);
+    border-color: var(--edge);
     background: var(--accent);
     color: var(--on-accent);
+    box-shadow: 3px 3px 0 var(--hard);
   }
   .btn-primary:hover:not(:disabled) {
-    border-color: var(--accent-hover);
     background: var(--accent-hover);
+  }
+  .btn-primary:disabled {
+    box-shadow: none;
   }
   .btn-quiet {
     border-color: transparent;
@@ -462,8 +501,8 @@
     display: block;
     width: 100%;
     min-height: 2.75rem;
-    border-radius: 0.5rem;
-    border: 1px solid var(--line-strong);
+    border-radius: 0.75rem;
+    border: 1.5px solid var(--line-strong);
     background: var(--surface);
     padding: 0.5rem 0.75rem;
     color: var(--ink);
@@ -501,8 +540,8 @@
     display: inline-grid;
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
-    border: 1px solid var(--line);
-    border-radius: 0.5rem;
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
     background: var(--sunken);
     padding: 0.125rem;
   }
@@ -512,7 +551,7 @@
     bottom: 0.125rem;
     left: 0.125rem;
     width: calc((100% - 0.25rem) / var(--n, 3));
-    border-radius: 0.375rem;
+    border-radius: 999px;
     background: var(--thumb, var(--surface));
     box-shadow: 0 1px 2px rgb(var(--shadow-rgb) / 0.12), 0 0 0 0.5px rgb(var(--shadow-rgb) / 0.06);
     transform: translateX(calc(100% * var(--i, 0)));
@@ -525,10 +564,10 @@
     position: relative;
     z-index: 1;
     min-height: 2.25rem;
-    border-radius: 0.375rem;
-    padding-inline: 0.75rem;
+    border-radius: 999px;
+    padding-inline: 0.875rem;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--muted);
     transition: background-color 150ms ease, color 150ms ease, transform 160ms var(--ease-out);
   }
@@ -536,7 +575,7 @@
     color: var(--ink);
   }
   .seg-btn[aria-pressed="true"] {
-    color: var(--ink);
+    color: var(--on-thumb, var(--ink));
   }
 
   /* Prototype strip: demo controls sit outside the product, in a dark band */
@@ -604,7 +643,7 @@
 
   /* Messages */
   .notice {
-    border-radius: 0.375rem;
+    border-radius: 0.75rem;
     padding: 0.75rem 1rem;
     border: 1px solid var(--line);
     background: var(--surface);
@@ -624,6 +663,8 @@
 
   /* Linked surfaces (role entries, list rows that navigate) lift 2px on hover */
   .card-link {
+    border-color: var(--edge);
+    box-shadow: 4px 4px 0 var(--hard);
     transition: transform 180ms var(--ease-out), border-color 180ms var(--ease-out), box-shadow 180ms var(--ease-out),
       background-color 180ms var(--ease-out);
   }
@@ -640,10 +681,13 @@
   .btn:hover:not(:disabled) {
     transform: translateY(-1px);
   }
+  .btn-primary:hover:not(:disabled) {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--hard);
+  }
   .card-link:hover {
-    transform: translateY(-2px);
-    border-color: var(--line-strong);
-    box-shadow: var(--shadow-lift);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--hard);
   }
 }
 /* Response: feedback lands on pointer-down, in 100ms, on every pointer */
@@ -654,8 +698,14 @@
   transform: scale(0.97);
   transition-duration: 100ms;
 }
+.btn-primary:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--hard);
+}
 .card-link:active {
-  transform: scale(0.99);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--hard);
+  transition-duration: 100ms;
 }
 
 /* State indication: a requirement turning core fills its marker and edge */
@@ -791,6 +841,8 @@
   }
   .btn:hover:not(:disabled),
   .btn:active:not(:disabled),
+  .btn-primary:hover:not(:disabled),
+  .btn-primary:active:not(:disabled),
   .card-link:hover,
   .card-link:active,
   .seg-btn:active,
