@@ -49,14 +49,14 @@ export default async function CompaniesPage() {
             <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
               <div>
                 <h2 className="h2">{company.name}</h2>
-                <p className="hint mt-0.5">{company.sector}</p>
+                <p className="hint mt-1">{company.sector}</p>
               </div>
               <span className={`tag ${missing.length === 0 ? "tag-success" : "tag-accent"}`}>{examplesLine(covered, total, missing)}</span>
             </div>
             <ol className="mt-5 divide-y divide-line border-t border-line">
               {reqs.map((r, i) => (
-                <li key={r.id} className="flex gap-4 py-3">
-                  <span className="w-6 shrink-0 pt-0.5 font-serif text-muted">#{i + 1}</span>
+                <li key={r.id} className="flex gap-4 py-3.5">
+                  <span className="req-no req-no-core" aria-label={`Core requirement ${i + 1}`}>{i + 1}</span>
                   <div>
                     <p className="font-semibold">{r.text}</p>
                     <p className="hint mt-0.5">In practice: {r.inPractice}</p>

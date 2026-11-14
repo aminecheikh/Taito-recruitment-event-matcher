@@ -16,7 +16,7 @@ export function RoleNav({ items }: { items: readonly NavItem[] }) {
               <Link
                 href={item.href}
                 aria-current={current ? "page" : undefined}
-                className={`flex min-h-12 items-center border-b-[3px] px-3 text-[0.9375rem] font-semibold transition-colors focus-visible:outline-offset-[-2px] ${
+                className={`flex min-h-14 items-center border-b-[3px] px-3 text-[0.9375rem] font-semibold transition-colors focus-visible:outline-offset-[-2px] ${
                   current ? "border-accent text-ink" : "border-transparent text-muted hover:border-line-strong hover:text-ink"
                 }`}
               >

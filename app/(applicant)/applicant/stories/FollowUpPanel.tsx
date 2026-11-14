@@ -53,7 +53,7 @@ export function FollowUpPanel({ idPrefix, storyBody, onAddAnswer }: { idPrefix: 
 
   return (
     <div>
-      <button type="button" className={`${buttonClass} w-full`} onClick={ask} disabled={loading || storyBody.trim() === ""}
+      <button type="button" className={`${buttonClass} btn-sm w-full`} onClick={ask} disabled={loading || storyBody.trim() === ""}
         title="An AI asks one question at a time to help you remember details">
         {loading ? "Thinking…" : current ? "Another question" : "Ask me a question"}
       </button>

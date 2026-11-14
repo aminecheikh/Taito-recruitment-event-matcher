@@ -1,25 +1,31 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Calm, Nordic, public-service: warm paper canvas, white surfaces,
- * spruce accent, one ochre marker reserved for AI content. All text pairs meet WCAG AA
+ * Design tokens. Calm, Nordic, public-service: cool stone canvas, white surfaces,
+ * spruce accent, one ochre marker reserved for AI content, and a dark "prototype strip"
+ * for demo controls so they never read as part of the product. All text pairs meet WCAG AA
  * in both themes. Use the semantic utilities (bg-surface, text-muted, border-line…)
  * or the component classes below; avoid raw neutral-* colours so dark mode keeps working.
  */
 :root {
   color-scheme: light;
-  --canvas: #f5f3ee;
+  --canvas: #f1f2ee;
   --surface: #ffffff;
-  --sunken: #eeebe4;
-  --ink: #1b1f1e;
-  --muted: #4b5450;
-  --line: #dcd7cc;
-  --line-strong: #767d79;
+  --sunken: #e8eae5;
+  --ink: #17201c;
+  --muted: #4a5550;
+  --line: #d5d9d2;
+  --line-strong: #737c77;
   --accent: #1f5c4f;
   --accent-hover: #174a3f;
-  --accent-soft: #e2eee9;
+  --accent-soft: #e1ede8;
   --accent-ink: #174a3f;
   --on-accent: #ffffff;
+  --chrome: #1c2a25;
+  --chrome-raised: #2a3b35;
+  --chrome-line: #3f5049;
+  --on-chrome: #e3ebe7;
+  --on-chrome-muted: #a9bab3;
   --ai: #6b4a00;
   --ai-soft: #fbf1d9;
   --ai-line: #c99a2e;
@@ -44,6 +50,11 @@
     --accent-soft: #1d2f2a;
     --accent-ink: #9ad3c2;
     --on-accent: #0d211c;
+    --chrome: #0c1110;
+    --chrome-raised: #1b2421;
+    --chrome-line: #2c3833;
+    --on-chrome: #dfe7e3;
+    --on-chrome-muted: #93a49d;
     --ai: #e8c26a;
     --ai-soft: #2a2416;
     --ai-line: #a07b25;
@@ -67,6 +78,11 @@
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
   --color-accent-ink: var(--accent-ink);
+  --color-chrome: var(--chrome);
+  --color-chrome-raised: var(--chrome-raised);
+  --color-chrome-line: var(--chrome-line);
+  --color-on-chrome: var(--on-chrome);
+  --color-on-chrome-muted: var(--on-chrome-muted);
   --color-ai: var(--ai);
   --color-ai-soft: var(--ai-soft);
   --color-ai-line: var(--ai-line);
@@ -103,27 +119,41 @@
 }
 
 @layer components {
-  /* Page frame */
+  /*
+   * Layout: one shell width for the prototype strip, header, pages and footer, so every
+   * left edge lines up. Plain pages keep a left-aligned reading column (two thirds);
+   * .page-wide pages use the full shell.
+   */
+  .shell {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 66rem;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) {
+    .shell {
+      padding-inline: 1.5rem;
+    }
+  }
   .page {
     margin-inline: auto;
-    max-width: 48rem;
+    width: 100%;
+    max-width: 66rem;
     padding: 2rem 1rem 4rem;
   }
-  .page-wide {
-    max-width: 64rem;
+  .page:not(.page-wide) > * {
+    max-width: 46rem;
   }
   @media (min-width: 640px) {
     .page {
-      padding: 2.75rem 1.5rem 5rem;
+      padding: 3rem 1.5rem 5rem;
     }
   }
 
-  /* Type */
+  /* Type. Scale: 14 / 15 / 16 / 18 / 24 / 32 / 40 */
   .eyebrow {
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: 0.9375rem;
+    font-weight: 500;
     color: var(--muted);
   }
   .h1 {
@@ -131,7 +161,7 @@
     font-size: 2rem;
     line-height: 1.15;
     font-weight: 600;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
     text-wrap: balance;
   }
   @media (min-width: 640px) {
@@ -144,6 +174,7 @@
     font-size: 1.5rem;
     line-height: 1.25;
     font-weight: 600;
+    letter-spacing: -0.005em;
     text-wrap: balance;
   }
   .h3 {
@@ -155,6 +186,7 @@
     margin-top: 0.75rem;
     max-width: 40rem;
     font-size: 1.125rem;
+    line-height: 1.55;
     color: var(--muted);
   }
   .label {
@@ -178,11 +210,41 @@
     text-decoration-thickness: 2px;
   }
 
-  /* Surfaces */
+  /*
+   * Requirement marker: the one recurring mark in the product. Wherever a company's
+   * requirement appears (editor, company list, evidence card, meeting card) it carries
+   * its rank in this box. Filled = core requirement.
+   */
+  .req-no {
+    display: inline-flex;
+    width: 1.75rem;
+    height: 1.75rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid var(--accent);
+    border-radius: 0.25rem;
+    font-family: var(--font-serif);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    font-variant-numeric: lining-nums tabular-nums;
+    line-height: 1;
+    color: var(--accent-ink);
+  }
+  .req-no-core {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .req-no-muted {
+    border-color: var(--line-strong);
+    color: var(--muted);
+  }
+
+  /* Surfaces: radius grows with the size of the thing */
   .card {
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 0.75rem;
+    border-radius: 0.5rem;
     padding: 1.25rem;
   }
   @media (min-width: 640px) {
@@ -192,19 +254,19 @@
   }
   .panel {
     background: var(--sunken);
-    border-radius: 0.625rem;
-    padding: 1rem;
+    border-radius: 0.5rem;
+    padding: 1rem 1.25rem;
   }
   .ai-panel {
     background: var(--ai-soft);
     border-left: 3px solid var(--ai-line);
-    border-radius: 0.375rem 0.625rem 0.625rem 0.375rem;
+    border-radius: 0 0.375rem 0.375rem 0;
     padding: 1rem;
   }
   .empty-slot {
     border: 1px dashed var(--line-strong);
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    padding: 0.625rem 0.875rem;
     color: var(--muted);
     font-size: 0.9375rem;
   }
@@ -215,7 +277,7 @@
     align-items: center;
     gap: 0.375rem;
     border-radius: 999px;
-    padding: 0.125rem 0.625rem;
+    padding: 0.0625rem 0.625rem;
     font-size: 0.8125rem;
     font-weight: 600;
     line-height: 1.5;
@@ -243,7 +305,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border-radius: 0.5rem;
+    border-radius: 0.375rem;
     border: 1px solid var(--line-strong);
     background: var(--surface);
     padding: 0.5rem 1rem;
@@ -261,7 +323,7 @@
     cursor: not-allowed;
     border-color: var(--line);
     color: var(--muted);
-    background: var(--sunken);
+    background: transparent;
   }
   .btn-primary {
     border-color: var(--accent);
@@ -280,11 +342,27 @@
   .btn-quiet:hover:not(:disabled) {
     background: var(--accent-soft);
   }
+  .btn-danger {
+    color: var(--danger);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: var(--danger-soft);
+  }
+  /* Compact secondary actions inside lists; still 40px tall for touch */
+  .btn-sm {
+    min-height: 2.5rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  .btn-icon {
+    min-width: 2.5rem;
+    padding-inline: 0;
+  }
   .field {
     display: block;
     width: 100%;
     min-height: 2.75rem;
-    border-radius: 0.5rem;
+    border-radius: 0.375rem;
     border: 1px solid var(--line-strong);
     background: var(--surface);
     padding: 0.5rem 0.75rem;
@@ -313,9 +391,42 @@
     cursor: pointer;
   }
 
+  /* Prototype strip: demo controls sit outside the product, in a dark band */
+  .chrome-control {
+    min-height: 2.25rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--chrome-line);
+    background: var(--chrome-raised);
+    padding: 0.25rem 0.625rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--on-chrome);
+    cursor: pointer;
+  }
+  .chrome-control:focus-visible,
+  .chrome-seg:focus-visible {
+    outline-color: var(--on-chrome);
+  }
+  .chrome-seg {
+    min-height: 2rem;
+    border-radius: 0.25rem;
+    padding-inline: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--on-chrome-muted);
+    transition: background-color 120ms, color 120ms;
+  }
+  .chrome-seg:hover {
+    color: var(--on-chrome);
+  }
+  .chrome-seg[aria-pressed="true"] {
+    background: var(--on-chrome);
+    color: var(--chrome);
+  }
+
   /* Messages */
   .notice {
-    border-radius: 0.5rem;
+    border-radius: 0.375rem;
     padding: 0.75rem 1rem;
     border: 1px solid var(--line);
     background: var(--surface);

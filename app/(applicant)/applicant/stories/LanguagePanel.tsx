@@ -60,11 +60,11 @@ export function LanguagePanel({
   return (
     <div>
       <div className="grid grid-cols-2 gap-2">
-        <button type="button" className={buttonClass} onClick={() => run("grammar")} disabled={loading || empty}
+        <button type="button" className={`${buttonClass} btn-sm`} onClick={() => run("grammar")} disabled={loading || empty}
           title="Fix spelling and grammar. You decide whether to use the result.">
           {loading ? "Working…" : "Fix language"}
         </button>
-        <button type="button" className={buttonClass} onClick={() => setShowTranslate((open) => !open)} disabled={loading || empty}
+        <button type="button" className={`${buttonClass} btn-sm`} onClick={() => setShowTranslate((open) => !open)} disabled={loading || empty}
           aria-expanded={showTranslate} aria-controls={`${idPrefix}-translate`}>
           Translate
         </button>

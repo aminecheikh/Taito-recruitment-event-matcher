@@ -113,7 +113,7 @@ export function StoryEditor({ story }: { story: Story | null }) {
     <section className="card grid gap-6 lg:grid-cols-[minmax(0,1fr)_17rem]" aria-label={`Story: ${story.title}`}>
       {editor}
       <aside aria-label="AI help for this story" className="grid content-start gap-3 border-t border-line pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-        <p><span className="tag tag-ai">AI help · optional</span></p>
+        <p><span className="tag tag-ai">Optional AI help</span></p>
         <FollowUpPanel idPrefix={idPrefix} storyBody={body} onAddAnswer={appendAnswer} />
         <LanguagePanel idPrefix={idPrefix} text={body} onAccept={acceptLanguage} disabled={pending} />
       </aside>

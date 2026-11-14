@@ -18,7 +18,7 @@ export default function Home() {
     <main className="page page-wide">
       <div className="grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
         <div>
-          <p className="eyebrow">Recruitment events, rethought</p>
+          <p className="eyebrow">A recruitment event concept for the City of Espoo</p>
           <h1 className="h1 mt-3 sm:text-5xl">No CV, No Job Ad</h1>
           <p className="lede">
             Recruiters name the few things they hire on. Applicants show real examples in their own
@@ -27,8 +27,8 @@ export default function Home() {
           <ol className="mt-10 grid gap-x-8 gap-y-6 sm:grid-cols-2">
             {PRINCIPLES.map(([title, text], i) => (
               <li key={title} className="border-t border-line pt-4">
-                <p className="font-serif text-sm text-muted">0{i + 1}</p>
-                <p className="h3 mt-1">{title}</p>
+                <span className="req-no" aria-hidden="true">{i + 1}</span>
+                <p className="h3 mt-3">{title}</p>
                 <p className="mt-1 text-[0.9375rem] text-muted">{text}</p>
               </li>
             ))}
@@ -44,22 +44,16 @@ export default function Home() {
                 type="submit"
                 name="role"
                 value={entry.role}
-                className="group flex w-full items-center gap-4 rounded-xl border border-line bg-surface px-5 py-4 text-left transition-colors hover:border-accent"
+                className="flex w-full items-center gap-4 rounded-lg border border-line border-l-[3px] border-l-accent bg-surface px-5 py-4 text-left transition-colors hover:border-accent hover:bg-accent-soft"
               >
                 <span className="flex-1">
                   <span className="block text-lg font-semibold text-ink">{entry.label}</span>
                   <span className="mt-0.5 block text-[0.9375rem] text-muted">{entry.detail}</span>
                 </span>
-                <span aria-hidden="true" className="text-xl text-accent-ink transition-transform group-hover:translate-x-1">
-                  →
-                </span>
               </button>
             ))}
           </form>
-          <div className="mt-6 space-y-1 text-sm text-muted">
-            <p>Shared demo: other visitors may be clicking at the same time.</p>
-            <p>Prototype — all people and companies are fictional.</p>
-          </div>
+          <p className="mt-6 text-sm text-muted">Shared demo: other visitors may be clicking at the same time.</p>
         </div>
       </div>
     </main>

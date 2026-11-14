@@ -46,10 +46,12 @@ export function EvidenceCard({ card, scores, onScore, meta, footer }: EvidenceCa
       <ol className="mt-4 divide-y divide-line border-t border-line">
         {card.slots.map((slot, index) => (
           <li key={slot.requirement.id} className="grid gap-3 py-5 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:gap-8">
-            <div>
-              <p className="font-serif text-sm text-muted">#{index + 1}</p>
-              <h3 className="h3">{slot.requirement.text}</h3>
-              {slot.requirement.inPractice ? <p className="hint mt-1">In practice: {slot.requirement.inPractice}</p> : null}
+            <div className="flex gap-3">
+              <span className="req-no req-no-core" aria-label={`Core requirement ${index + 1}`}>{index + 1}</span>
+              <div className="min-w-0">
+                <h3 className="h3">{slot.requirement.text}</h3>
+                {slot.requirement.inPractice ? <p className="hint mt-1">In practice: {slot.requirement.inPractice}</p> : null}
+              </div>
             </div>
             <div>
               {slot.examples.length === 0 ? (
@@ -81,7 +83,7 @@ export function EvidenceCard({ card, scores, onScore, meta, footer }: EvidenceCa
         ))}
       </ol>
       {footer ? (
-        <div className="-mx-5 -mb-5 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 rounded-b-xl border-t border-line bg-sunken px-5 py-3 sm:-mx-6 sm:-mb-6 sm:px-6">
+        <div className="-mx-5 -mb-5 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 rounded-b-lg border-t border-line bg-sunken px-5 py-3 sm:-mx-6 sm:-mb-6 sm:px-6">
           {footer}
         </div>
       ) : null}

@@ -53,7 +53,7 @@ export default async function SignalsPage({
   return (
     <main className="page">
       <PageHeader
-        eyebrow={`${applicant.pseudonym} · Signals`}
+        eyebrow={applicant.pseudonym}
         title={<>You have {left} of {event.signalsPerApplicant} signals left for this event</>}
       >
         A signal tells a company you chose them on purpose. You can signal a company once you have
@@ -63,7 +63,7 @@ export default async function SignalsPage({
         {Array.from({ length: event.signalsPerApplicant }, (_, i) => (
           <span
             key={i}
-            className={`h-3 w-10 rounded-full ${i < left ? "bg-accent" : "border border-line-strong bg-transparent"}`}
+            className={`h-2.5 w-10 rounded-sm ${i < left ? "bg-accent" : "border border-line-strong bg-transparent"}`}
           />
         ))}
       </div>

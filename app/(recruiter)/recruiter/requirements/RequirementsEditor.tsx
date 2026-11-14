@@ -11,6 +11,7 @@ type Item = { req: Requirement; suggested: boolean };
 type Notice = { kind: "error" | "success"; text: string } | null;
 
 const button = "btn";
+const small = "btn btn-sm";
 const primary = "btn btn-primary";
 const field = "field";
 
@@ -172,7 +173,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
           </h2>
           <div aria-hidden="true" className="flex gap-1.5">
             {Array.from({ length: MAX_CORE_REQUIREMENTS }, (_, i) => (
-              <span key={i} className={`h-2.5 w-6 rounded-full ${i < coreCount ? "bg-accent" : "border border-line-strong"}`} />
+              <span key={i} className={`h-2 w-6 rounded-sm ${i < coreCount ? "bg-accent" : "border border-line-strong"}`} />
             ))}
           </div>
         </div>
@@ -183,15 +184,15 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
             return (
               <li
                 key={req.id}
-                className={`card !p-4 sm:!p-5 ${req.isCore ? "border-accent bg-accent-soft/40" : ""}`}
+                className={`card !p-4 sm:!p-5 ${req.isCore ? "border-l-[3px] !border-l-accent" : ""}`}
               >
                 <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
-                  <span className="w-6 shrink-0 pt-0.5 font-serif text-muted">{index + 1}</span>
-                  <span className="min-w-0 flex-1 font-semibold">{req.text}</span>
+                  <span className={`req-no ${req.isCore ? "req-no-core" : "req-no-muted"}`} aria-label={`Rank ${index + 1}`}>{index + 1}</span>
+                  <span className="min-w-0 flex-1 pt-0.5 font-semibold">{req.text}</span>
                   {item.suggested && <span className="tag tag-ai">AI suggestion</span>}
                 </div>
-                <div className="mt-3 flex flex-wrap items-center gap-2 sm:pl-9">
-                  <label className="choice mr-3 font-semibold">
+                <div className="mt-3 flex flex-wrap items-center gap-2 sm:pl-10">
+                  <label className="choice mr-auto font-semibold">
                     <input
                       type="checkbox"
                       checked={req.isCore}
@@ -199,28 +200,28 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
                     />
                     Core
                   </label>
-                  <button type="button" className={button} disabled={index === 0}
-                    onClick={() => setItems((p) => move(p, index, index - 1))}
-                    aria-label={`Move ${req.text} up`}>
-                    Up
-                  </button>
-                  <button type="button" className={button} disabled={index === items.length - 1}
-                    onClick={() => setItems((p) => move(p, index, index + 1))}
-                    aria-label={`Move ${req.text} down`}>
-                    Down
-                  </button>
                   {item.suggested && (
-                    <button type="button" className={button} onClick={() => keep(index)}>
+                    <button type="button" className={small} onClick={() => keep(index)}>
                       Keep
                     </button>
                   )}
-                  <button type="button" className={`${button} text-danger`}
+                  <button type="button" className={`${small} btn-icon`} disabled={index === 0}
+                    onClick={() => setItems((p) => move(p, index, index - 1))}
+                    aria-label={`Move ${req.text} up`} title="Move up">
+                    <span aria-hidden="true">↑</span>
+                  </button>
+                  <button type="button" className={`${small} btn-icon`} disabled={index === items.length - 1}
+                    onClick={() => setItems((p) => move(p, index, index + 1))}
+                    aria-label={`Move ${req.text} down`} title="Move down">
+                    <span aria-hidden="true">↓</span>
+                  </button>
+                  <button type="button" className={`${small} btn-quiet btn-danger`}
                     onClick={() => remove(index)}
                     aria-label={`Delete ${req.text}`}>
                     Delete
                   </button>
                 </div>
-                <div className="mt-3 sm:pl-9">
+                <div className="mt-3 sm:pl-10">
                   <label className="hint block" htmlFor={`practice-${req.id}`}>
                     In practice: what does this look like on the job?
                   </label>
@@ -255,7 +256,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
         </form>
       </section>
 
-      <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line bg-canvas px-4 py-4 sm:mx-0 sm:rounded-xl sm:border sm:bg-surface sm:px-5">
+      <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line bg-canvas px-4 py-4 sm:mx-0 sm:rounded-lg sm:border sm:bg-surface sm:shadow-[0_-8px_24px_-12px_rgb(23_32_28/0.18)] sm:px-5">
         <button type="button" onClick={save} disabled={saving || coreCount === 0} className={primary}>
           {saving ? "Saving…" : "Save requirements"}
         </button>

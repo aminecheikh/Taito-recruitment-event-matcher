@@ -20,8 +20,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex min-h-screen flex-col">
         <RoleBar />
         <div className="flex-1">{children}</div>
-        <footer data-app-chrome className="border-t border-line py-5 text-sm text-muted">
-          <p className="mx-auto max-w-5xl px-4 sm:px-6">
+        <footer data-app-chrome className="border-t border-line py-6 text-sm text-muted">
+          <p className="shell">
             Concept for the City of Espoo challenge, Junction 2026. All people and companies are fictional.
           </p>
         </footer>
