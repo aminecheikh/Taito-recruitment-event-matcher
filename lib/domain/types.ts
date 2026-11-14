@@ -126,6 +126,13 @@ export const ScoreSchema = z.object({
   value: z.number().int().min(0).max(10),
 });
 
+/** The recruiter flagged this applicant to come back to. Seen by that company's recruiter only. */
+export const MarkSchema = z.object({
+  eventId: z.string(),
+  companyId: z.string(),
+  applicantId: z.string(),
+});
+
 export type Company = z.infer<typeof CompanySchema>;
 export type Requirement = z.infer<typeof RequirementSchema>;
 export type Event = z.infer<typeof EventSchema>;
@@ -139,6 +146,7 @@ export type Meeting = z.infer<typeof MeetingSchema>;
 export type Decision = z.infer<typeof DecisionSchema>;
 export type Share = z.infer<typeof ShareSchema>;
 export type Score = z.infer<typeof ScoreSchema>;
+export type Mark = z.infer<typeof MarkSchema>;
 
 export type Db = {
   companies: Company[];
@@ -154,6 +162,7 @@ export type Db = {
   decisions: Decision[];
   shares: Share[];
   scores: Score[];
+  marks: Mark[];
 };
 
 export const DbSchema: z.ZodType<Db> = z.object({
@@ -170,6 +179,8 @@ export const DbSchema: z.ZodType<Db> = z.object({
   decisions: z.array(DecisionSchema),
   shares: z.array(ShareSchema),
   scores: z.array(ScoreSchema),
+  // Default so a db.json written before marks existed still loads instead of being reseeded.
+  marks: z.array(MarkSchema).default([]),
 });
 
 export function emptyDb(): Db {
@@ -187,5 +198,6 @@ export function emptyDb(): Db {
     decisions: [],
     shares: [],
     scores: [],
+    marks: [],
   };
 }

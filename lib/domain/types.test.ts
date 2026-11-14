@@ -11,3 +11,9 @@ test("Score rejects values outside 0–10 and non-integers", () => {
 test("DbSchema accepts an empty db", () => {
   expect(DbSchema.safeParse(emptyDb()).success).toBe(true);
 });
+
+test("DbSchema_dbWrittenBeforeMarks_loadsWithNoMarksInsteadOfReseeding", () => {
+  const { marks: _marks, ...old } = emptyDb();
+  const parsed = DbSchema.safeParse(old);
+  expect(parsed.success && parsed.data.marks).toEqual([]);
+});
