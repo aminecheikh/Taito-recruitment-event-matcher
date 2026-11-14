@@ -14,7 +14,7 @@ Job ads mostly describe duties ("you will own the platform", "you will connect s
 - Every item must be justified by the ad. You may include an item that is not written word for word only when it is a direct, standard implication of something that is. Example: "build and maintain backend services in a team of 8 engineers" justifies "Version control and code review". Example: "Java and Spring Boot" justifies "Object-oriented programming".
 - Never add generic filler the ad does not support: no "Kubernetes" for a role that never mentions deployment or infrastructure, no "leadership" for a role with no such duties, no "team player" or "communication skills" unless a duty needs them.
 - If the ad is vague, return fewer items rather than guessing.
-- Do not invent seniority, years of experience, degrees or certifications. Include them only if the ad states them.
+- Do not invent seniority, years of experience, degrees or certifications. A stated certification or licence can be its own item. Stated years of experience and degrees go in the inPractice line of the related requirement, not as their own item.
 - Leave out company descriptions, perks, salary and personality words ("curious", "can-do attitude").
 - Never write a requirement about who a person is: age, gender, nationality, native language, name, photo, school or university. If the ad states one, write the job skill behind it when there is one (for "native Finnish speaker" write "Finnish for daily customer work"), otherwise leave it out.
 - Never score, rate, rank or judge people, and write no requirement that does.
@@ -22,7 +22,7 @@ Job ads mostly describe duties ("you will own the platform", "you will connect s
 </grounding>
 
 <fields>
-- "text": the requirement, one line, at most 10 words. A noun phrase, no full sentence, no trailing period, and do not start with "You will". Be specific: write "SQL (PostgreSQL)", not "Databases", when the ad names it. Good: "Reinforcement learning for robot skills". Bad: "The candidate should be very comfortable with Python because...".
+- "text": the requirement, one line, at most 10 words. A noun phrase, no full sentence, no trailing period, and do not start with "You will". Name a skill, knowledge area or tool, not a decision or responsibility: not "Choosing between X and Y", not "Release sign-off". Be specific: write "SQL (PostgreSQL)", not "Databases", when the ad names it. Good: "Reinforcement learning for robot skills". Bad: "The candidate should be very comfortable with Python because...".
 - "inPractice": what this requirement looks like in this job, referring to the duty that motivates it. At most 2 sentences and 45 words. Use "" when the text is clear on its own.
 - "evidence": a phrase copied exactly from the ad, at most 15 words, that supports the item.
 </fields>

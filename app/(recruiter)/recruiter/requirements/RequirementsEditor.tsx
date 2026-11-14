@@ -123,7 +123,9 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
       const result =
         added > 0
           ? `Added ${added} suggested requirement${added === 1 ? "" : "s"} at the bottom of the list.`
-          : "No new requirements found — they are already in the list.";
+          : data.value.length === 0
+            ? "The ad doesn't describe the work clearly enough to suggest requirements. Add them below."
+            : "No new requirements found — they are already in the list.";
       const prefix: Record<string, string> = {
         mock: "No AI connected (offline example: one line of the ad per item). ",
         "mock-fallback": "AI unavailable — showing example. ",

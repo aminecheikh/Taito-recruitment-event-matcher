@@ -197,6 +197,12 @@ describe("with a real model", () => {
     });
   });
 
+  test("extractRequirements_modelFindsNothing_returnsEmptyNotTheExample", async () => {
+    const ai = createAiFunctions(() => modelReturning(JSON.stringify({ requirements: [] })));
+    const out = await ai.extractRequirements("Join our amazing team! Competitive salary.");
+    expect(out).toEqual({ source: "model", value: [] });
+  });
+
   test("extractRequirements_allEvidenceInvented_fallsBackToMock", async () => {
     const ai = createAiFunctions(() =>
       modelReturning(

@@ -124,6 +124,8 @@ export function createAiFunctions(getModelFn: GetModel) {
         if (dropped.length > 0) {
           console.warn(`[ai] guardrails dropped ${dropped.length}: ${dropped.map((r) => `"${r.text}" (evidence "${r.evidence}")`).join("; ")}`);
         }
+        // The model finding nothing in a vague ad is a valid answer: show none, not the ad's blurb as an example.
+        if (requirements.length === 0) return [];
         return cleaned.length > 0 ? cleaned : null;
       },
       () => mockExtractRequirements(jobAd),
