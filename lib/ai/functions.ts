@@ -120,6 +120,10 @@ export function createAiFunctions(getModelFn: GetModel) {
           aiExtractTimeoutMs(),
         );
         const cleaned = cleanExtractedRequirements(requirements, jobAd);
+        const dropped = requirements.filter((r) => !cleaned.some((c) => c.text === r.text.trim()));
+        if (dropped.length > 0) {
+          console.warn(`[ai] guardrails dropped ${dropped.length}: ${dropped.map((r) => `"${r.text}" (evidence "${r.evidence}")`).join("; ")}`);
+        }
         return cleaned.length > 0 ? cleaned : null;
       },
       () => mockExtractRequirements(jobAd),
