@@ -85,8 +85,8 @@ export function StoryEditor({ story }: { story: Story | null }) {
   const appendAnswer = (answer: string) => setBody((current) => `${current.trimEnd()}\n\n${answer.trim()}`);
   const idPrefix = story?.id ?? "new";
 
-  return (
-    <section className="card" aria-label={story ? `Story: ${story.title}` : "New story"}>
+  const editor = (
+    <div className="min-w-0">
       <label htmlFor={`${idPrefix}-title`} className="label">Title</label>
       <input id={`${idPrefix}-title`} className={`${fieldClass} mt-1 font-serif text-lg font-semibold`} value={title} onChange={(e) => setTitle(e.target.value)} />
       <label htmlFor={`${idPrefix}-body`} className="label mt-4">Your story</label>
@@ -102,12 +102,21 @@ export function StoryEditor({ story }: { story: Story | null }) {
           </p>
         ) : null}
       </div>
-      {story ? (
-        <div className="mt-6 grid gap-4 border-t border-line pt-6">
-          <FollowUpPanel idPrefix={idPrefix} storyBody={body} onAddAnswer={appendAnswer} />
-          <LanguagePanel idPrefix={idPrefix} text={body} onAccept={acceptLanguage} disabled={pending} />
-        </div>
-      ) : null}
+    </div>
+  );
+
+  if (!story) {
+    return <section className="card" aria-label="New story">{editor}</section>;
+  }
+
+  return (
+    <section className="card grid gap-6 lg:grid-cols-[minmax(0,1fr)_17rem]" aria-label={`Story: ${story.title}`}>
+      {editor}
+      <aside aria-label="AI help for this story" className="grid content-start gap-3 border-t border-line pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+        <p><span className="tag tag-ai">AI help · optional</span></p>
+        <FollowUpPanel idPrefix={idPrefix} storyBody={body} onAddAnswer={appendAnswer} />
+        <LanguagePanel idPrefix={idPrefix} text={body} onAccept={acceptLanguage} disabled={pending} />
+      </aside>
     </section>
   );
 }

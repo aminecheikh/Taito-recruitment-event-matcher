@@ -46,26 +46,33 @@ export function FollowUpPanel({ idPrefix, storyBody, onAddAnswer }: { idPrefix: 
     setAnswer("");
   };
 
+  const close = () => {
+    setCurrent(null);
+    setAnswer("");
+  };
+
   return (
-    <div className="panel">
-      <h3 className="h3">Need a nudge?</h3>
-      <p className="hint">An AI asks one question at a time to help you remember details.</p>
-      <button type="button" className={`${buttonClass} mt-2`} onClick={ask} disabled={loading || storyBody.trim() === ""}>
-        {loading ? "Thinking" : current ? "Ask me another question" : "Ask me a question"}
+    <div>
+      <button type="button" className={`${buttonClass} w-full`} onClick={ask} disabled={loading || storyBody.trim() === ""}
+        title="An AI asks one question at a time to help you remember details">
+        {loading ? "Thinking…" : current ? "Another question" : "Ask me a question"}
       </button>
-      {error ? <p role="alert" className="mt-2 font-medium text-danger">{error}</p> : null}
+      {error ? <p role="alert" className="mt-2 text-sm font-medium text-danger">{error}</p> : null}
       {current ? (
-        <div className="mt-4" aria-live="polite">
-          <div className="ai-panel">
+        <div className="mt-3" aria-live="polite">
+          <div className="ai-panel !p-3">
             <p><span className="tag tag-ai">AI question</span></p>
             {current.fallback ? <p className="hint mt-1">{FALLBACK_NOTICE}</p> : null}
-            <p className="mt-2 font-serif text-lg leading-snug">{current.question}</p>
+            <p className="mt-2 font-serif leading-snug">{current.question}</p>
           </div>
-          <label htmlFor={`${idPrefix}-follow-up-answer`} className="label mt-4">Your answer, in your own words</label>
+          <label htmlFor={`${idPrefix}-follow-up-answer`} className="label mt-3">Your answer, in your own words</label>
           <textarea id={`${idPrefix}-follow-up-answer`} className={`${fieldClass} mt-1`} rows={3} value={answer} onChange={(e) => setAnswer(e.target.value)} />
-          <button type="button" className={`${buttonClass} mt-2`} onClick={addToStory} disabled={answer.trim() === ""}>
-            Add to my story
-          </button>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button type="button" className={buttonClass} onClick={addToStory} disabled={answer.trim() === ""}>
+              Add to my story
+            </button>
+            <button type="button" className={buttonClass} onClick={close}>Close</button>
+          </div>
         </div>
       ) : null}
     </div>

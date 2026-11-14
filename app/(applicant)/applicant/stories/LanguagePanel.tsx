@@ -10,6 +10,7 @@ const TARGET_LANGUAGE = "English";
 /** `original` is the text as it was when the suggestion was requested. */
 type Suggestion = { original: string; text: string; label: LanguageLabel; fallback: boolean; example: boolean };
 
+/** Works on the story text as typed. The result stays a suggestion until the applicant picks "Use this version". */
 export function LanguagePanel({
   idPrefix,
   text,
@@ -22,6 +23,7 @@ export function LanguagePanel({
   disabled: boolean;
 }) {
   const [sourceLanguage, setSourceLanguage] = useState("");
+  const [showTranslate, setShowTranslate] = useState(false);
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +44,7 @@ export function LanguagePanel({
       if (!res.ok) throw new Error("bad status");
       const data = LanguageResponseSchema.parse(await res.json());
       setSuggestion({ original: text, text: data.value.text, label: data.value.label, fallback: data.source === "mock-fallback", example: data.source === "mock" });
+      setShowTranslate(false);
     } catch {
       setError("Could not get a suggestion right now. Try again in a moment.");
     } finally {
@@ -55,42 +58,44 @@ export function LanguagePanel({
   const canTranslate = !empty && sourceLanguage.trim() !== "";
 
   return (
-    <div className="panel">
-      <h3 className="h3">Language help</h3>
-      <p className="hint">Works on the text above, as saved or typed. You decide whether to use the result.</p>
-      <div className="mt-3 flex flex-wrap items-end gap-3">
-        <button type="button" className={buttonClass} onClick={() => run("grammar")} disabled={loading || empty}>
-          Fix language
+    <div>
+      <div className="grid grid-cols-2 gap-2">
+        <button type="button" className={buttonClass} onClick={() => run("grammar")} disabled={loading || empty}
+          title="Fix spelling and grammar. You decide whether to use the result.">
+          {loading ? "Working…" : "Fix language"}
         </button>
-        <div>
-          <label htmlFor={`${idPrefix}-source-language`} className="label">Written in</label>
-          <input id={`${idPrefix}-source-language`} className={`${fieldClass} mt-1`} placeholder="for example Ukrainian" value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)} />
-        </div>
-        <button type="button" className={buttonClass} onClick={() => run("translate")} disabled={loading || !canTranslate}>
-          Translate from {sourceLanguage.trim() || "…"} to English
+        <button type="button" className={buttonClass} onClick={() => setShowTranslate((open) => !open)} disabled={loading || empty}
+          aria-expanded={showTranslate} aria-controls={`${idPrefix}-translate`}>
+          Translate
         </button>
       </div>
-      {error ? <p role="alert" className="mt-2 font-medium text-danger">{error}</p> : null}
-      {suggestion ? (
-        <div className="mt-4" aria-live="polite">
-          <p><span className="tag tag-ai">AI suggestion ({suggestion.label})</span></p>
-          {suggestion.fallback ? <p className="hint mt-1">{FALLBACK_NOTICE}</p> : null}
-          {suggestion.example ? <p className="hint mt-1">{EXAMPLE_MODE_NOTICE}</p> : null}
-          {unchanged ? <p className="mt-2 font-medium">No changes suggested</p> : null}
-          {unchanged ? null : (
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <div>
-              <h4 className="label">Before (yours)</h4>
-              <p className="mt-1 whitespace-pre-wrap rounded-lg border border-line bg-surface p-3 text-[0.9375rem]">{suggestion.original}</p>
-            </div>
-            <div>
-              <h4 className="label">After (AI suggestion)</h4>
-              <p className="ai-panel mt-1 whitespace-pre-wrap p-3 text-[0.9375rem]">{suggestion.text}</p>
-            </div>
+      {showTranslate ? (
+        <div id={`${idPrefix}-translate`} className="mt-3">
+          <label htmlFor={`${idPrefix}-source-language`} className="label">Written in</label>
+          <div className="mt-1 flex gap-2">
+            <input id={`${idPrefix}-source-language`} className={`${fieldClass} min-w-0 flex-1`} placeholder="e.g. Ukrainian" value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)} />
+            <button type="button" className={buttonClass} onClick={() => run("translate")} disabled={loading || !canTranslate}>
+              To English
+            </button>
           </div>
-          )}
-          {stale ? <p role="alert" className="mt-2 font-medium text-danger">Your story changed — ask again</p> : null}
-          <div className="mt-3 flex flex-wrap gap-3">
+        </div>
+      ) : null}
+      {error ? <p role="alert" className="mt-2 text-sm font-medium text-danger">{error}</p> : null}
+      {suggestion ? (
+        <div className="mt-3" aria-live="polite">
+          <div className="ai-panel !p-3">
+            <p><span className="tag tag-ai">AI suggestion ({suggestion.label})</span></p>
+            {suggestion.fallback ? <p className="hint mt-1">{FALLBACK_NOTICE}</p> : null}
+            {suggestion.example ? <p className="hint mt-1">{EXAMPLE_MODE_NOTICE}</p> : null}
+            {unchanged ? (
+              <p className="mt-2 font-medium">No changes suggested</p>
+            ) : (
+              <p className="mt-2 max-h-64 overflow-y-auto whitespace-pre-wrap text-[0.9375rem]">{suggestion.text}</p>
+            )}
+          </div>
+          {unchanged ? null : <p className="hint mt-1">Compare it with your text in the story box.</p>}
+          {stale ? <p role="alert" className="mt-2 text-sm font-medium text-danger">Your story changed — ask again</p> : null}
+          <div className="mt-2 flex flex-wrap gap-2">
             {unchanged ? null : (
               <button type="button" className={primaryClass} disabled={disabled || stale} onClick={() => { onAccept(suggestion.text, suggestion.label); setSuggestion(null); }}>
                 Use this version

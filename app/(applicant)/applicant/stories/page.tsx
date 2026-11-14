@@ -18,7 +18,7 @@ export default async function StoriesPage() {
   const stories = db.stories.filter((s) => s.applicantId === applicant.id);
 
   return (
-    <main className="page">
+    <main className="page page-wide">
       <PageHeader eyebrow={applicant.pseudonym} title="My stories">
         Tell what you have done in your own words. The words stay yours; the AI never writes your story.
       </PageHeader>
