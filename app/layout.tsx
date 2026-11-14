@@ -4,6 +4,7 @@ import "./globals.css";
 import { cookies } from "next/headers";
 import { RoleBar } from "./components/RoleBar";
 import { EventBanner } from "./components/EventBanner";
+import { SceneBackdrop } from "./components/SceneBackdrop";
 import { parseTheme, THEME_COOKIE } from "@/lib/theme";
 
 const sans = Hanken_Grotesk({ subsets: ["latin", "latin-ext"], variable: "--font-hanken", display: "swap" });
@@ -21,7 +22,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const theme = parseTheme((await cookies()).get(THEME_COOKIE)?.value);
   return (
     <html lang="en" data-theme={theme} className={`${sans.variable} ${display.variable}`}>
-      <body className="flex min-h-screen flex-col">
+      <body className="relative flex min-h-screen flex-col">
+        <SceneBackdrop />
         <RoleBar />
         <EventBanner />
         <div className="flex-1">{children}</div>

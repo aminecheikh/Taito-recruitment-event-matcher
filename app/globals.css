@@ -649,6 +649,34 @@
     font-weight: 500;
   }
 
+  /* Chips: small labelled facts in a row (the event line under the header) */
+  .chip {
+    display: inline-flex;
+    min-height: 1.875rem;
+    align-items: center;
+    gap: 0.375rem;
+    border: 1.5px solid var(--line);
+    border-radius: 0.5rem;
+    background: var(--surface);
+    padding: 0.125rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .chip svg {
+    color: var(--muted);
+  }
+  /* The event itself reads as a ticket: notched ends cut from the chip */
+  .chip-ticket {
+    font-weight: 700;
+    padding-inline: 0.875rem;
+    -webkit-mask: radial-gradient(circle at 0 50%, transparent 0.3rem, #000 0.3125rem) left / 51% 100% no-repeat,
+      radial-gradient(circle at 100% 50%, transparent 0.3rem, #000 0.3125rem) right / 51% 100% no-repeat;
+    mask: radial-gradient(circle at 0 50%, transparent 0.3rem, #000 0.3125rem) left / 51% 100% no-repeat,
+      radial-gradient(circle at 100% 50%, transparent 0.3rem, #000 0.3125rem) right / 51% 100% no-repeat;
+  }
+
   /*
    * Happy tones: a flat colour block that re-points ink and muted at dark text, so anything
    * inside stays readable in both themes. Decoration only, never an action or AI.
@@ -701,6 +729,84 @@
     letter-spacing: -0.01em;
     text-align: center;
     rotate: -10deg;
+  }
+
+  /*
+   * Cartoon backdrop (SceneBackdrop): rubber-hose hiring scenes tiled behind every page,
+   * scrolling with it. Faint on purpose; panels stay solid so text never sits on a drawing.
+   */
+  .backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -10;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0.13;
+    /* Fainter under the reading column, fuller in the side margins */
+    --backdrop-mask: linear-gradient(
+      90deg,
+      #000 calc(50% - 38rem),
+      rgb(0 0 0 / 0.35) calc(50% - 26rem),
+      rgb(0 0 0 / 0.35) calc(50% + 26rem),
+      #000 calc(50% + 38rem)
+    );
+    -webkit-mask-image: var(--backdrop-mask);
+    mask-image: var(--backdrop-mask);
+  }
+  .backdrop .d-stroke,
+  .backdrop .d-hose,
+  .backdrop .d-thin {
+    fill: none;
+    stroke: var(--ink);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .backdrop .d-stroke {
+    stroke-width: 3.5;
+  }
+  .backdrop .d-hose {
+    stroke-width: 5.5;
+  }
+  .backdrop .d-thin {
+    stroke-width: 2.5;
+  }
+  .backdrop .d-edge {
+    stroke: var(--ink);
+    stroke-width: 3.5;
+    stroke-linejoin: round;
+  }
+  .backdrop .d-ink {
+    fill: var(--ink);
+  }
+  .backdrop .d-paper {
+    fill: var(--surface);
+  }
+  .backdrop .d-sun {
+    fill: var(--sun);
+  }
+  .backdrop .d-tangerine {
+    fill: var(--tangerine);
+  }
+  .backdrop .d-bubblegum {
+    fill: var(--bubblegum);
+  }
+  :root[data-theme="dark"] .backdrop {
+    opacity: 0.1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .backdrop {
+      opacity: 0.1;
+    }
+  }
+  @media (prefers-contrast: more) {
+    .backdrop {
+      display: none;
+    }
+  }
+  @media print {
+    .backdrop {
+      display: none;
+    }
   }
 
   /* Linked surfaces (role entries, list rows that navigate) lift 2px on hover */
