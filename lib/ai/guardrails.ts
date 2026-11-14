@@ -107,6 +107,55 @@ export function cleanExtractedRequirements(
     .slice(0, MAX_REQUIREMENT_PHRASES);
 }
 
+export const MAX_SEARCH_REASON_WORDS = 25;
+const MAX_INTERPRETATION_LENGTH = 400;
+const MAX_SEARCH_GROUPS = 10;
+
+/** One group of the AI search as the UI gets it: real applicant ids, a reason per applicant. */
+export type SearchGroup = { label: string; applicant_ids: string[]; reason_per_applicant: Record<string, string> };
+export type SearchResult = { interpretation: string; groups: SearchGroup[] };
+/** What the model returns: aliases (A1, A2, ...) instead of applicant ids. */
+export type RawSearchResult = {
+  interpretation: string;
+  groups: { label: string; applicants: { id: string; reason: string }[] }[];
+};
+
+function capWords(text: string, max: number): string {
+  const words = text.split(/\s+/);
+  return words.length <= max ? text : `${words.slice(0, max).join(" ")}…`;
+}
+
+function cleanGroup(group: RawSearchResult["groups"][number], aliases: Readonly<Record<string, string>>): SearchGroup | null {
+  const label = group.label.trim();
+  if (!label || SCORES_A_PERSON.test(label)) return null;
+  const reasons = new Map<string, string>();
+  for (const { id, reason } of group.applicants) {
+    const applicantId = Object.hasOwn(aliases, id) ? aliases[id] : undefined;
+    const text = reason.trim();
+    if (!applicantId || reasons.has(applicantId) || !text || SCORES_A_PERSON.test(text)) continue;
+    reasons.set(applicantId, capWords(text, MAX_SEARCH_REASON_WORDS));
+  }
+  if (reasons.size === 0) return null;
+  return { label, applicant_ids: [...reasons.keys()], reason_per_applicant: Object.fromEntries(reasons) };
+}
+
+/**
+ * Maps aliases back to applicant ids and drops unknown ids, duplicates, empty groups and anything that
+ * scores a person. Returns null (caller falls back) when the interpretation is missing or too long, or
+ * when it scores people while still returning groups. An answer with no groups is valid: it is how the
+ * model says the request cannot be answered from the cards.
+ */
+export function cleanSearchResult(raw: RawSearchResult, aliases: Readonly<Record<string, string>>): SearchResult | null {
+  const interpretation = raw.interpretation.trim();
+  if (!interpretation || interpretation.length > MAX_INTERPRETATION_LENGTH) return null;
+  const groups = raw.groups
+    .map((g) => cleanGroup(g, aliases))
+    .filter((g): g is SearchGroup => g !== null)
+    .slice(0, MAX_SEARCH_GROUPS);
+  if (groups.length > 0 && SCORES_A_PERSON.test(interpretation)) return null;
+  return { interpretation, groups };
+}
+
 export function labelFor(mode: "grammar" | "translate", sourceLanguage?: string): LanguageLabel {
   return mode === "grammar"
     ? "language edited"

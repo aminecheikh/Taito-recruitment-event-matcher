@@ -13,7 +13,7 @@ test("DbSchema accepts an empty db", () => {
 });
 
 test("DbSchema_dbWrittenBeforeMarks_loadsWithNoMarksInsteadOfReseeding", () => {
-  const { marks: _marks, ...old } = emptyDb();
+  const old = Object.fromEntries(Object.entries(emptyDb()).filter(([key]) => key !== "marks"));
   const parsed = DbSchema.safeParse(old);
   expect(parsed.success && parsed.data.marks).toEqual([]);
 });
