@@ -85,4 +85,20 @@ describe("store", () => {
     const r = await updateDb((db) => ({ ok: true, value: db }));
     expect(r.ok).toBe(true);
   });
+
+  test("readDb_legacyFileWithoutEntries_migratesAcceptedCoreLinksAndPersists", async () => {
+    const legacy = {
+      ...seedFixture,
+      stories: [{ id: "s1", applicantId: "talent-017", title: "T", body: "Did a thing" }],
+      links: [{ id: "l1", storyId: "s1", requirementId: "req-01-1", origin: "applicant", status: "accepted" }],
+      requirements: [{ id: "req-01-1", companyId: "company-01", text: "R", inPractice: "p", rank: 1, isCore: true }],
+    } as Record<string, unknown>;
+    delete legacy.entries;
+    delete legacy.answers;
+    writeFileSync(process.env.DB_PATH!, JSON.stringify(legacy));
+    const db = await readDb();
+    expect(db.answers).toEqual([{ applicantId: "talent-017", requirementId: "req-01-1", entryId: "entry-1" }]);
+    expect(db.entries[0]).toMatchObject({ id: "entry-1", body: "Did a thing", sourceStoryId: "s1" });
+    expect(JSON.parse(readFileSync(process.env.DB_PATH!, "utf8")).entries).toHaveLength(1);
+  });
 });

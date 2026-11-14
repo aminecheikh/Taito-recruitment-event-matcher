@@ -64,6 +64,31 @@ describe("writeAnswer", () => {
     expect(next.links.find((l) => l.id === "link-017-2")?.status).toBe("accepted");
     expect(next.links.find((l) => l.id === "link-017-3")?.status).toBe("rejected");
   });
+  test("writeAnswer_sourceEntryWithLabel_copiesLabelAndStoryOfThatEntry", () => {
+    const db = makeDb({
+      entries: [entry("entry-1", "old", { languageLabel: "language edited", sourceStoryId: "story-017-a" })],
+      answers: [answer("req-01-1", "entry-1")],
+    });
+    const next = must(writeAnswer(db, A, "req-01-2", { body: "new", sourceEntryId: "entry-1" }));
+    expect(next.entries[1]).toMatchObject({ body: "new", languageLabel: "language edited", sourceStoryId: "story-017-a" });
+  });
+  test("writeAnswer_someoneElsesSourceEntry_refusesNotFound", () => {
+    const db = makeDb({ entries: [{ id: "entry-1", applicantId: "talent-020", body: "x" }] });
+    expect(writeAnswer(db, A, "req-01-1", { body: "x", sourceEntryId: "entry-1" })).toEqual({ ok: false, error: "not-found" });
+  });
+  test("writeAnswer_unknownSourceEntry_refusesNotFound", () =>
+    expect(writeAnswer(makeDb({ entries: [] }), A, "req-01-1", { body: "x", sourceEntryId: "ghost" })).toEqual({
+      ok: false, error: "not-found",
+    }));
+  test("writeAnswer_storyAndSourceEntry_storyTakesPrecedence", () => {
+    const db = makeDb({
+      entries: [entry("entry-1", "old", { languageLabel: "language edited", sourceStoryId: "story-017-b" })],
+      answers: [],
+    });
+    const next = must(writeAnswer(db, A, "req-01-1", { body: "x", sourceStoryId: "story-017-a", sourceEntryId: "entry-1" }));
+    expect(next.entries[1].sourceStoryId).toBe("story-017-a");
+    expect("languageLabel" in next.entries[1]).toBe(false);
+  });
 });
 
 describe("reuseEntry", () => {

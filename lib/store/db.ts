@@ -1,5 +1,6 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+import { answersFromAcceptedLinks } from "@/lib/domain/migrate";
 import { DbSchema, type Db, type Result } from "@/lib/domain/types";
 import { loadSeed } from "./seed";
 
@@ -34,6 +35,17 @@ function reseed(reason: string): Db {
   return fresh;
 }
 
+/** Files written before requirement cards have no `entries` key. */
+function isLegacy(json: unknown): boolean {
+  return typeof json === "object" && json !== null && !("entries" in json);
+}
+
+function migrate(db: Db): Db {
+  const migrated = answersFromAcceptedLinks(db);
+  writeAtomic(migrated);
+  return migrated;
+}
+
 function readSync(): Db {
   let raw: string;
   try {
@@ -42,8 +54,10 @@ function readSync(): Db {
     return reseed("db file missing");
   }
   try {
-    const parsed = DbSchema.safeParse(JSON.parse(raw));
-    return parsed.success ? parsed.data : reseed("db file failed validation");
+    const json: unknown = JSON.parse(raw);
+    const parsed = DbSchema.safeParse(json);
+    if (!parsed.success) return reseed("db file failed validation");
+    return isLegacy(json) ? migrate(parsed.data) : parsed.data;
   } catch {
     return reseed("db file is not valid JSON");
   }

@@ -52,14 +52,22 @@ async function run(
   return { ok: true };
 }
 
-/** Writes a new entry as the answer to a card; `sourceStoryId` marks the matching story link accepted. */
-export async function saveAnswer(requirementId: string, body: string, sourceStoryId?: string): Promise<EntryStatus> {
-  const storyOk = sourceStoryId === undefined || Id.safeParse(sourceStoryId).success;
-  if (!Id.safeParse(requirementId).success || !Body.safeParse(body).success || !storyOk) return invalid;
+/** Writes a new entry as the answer to a card; `sourceStoryId` marks the matching story link accepted; `sourceEntryId` carries over that entry's label. */
+export async function saveAnswer(
+  requirementId: string,
+  body: string,
+  sourceStoryId?: string,
+  sourceEntryId?: string,
+): Promise<EntryStatus> {
+  const optionalIdOk = (id?: string) => id === undefined || Id.safeParse(id).success;
+  if (!Id.safeParse(requirementId).success || !Body.safeParse(body).success) return invalid;
+  if (!optionalIdOk(sourceStoryId) || !optionalIdOk(sourceEntryId)) return invalid;
   return run(
     (db, { applicantId, core }) =>
-      core.has(requirementId) && (sourceStoryId === undefined || ownsStory(db, sourceStoryId, applicantId)),
-    (db, applicantId) => writeAnswer(db, applicantId, requirementId, { body, sourceStoryId }),
+      core.has(requirementId) &&
+      (sourceStoryId === undefined || ownsStory(db, sourceStoryId, applicantId)) &&
+      (sourceEntryId === undefined || ownsEntry(db, sourceEntryId, applicantId)),
+    (db, applicantId) => writeAnswer(db, applicantId, requirementId, { body, sourceStoryId, sourceEntryId }),
   );
 }
 

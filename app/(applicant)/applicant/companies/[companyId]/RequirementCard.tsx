@@ -12,6 +12,7 @@ import { StoryStart } from "./StoryStart";
 type Mode = "view" | "edit-existing" | "new";
 
 const REPLACE_PROMPT = "Replace what you have written with this story?";
+const REPLACE_ENTRY_PROMPT = "Replace what you have written with this saved entry?";
 
 function AnsweredView({ card, busy, onEdit, onRemove }: { card: CardView; busy: boolean; onEdit: () => void; onRemove: () => void }) {
   const answer = card.answer!;
@@ -81,6 +82,12 @@ export function RequirementCard({ card, stories }: { card: CardView; stories: St
     setMode("new");
   };
   const saveNew = () => settle(() => saveAnswer(card.requirementId, text, sourceStoryId), finish);
+  const saveOnlyHere = () => settle(() => saveAnswer(card.requirementId, text, undefined, existing?.entryId), finish);
+  const reuse = (entryId: string) => {
+    const typed = text.trim() !== "" && text !== (existing?.body ?? "");
+    if (typed && !window.confirm(REPLACE_ENTRY_PROMPT)) return;
+    void settle(() => reuseSavedEntry(card.requirementId, entryId), finish);
+  };
   const saveEverywhere = () => (existing ? settle(() => editSavedEntry(existing.entryId, text), finish) : undefined);
   const dismiss = (linkId: string) => settle(async () => {
     const res = await rejectSuggestion(linkId);
@@ -108,7 +115,7 @@ export function RequirementCard({ card, stories }: { card: CardView; stories: St
             {editingExisting && sharedElsewhere ? (
               <>
                 <button type="button" className={primaryClass} disabled={busy || text.trim() === ""} onClick={saveEverywhere}>Save everywhere it&apos;s used</button>
-                <button type="button" className={buttonClass} disabled={busy || text.trim() === ""} onClick={saveNew}>Save only for this card</button>
+                <button type="button" className={buttonClass} disabled={busy || text.trim() === ""} onClick={saveOnlyHere}>Save only for this card</button>
               </>
             ) : editingExisting ? (
               <button type="button" className={primaryClass} disabled={busy || text.trim() === ""} onClick={saveEverywhere}>Save</button>
@@ -120,7 +127,7 @@ export function RequirementCard({ card, stories }: { card: CardView; stories: St
         </div>
       ) : null}
       {error ? <p role="alert" className="mt-3 font-medium text-danger">{error}</p> : null}
-      <ReuseEntries matches={card.matches} busy={busy} onUse={(entryId) => settle(() => reuseSavedEntry(card.requirementId, entryId), finish)} />
+      <ReuseEntries matches={card.matches} busy={busy} onUse={reuse} />
       <StoryStart idPrefix={id} recommendations={card.recommendations} stories={stories} busy={busy} onStart={startFromStory} onDismiss={dismiss} />
     </li>
   );

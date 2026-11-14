@@ -33,7 +33,7 @@ export function writeAnswer(
   db: Db,
   applicantId: string,
   requirementId: string,
-  input: { body: string; sourceStoryId?: string },
+  input: { body: string; sourceStoryId?: string; sourceEntryId?: string },
 ): Result<Db> {
   const body = input.body.trim();
   if (body === "") return { ok: false, error: "empty-body" };
@@ -43,12 +43,19 @@ export function writeAnswer(
       ? undefined
       : db.stories.find((s) => s.id === input.sourceStoryId && s.applicantId === applicantId);
   if (input.sourceStoryId !== undefined && !story) return { ok: false, error: "not-found" };
+  const source =
+    input.sourceEntryId === undefined
+      ? undefined
+      : db.entries.find((e) => e.id === input.sourceEntryId && e.applicantId === applicantId);
+  if (input.sourceEntryId !== undefined && !source) return { ok: false, error: "not-found" };
+  const provenance = story ?? source;
+  const sourceStoryId = story ? story.id : source?.sourceStoryId;
   const entry: Entry = {
     id: nextEntryId(db.entries),
     applicantId,
     body,
-    ...(story?.languageLabel ? { languageLabel: story.languageLabel } : {}),
-    ...(story ? { sourceStoryId: story.id } : {}),
+    ...(provenance?.languageLabel ? { languageLabel: provenance.languageLabel } : {}),
+    ...(sourceStoryId ? { sourceStoryId } : {}),
   };
   const links = story
     ? db.links.map((l) =>
