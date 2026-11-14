@@ -23,9 +23,10 @@ The CV can still be shared — after the conversation, if both sides want to con
 | AI and the applicant's words | Content is the applicant's own. AI asks questions; it may fix grammar or translate, always with a visible label ("language edited", "translated from …"). AI never drafts content. |
 | Documents | No CVs, applications or online profiles before the meeting |
 | Names | Hidden while recruiters choose whom to meet; revealed when a meeting is booked |
-| Judging people | Humans only. The **recruiter** scores each core requirement 0–10 (total out of 10 × number of core requirements). AI never scores, ranks or filters people, and shows no "top match" lists. Scoring guide and how scores are used to screen at volume: **open, being researched by two teammates**. |
+| Judging people | Humans only. The **recruiter** scores each core requirement 0–10 (total out of 10 × number of core requirements). AI never scores, ranks or picks people, and shows no "top match" lists (the recruiter-asked search below is a lookup, not a ranking). Scoring guide and how scores are used to screen at volume: **open, being researched by two teammates**. |
 | Signalling | An applicant needs at least 1 accepted example for a company before they can signal it. The recruiter sees every core-requirement slot; empty ones show "no example yet". |
 | Shortlisting | The recruiter filters by coverage: how many core requirements have an example (all first, then one fewer, …). The rule is visible to applicants. |
+| AI search of cards (recruiter) | Optional, closed by default. The recruiter asks for what to look for ("Python evidence but no SQL"); AI lists the applicants whose card text fits, each with a short reason quoting the card, and an "interpretation" line to check it understood. It only searches the list already shown, never sees scores or names (pseudonymous aliases), never selects or acts; the recruiter ticks people and invites or marks for later. Applicants are told on their cards page. Decided 2026-11-15: a faster read for the recruiter, not a filter that decides. |
 | Job ad → suggested requirements | Job ads describe tasks, not needs. AI infers the skills, knowledge and tools the described work relies on (concise names, optional "in practice" line), each grounded in the ad; never identity traits. Shown as "AI suggestion"; the recruiter keeps, edits or deletes each one. |
 | Story → requirement links | Applicant tells stories first. AI suggests which company requirement a story could be evidence for, with a visible reason; the applicant accepts, rejects or moves each link. AI never changes the story. Cards show "linked by applicant". |
 | Product name | **Taito**, Finnish for "ability" (replaces the working title "No CV, No Job Ad"): the product is about what people can do, not their documents |
@@ -59,7 +60,9 @@ The CV can still be shared — after the conversation, if both sides want to con
 - **4b. Screening at volume — open.** When more applicants cover every core requirement than there are slots (e.g. 100 for 10 slots), how the recruiter narrows the list is being researched by two teammates. Ruled out: cutting on requirement #1 before reading the rest, because someone strong on the others but weak on #1 would be screened out.
 - The recruiter requests meetings; the applicant accepts; the name is revealed when the meeting is booked.
 
-Why this stays human-decided: the coverage rule is set and applied by the recruiter and is visible to applicants; every score is a person's judgment; AI is not involved in this step.
+- **4c. AI search (optional).** The recruiter can ask an AI helper to find cards with or without certain evidence; it returns a list with a reason per applicant, and the recruiter ticks whom to invite or mark for later. Invited applicants leave the list.
+
+Why this stays human-decided: the coverage rule is set and applied by the recruiter and is visible to applicants; every score is a person's judgment; the AI search only answers the recruiter's question with reasons from the cards, and the recruiter picks every person.
 
 **5. Espoo staff support** *(proposal)*
 - Staff see who is stuck (no cards, empty requirements) and offer a human coaching session.
