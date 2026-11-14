@@ -1,0 +1,8 @@
+{
+  "applicants": [
+    { "id": "talent-017", "pseudonym": "Fixture Fox", "displayName": "Fixture Person", "contact": { "email": "fixture@example.org" } }
+  ],
+  "stories": [],
+  "links": [],
+  "signals": []
+}

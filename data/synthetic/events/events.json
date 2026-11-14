@@ -1,0 +1,32 @@
+{
+  "events": [
+    {
+      "id": "event-01",
+      "name": "Spring Meetup Helsinki (fictional)",
+      "date": "2026-12-05",
+      "signalsPerApplicant": 3
+    }
+  ],
+  "companyEvents": [
+    {
+      "companyId": "company-01",
+      "eventId": "event-01",
+      "meetingSlots": 10
+    },
+    {
+      "companyId": "company-02",
+      "eventId": "event-01",
+      "meetingSlots": 10
+    },
+    {
+      "companyId": "company-03",
+      "eventId": "event-01",
+      "meetingSlots": 10
+    },
+    {
+      "companyId": "company-04",
+      "eventId": "event-01",
+      "meetingSlots": 10
+    }
+  ]
+}
