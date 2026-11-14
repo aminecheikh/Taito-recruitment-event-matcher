@@ -1,0 +1,31 @@
+{
+  "description": "Same hooks as .claude/settings.json; the scripts live in .agents/hooks. Trust them once with /hooks.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/.agents/hooks/session-start.mjs\"",
+            "timeout": 15,
+            "statusMessage": "Loading team board"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/.agents/hooks/guard.mjs\"",
+            "timeout": 10,
+            "statusMessage": "Checking git and secret rules"
+          }
+        ]
+      }
+    ]
+  }
+}

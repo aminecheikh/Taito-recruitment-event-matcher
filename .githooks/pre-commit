@@ -1,0 +1,35 @@
+#!/bin/sh
+# Fast (<1 s) safety net on staged files: secrets, oversized files, real-looking personal data.
+# Runs for everyone (humans, Claude, Codex) once `scripts/setup.sh` has set core.hooksPath.
+set -u
+MAX_BYTES=5000000
+fail=0
+block() { printf 'pre-commit: %s\n' "$1" >&2; fail=1; }
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$staged" ] && exit 0
+
+for file in $staged; do
+  case "$file" in
+    *.env.example|*.env.sample|*.env.template) ;;
+    .env|*/.env|.env.*|*/.env.*|*.pem|*.key|*.p12|*id_rsa*|*id_ed25519*) block "$file looks like a secret file. Unstage it: git restore --staged $file" ;;
+  esac
+  if [ -f "$file" ] && [ "$(wc -c < "$file")" -gt "$MAX_BYTES" ]; then
+    block "$file is over 5 MB. Commit the generator script, not the output."
+  fi
+done
+
+added=$(git diff --cached -U0 --diff-filter=ACMR -- . ':(exclude).githooks/*' | grep '^+' | grep -v '^+++')
+if printf '%s' "$added" | grep -Eq '(^|[^A-Za-z0-9_-])sk-(ant-|proj-)?[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{40,}|AKIA[A-Z0-9]{16}|AIza[0-9A-Za-z_-]{35}|-----BEGIN [A-Z ]*PRIVATE KEY-----'; then
+  block "a staged line looks like an API key or private key. Move it to .env and reference the variable name."
+fi
+
+# Synthetic-data rule: emails in data/ must use a reserved domain (example.com/.org/.net, *.test, *.invalid, *.example).
+data_added=$(git diff --cached -U0 --diff-filter=ACMR -- data/ | grep '^+' | grep -v '^+++' | sed 's/^+//')
+real_email=$(printf '%s' "$data_added" | grep -Eo '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' \
+  | grep -Eiv '@([a-z0-9-]+\.)*(example\.(com|org|net)|test|invalid|example|localhost)$' | head -3)
+if [ -n "$real_email" ]; then
+  block "data/ contains real-looking emails ($(echo $real_email)). Synthetic data must use reserved domains, e.g. talent-017@example.org."
+fi
+
+[ "$fail" -eq 0 ] || { echo "pre-commit: blocked. See AGENTS.md › Git." >&2; exit 1; }

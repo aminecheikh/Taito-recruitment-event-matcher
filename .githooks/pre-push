@@ -1,0 +1,3 @@
+#!/bin/sh
+# Keep main working: the fast check must pass before anything reaches origin.
+exec "$(git rev-parse --show-toplevel)/scripts/check.sh"

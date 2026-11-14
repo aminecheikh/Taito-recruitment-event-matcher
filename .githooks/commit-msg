@@ -1,0 +1,8 @@
+#!/bin/sh
+# Conventional commits: type(scope): message. Merge/revert messages from git pass.
+first=$(head -n1 "$1")
+case "$first" in Merge*|Revert*|fixup!*|squash!*) exit 0 ;; esac
+if ! printf '%s' "$first" | grep -Eq '^(feat|fix|docs|chore|refactor|test|style|perf|build|ci|data|revert)(\([a-z0-9._/-]+\))?!?: .+'; then
+  echo "commit-msg: use a conventional commit, e.g. 'feat(cards): evidence card form'. Got: $first" >&2
+  exit 1
+fi
