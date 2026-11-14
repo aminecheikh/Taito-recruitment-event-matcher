@@ -9,6 +9,8 @@ import { usedForLabel, type CardView, type StoryView } from "../ui";
 import { ReuseEntries } from "./ReuseEntries";
 import { StoryStart } from "./StoryStart";
 
+type Mode = "view" | "edit-existing" | "new";
+
 const REPLACE_PROMPT = "Replace what you have written with this story?";
 
 function AnsweredView({ card, busy, onEdit, onRemove }: { card: CardView; busy: boolean; onEdit: () => void; onRemove: () => void }) {
@@ -32,13 +34,15 @@ function AnsweredView({ card, busy, onEdit, onRemove }: { card: CardView; busy: 
 export function RequirementCard({ card, stories }: { card: CardView; stories: StoryView[] }) {
   const router = useRouter();
   const answered = card.answer !== null;
-  const [editing, setEditing] = useState(false);
+  const [mode, setMode] = useState<Mode>("view");
   const [text, setText] = useState("");
   const [sourceStoryId, setSourceStoryId] = useState<string | undefined>(undefined);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const showForm = !answered || editing;
-  const sharedElsewhere = (card.answer?.alsoUsedFor.length ?? 0) > 0;
+  const showForm = !answered || mode !== "view";
+  const existing = card.answer;
+  const editingExisting = mode === "edit-existing" && existing !== null;
+  const sharedElsewhere = (existing?.alsoUsedFor.length ?? 0) > 0;
 
   const settle = async (fn: () => Promise<EntryStatus>, after?: () => void) => {
     setBusy(true);
@@ -58,23 +62,26 @@ export function RequirementCard({ card, stories }: { card: CardView; stories: St
   };
 
   const finish = () => {
-    setEditing(false);
+    setMode("view");
     setText("");
     setSourceStoryId(undefined);
+    setError(null);
   };
   const startEdit = () => {
-    setText(card.answer?.body ?? "");
+    setText(existing?.body ?? "");
     setSourceStoryId(undefined);
-    setEditing(true);
+    setError(null);
+    setMode("edit-existing");
   };
   const startFromStory = (story: StoryView) => {
     if (text.trim() !== "" && text !== story.body && !window.confirm(REPLACE_PROMPT)) return;
     setText(story.body);
     setSourceStoryId(story.id);
-    setEditing(true);
+    setError(null);
+    setMode("new");
   };
   const saveNew = () => settle(() => saveAnswer(card.requirementId, text, sourceStoryId), finish);
-  const saveEverywhere = () => settle(() => editSavedEntry(card.answer!.entryId, text), finish);
+  const saveEverywhere = () => (existing ? settle(() => editSavedEntry(existing.entryId, text), finish) : undefined);
   const dismiss = (linkId: string) => settle(async () => {
     const res = await rejectSuggestion(linkId);
     return res.ok ? { ok: true } : res;
@@ -90,25 +97,25 @@ export function RequirementCard({ card, stories }: { card: CardView; stories: St
           <p className="hint mt-0.5">In practice: {card.inPractice}</p>
         </div>
       </div>
-      {answered && !editing ? (
-        <AnsweredView card={card} busy={busy} onEdit={startEdit} onRemove={() => settle(() => removeAnswer(card.requirementId))} />
+      {answered && mode === "view" ? (
+        <AnsweredView card={card} busy={busy} onEdit={startEdit} onRemove={() => { setError(null); void settle(() => removeAnswer(card.requirementId)); }} />
       ) : null}
       {showForm ? (
         <div className="mt-4">
           <label htmlFor={`${id}-text`} className="label">Your example for this requirement, in your own words</label>
-          <textarea id={`${id}-text`} className={`${fieldClass} mt-1 min-h-32`} value={text} onChange={(e) => setText(e.target.value)} />
+          <textarea id={`${id}-text`} className={`${fieldClass} mt-1 min-h-32`} value={text} disabled={busy} onChange={(e) => setText(e.target.value)} />
           <div className="mt-3 flex flex-wrap gap-2">
-            {editing && sharedElsewhere ? (
+            {editingExisting && sharedElsewhere ? (
               <>
                 <button type="button" className={primaryClass} disabled={busy || text.trim() === ""} onClick={saveEverywhere}>Save everywhere it&apos;s used</button>
                 <button type="button" className={buttonClass} disabled={busy || text.trim() === ""} onClick={saveNew}>Save only for this card</button>
               </>
-            ) : editing ? (
+            ) : editingExisting ? (
               <button type="button" className={primaryClass} disabled={busy || text.trim() === ""} onClick={saveEverywhere}>Save</button>
             ) : (
               <button type="button" className={primaryClass} disabled={busy || text.trim() === ""} onClick={saveNew}>Save</button>
             )}
-            {editing ? <button type="button" className={buttonClass} disabled={busy} onClick={finish}>Cancel</button> : null}
+            {answered ? <button type="button" className={buttonClass} disabled={busy} onClick={finish}>Cancel</button> : null}
           </div>
         </div>
       ) : null}
