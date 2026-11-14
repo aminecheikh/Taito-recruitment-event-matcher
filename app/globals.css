@@ -834,6 +834,29 @@
     font-size: 24px;
     font-weight: 800;
   }
+  /* Header navigation: chunky display-face tabs; the current page is a solid cobalt tab */
+  .nav-tab {
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+    border-radius: 0.5rem;
+    padding-inline: 0.875rem;
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--muted);
+    transition: background-color 150ms var(--ease-out), color 150ms var(--ease-out);
+  }
+  .nav-tab:hover {
+    background: color-mix(in srgb, var(--pink) 35%, transparent);
+    color: var(--ink);
+  }
+  .nav-tab[aria-current="page"] {
+    background: var(--cobalt);
+    color: #ffffff;
+  }
+
   /* Logo lockup: the pipo mascot head as a sticker mark + a chunky wordmark */
   .logo {
     display: inline-flex;
