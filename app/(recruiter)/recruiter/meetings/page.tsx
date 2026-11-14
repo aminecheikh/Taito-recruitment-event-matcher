@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PageHeader } from "@/app/components/PageHeader";
 import { EventCalendar } from "@/app/components/EventCalendar";
-import { companyCalendar, slotEnd } from "@/lib/domain/calendar";
+import { companyCalendar, formatSlot } from "@/lib/domain/calendar";
 import { visibleApplicantName } from "@/lib/domain/cards";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
@@ -48,7 +48,7 @@ export default async function MeetingsPage() {
                       <span className="underline decoration-line-strong underline-offset-4 group-hover:decoration-accent">
                         {visibleApplicantName(db, session.companyId, m.applicantId)}
                       </span>
-                      {m.slotStart ? <span className="font-normal text-muted">{`${m.slotStart}\u2013${slotEnd(m.slotStart)}`}</span> : null}
+                      {m.slotStart ? <span className="font-normal text-muted">{formatSlot(m.slotStart)}</span> : null}
                       <span aria-hidden="true" className="text-accent-ink transition-transform group-hover:translate-x-1">→</span>
                     </Link>
                   </li>

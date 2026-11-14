@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PageHeader } from "@/app/components/PageHeader";
 import { EventCalendar } from "@/app/components/EventCalendar";
-import { applicantCalendar, slotEnd, sharedFreeSlots } from "@/lib/domain/calendar";
+import { applicantCalendar, formatSlot, sharedFreeSlots } from "@/lib/domain/calendar";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
 import { AcceptButton, RefreshButton } from "./MeetingControls";
@@ -69,7 +69,7 @@ export default async function MeetingsPage() {
               <span>
                 <span className="block font-serif text-xl font-semibold">{name}</span>
                 {meeting.slotStart ? (
-                  <span className="mt-1 block text-muted">{`${meeting.slotStart}\u2013${slotEnd(meeting.slotStart)}`}</span>
+                  <span className="mt-1 block text-muted">{formatSlot(meeting.slotStart)}</span>
                 ) : null}
                 <span className="link mt-1 block">Open meeting with {name}</span>
               </span>

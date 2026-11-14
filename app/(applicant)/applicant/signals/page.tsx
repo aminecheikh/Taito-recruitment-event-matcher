@@ -4,6 +4,7 @@ import { coverage } from "@/lib/domain/cards";
 import { signalsLeft } from "@/lib/domain/signals";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
+import { companiesAt } from "@/lib/domain/attendance";
 
 const ERROR_MESSAGES: Record<string, string> = {
   "no-signals-left": "You've used all your signals for this event.",
@@ -42,9 +43,7 @@ export default async function SignalsPage({
       .filter((s) => s.eventId === event.id && s.applicantId === applicant.id)
       .map((s) => s.companyId),
   );
-  const companyIds = new Set(
-    db.companyEvents.filter((ce) => ce.eventId === event.id).map((ce) => ce.companyId),
-  );
+  const companyIds = new Set(companiesAt(db, event.id));
   const companies = db.companies
     .filter((c) => companyIds.has(c.id))
     .sort((a, b) => a.name.localeCompare(b.name))

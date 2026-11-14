@@ -29,6 +29,11 @@ export function slotEnd(slotStart: string): string {
   return toTime(toMinutes(slotStart) + SLOT_MINUTES);
 }
 
+/** "14:30–15:00" (en dash) for a slot starting at 14:30. */
+export function formatSlot(slotStart: string): string {
+  return `${slotStart}–${slotEnd(slotStart)}`;
+}
+
 function buildCalendar(db: Db, eventId: string, mine: (m: Meeting) => boolean): Calendar {
   const event = db.events.find((e) => e.id === eventId);
   const bookedHere = db.meetings.filter((m) => m.eventId === eventId && m.status === "booked" && mine(m));

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { getSession, parseSession, ROLES, SESSION_COOKIE, type Role, type Session } from "@/lib/session";
 import { ROLE_HOME } from "@/lib/nav";
 import { readDb } from "@/lib/store/db";
+import { applicantsAt, companiesAt } from "@/lib/domain/attendance";
 
 export async function setSession(patch: Partial<Session>): Promise<void> {
   const next = parseSession(JSON.stringify({ ...(await getSession()), ...patch }));
@@ -27,8 +28,8 @@ export async function pickEvent(formData: FormData): Promise<void> {
   const eventId = String(formData.get("eventId"));
   const [db, session] = await Promise.all([readDb(), getSession()]);
   if (!db.events.some((e) => e.id === eventId)) return;
-  const companyIds = db.companyEvents.filter((ce) => ce.eventId === eventId).map((ce) => ce.companyId);
-  const applicantIds = db.applicantEvents.filter((ae) => ae.eventId === eventId).map((ae) => ae.applicantId);
+  const companyIds = companiesAt(db, eventId);
+  const applicantIds = applicantsAt(db, eventId);
   await setSession({
     eventId,
     companyId: companyIds.includes(session.companyId) ? session.companyId : (companyIds[0] ?? session.companyId),

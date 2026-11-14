@@ -11,6 +11,7 @@ import { ThemeSwitch } from "./ThemeSwitch";
 import { cookies } from "next/headers";
 import { formatShortDate } from "@/lib/domain/eventFormat";
 import { parseTheme, THEME_COOKIE } from "@/lib/theme";
+import { applicantsAt, companiesAt } from "@/lib/domain/attendance";
 
 const ROLE_LABELS: Record<Role, string> = {
   recruiter: "Recruiter",
@@ -34,8 +35,8 @@ export async function RoleBar() {
     await setSession({ applicantId: String(formData.get("applicantId")) });
   }
 
-  const companyIds = new Set(db.companyEvents.filter((ce) => ce.eventId === session.eventId).map((ce) => ce.companyId));
-  const applicantIds = new Set(db.applicantEvents.filter((ae) => ae.eventId === session.eventId).map((ae) => ae.applicantId));
+  const companyIds = new Set(companiesAt(db, session.eventId));
+  const applicantIds = new Set(applicantsAt(db, session.eventId));
   const attendingCompanies = db.companies.filter((c) => companyIds.has(c.id));
   const attendingApplicants = db.applicants.filter((a) => applicantIds.has(a.id));
   const companies = attendingCompanies.length

@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
 import { LinkSuggestions } from "./LinkSuggestions";
 import type { RequirementOption } from "./ui";
+import { companiesAt } from "@/lib/domain/attendance";
 
 function examplesLine(covered: number, total: number, missing: number[]): string {
   const base = `Your examples: ${covered} of ${total}`;
@@ -23,7 +24,7 @@ export default async function CompaniesPage() {
     );
   }
 
-  const atEvent = new Set(db.companyEvents.filter((ce) => ce.eventId === session.eventId).map((ce) => ce.companyId));
+  const atEvent = new Set(companiesAt(db, session.eventId));
   const companies = db.companies.filter((c) => atEvent.has(c.id)).sort((a, b) => a.name.localeCompare(b.name));
   const own = new Set(db.stories.filter((s) => s.applicantId === applicant.id).map((s) => s.id));
 

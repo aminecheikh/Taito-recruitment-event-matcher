@@ -5,6 +5,7 @@ import {
   companyCalendar,
   companyOpenSlots,
   eventSlots,
+  formatSlot,
   sharedFreeSlots,
   slotEnd,
 } from "./calendar";
@@ -115,5 +116,12 @@ describe("calendar", () => {
 
   test("companyOpenSlots_companyNotAtEvent_isZero", () => {
     expect(companyOpenSlots(makeDb(), EVENT, "nobody")).toBe(0);
+  });
+});
+
+describe("formatSlot", () => {
+  test("test_formatSlot_halfHourStart_returnsRangeWithEnDash", () => {
+    expect(formatSlot("14:30")).toBe("14:30–15:00");
+    expect(formatSlot("17:30")).toBe("17:30–18:00");
   });
 });

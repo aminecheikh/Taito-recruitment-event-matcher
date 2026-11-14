@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { acceptMeetingAction } from "@/app/actions/applicantMeetings";
-import { slotEnd } from "@/lib/domain/calendar";
+import { formatSlot } from "@/lib/domain/calendar";
 import { meetingErrorText } from "./errors";
 
 export function RefreshButton() {
@@ -56,7 +56,7 @@ export function AcceptButton({ meetingId, companyName, freeSlots }: AcceptProps)
                   checked={chosen === start}
                   onChange={() => setSlot(start)}
                 />
-                {`${start}\u2013${slotEnd(start)}`}
+                {formatSlot(start)}
               </label>
             ))}
           </div>

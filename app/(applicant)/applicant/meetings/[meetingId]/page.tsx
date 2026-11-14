@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { EvidenceCard } from "@/app/(recruiter)/recruiter/applicants/EvidenceCard";
-import { slotEnd } from "@/lib/domain/calendar";
+import { formatSlot } from "@/lib/domain/calendar";
 import { formatEventDate } from "@/lib/domain/eventFormat";
 import { buildCard } from "@/lib/domain/cards";
 import { revealDecisions } from "@/lib/domain/decisions";
@@ -126,7 +126,7 @@ export default async function MeetingPage({ params }: { params: Promise<{ meetin
       <h1 className="h1 mt-4">Meeting with {name}</h1>
       {meeting.slotStart ? (
         <p className="lede">
-          Booked time: {`${meeting.slotStart}\u2013${slotEnd(meeting.slotStart)}`}
+          Booked time: {formatSlot(meeting.slotStart)}
           {meetingEvent ? ` · ${meetingEvent.name}, ${formatEventDate(meetingEvent.date)}` : ""}
         </p>
       ) : null}

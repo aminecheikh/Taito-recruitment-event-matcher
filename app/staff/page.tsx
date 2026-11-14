@@ -3,11 +3,12 @@ import { needsHelp } from "@/lib/domain/readiness";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
 import { OfferButton } from "./OfferButton";
+import { applicantsAt } from "@/lib/domain/attendance";
 
 export default async function StaffPage() {
   // Pass only the row fields the table needs; never the whole Db to the client.
   const [session, db] = await Promise.all([getSession(), readDb()]);
-  const registered = new Set(db.applicantEvents.filter((ae) => ae.eventId === session.eventId).map((ae) => ae.applicantId));
+  const registered = new Set(applicantsAt(db, session.eventId));
   const rows = needsHelp(db).filter((row) => registered.has(row.applicantId));
 
   return (
