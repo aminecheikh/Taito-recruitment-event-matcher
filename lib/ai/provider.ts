@@ -9,6 +9,8 @@ export const DEFAULT_MODEL_BY_PROVIDER = {
   openai: "gpt-5.4-mini",
 } as const;
 
+export const DEFAULT_PROVIDER = "mock";
+
 type RealProvider = keyof typeof DEFAULT_MODEL_BY_PROVIDER;
 
 function isRealProvider(name: string): name is RealProvider {
@@ -17,7 +19,7 @@ function isRealProvider(name: string): name is RealProvider {
 
 /** Returns null when AI_PROVIDER is mock (the default), unknown, or the provider key is missing. */
 export function getModel(): LanguageModel | null {
-  const provider = process.env.AI_PROVIDER ?? "mock";
+  const provider = process.env.AI_PROVIDER ?? DEFAULT_PROVIDER;
   if (!isRealProvider(provider)) return null;
   const modelId = process.env.AI_MODEL || DEFAULT_MODEL_BY_PROVIDER[provider];
 

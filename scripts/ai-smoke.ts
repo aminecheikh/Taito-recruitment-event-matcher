@@ -6,7 +6,7 @@ import {
   nextFollowUpQuestion,
   suggestLinks,
 } from "@/lib/ai/functions";
-import { getModel } from "@/lib/ai/provider";
+import { DEFAULT_PROVIDER, getModel } from "@/lib/ai/provider";
 
 const KEY_BY_PROVIDER: Record<string, string> = {
   google: "GOOGLE_GENERATIVE_AI_API_KEY",
@@ -32,8 +32,8 @@ const DEMO_JOB_AD = [
 ].join("\n");
 
 function describeProvider(): string {
-  const provider = process.env.AI_PROVIDER ?? "mock";
-  if (provider === "mock") return "mock (no model calls)";
+  const provider = process.env.AI_PROVIDER ?? DEFAULT_PROVIDER;
+  if (provider === DEFAULT_PROVIDER) return "mock (no model calls)";
   const keyName = KEY_BY_PROVIDER[provider];
   if (!keyName) return `${provider} (unknown provider, the mock will be used)`;
   return process.env[keyName]

@@ -101,7 +101,7 @@ export function createAiFunctions(getModelFn: GetModel) {
           followUpPrompt.system,
           followUpPrompt.buildUser(input),
         );
-        return cleanQuestion(question);
+        return cleanQuestion(question, input.storyBody);
       },
       () => mockNextFollowUpQuestion(input.history),
     );

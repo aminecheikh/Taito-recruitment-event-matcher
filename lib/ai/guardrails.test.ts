@@ -52,20 +52,30 @@ describe("cleanLinkSuggestions", () => {
 
 describe("cleanQuestion", () => {
   test("accepts exactly one question", () => {
-    expect(cleanQuestion("What did you do yourself?")).toBe("What did you do yourself?");
-    expect(cleanQuestion("What happened? And who helped?")).toBeNull();
-    expect(cleanQuestion("Great story! You should say you led the team.")).toBeNull();
+    expect(cleanQuestion("What did you do yourself?", "story")).toBe("What did you do yourself?");
+    expect(cleanQuestion("What happened? And who helped?", "story")).toBeNull();
+    expect(cleanQuestion("Great story! You should say you led the team.", "story")).toBeNull();
   });
 
   test("rejects questions over 200 characters", () => {
-    expect(cleanQuestion(`${"a".repeat(200)}?`)).toBeNull();
+    expect(cleanQuestion(`${"a".repeat(200)}?`, "story")).toBeNull();
   });
 });
 
 describe("cleanQuestion scoring language", () => {
-  test("rejects a question that mentions a score, rating, rank or percentage", () => {
-    expect(cleanQuestion("How would you rate your score on that day?")).toBeNull();
-    expect(cleanQuestion("Why do you think you rank 90% here?")).toBeNull();
+  test("rejects a question that adds a score, rating, rank or percentage", () => {
+    expect(cleanQuestion("What score would you give yourself?", "I fixed a fault.")).toBeNull();
+    expect(cleanQuestion("Why do you think you rank 90% here?", "I fixed a fault.")).toBeNull();
+  });
+
+  test("accepts a normal recall question", () => {
+    const q = "What did you do yourself?";
+    expect(cleanQuestion(q, "I fixed a fault.")).toBe(q);
+  });
+
+  test("accepts a question quoting a percentage from the applicant's own story", () => {
+    const q = "How did you get the defect rate down by 30%?";
+    expect(cleanQuestion(q, "I cut the defect rate by 30% in a month.")).toBe(q);
   });
 });
 
@@ -93,6 +103,12 @@ describe("cleanRequirementPhrases", () => {
       "Rank applicants by experience",
       "Rating of the candidate",
       "Best match for the team",
+      "Fit score of 70",
+      "90% fit for the role",
+      "Top candidates only",
+      "Compare applicants",
+      "Hire rating",
+      "Rank employees by output",
     ]);
     expect(out).toEqual(["Python"]);
   });
