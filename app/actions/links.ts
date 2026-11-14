@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { acceptLink, addSuggestions, linkManually, moveLink, rejectLink } from "@/lib/domain/links";
-import { coreRequirements } from "@/lib/domain/requirements";
+import { coreIdsAtEvent } from "@/lib/domain/attendance";
+import { addSuggestions, rejectLink } from "@/lib/domain/links";
 import type { Db, Result } from "@/lib/domain/types";
 import { getSession } from "@/lib/session";
 import { updateDb } from "@/lib/store/db";
@@ -14,7 +14,6 @@ const MAX_REASON_CHARS = 1_000;
 
 const ERROR_MESSAGES: Record<string, string> = {
   "not-found": "That example or requirement was not found.",
-  "other-company": "You can only move a link to another requirement of the same company.",
 };
 
 const Id = z.string().min(1).max(200);
@@ -25,15 +24,6 @@ const Suggestions = z
 export type LinkStatus = { ok: true; added?: number } | { ok: false; error: string };
 
 type Scope = { applicantId: string; eventId: string };
-
-/** Ids of the current core requirements of companies at the session event. */
-function coreIdsAtEvent(db: Db, eventId: string): Set<string> {
-  return new Set(
-    db.companyEvents
-      .filter((ce) => ce.eventId === eventId)
-      .flatMap((ce) => coreRequirements(db, ce.companyId).map((r) => r.id)),
-  );
-}
 
 const ownsStory = (db: Db, storyId: string, applicantId: string) =>
   db.stories.some((s) => s.id === storyId && s.applicantId === applicantId);
@@ -85,37 +75,10 @@ export async function saveSuggestions(storyId: string, suggestions: { requiremen
   return status.ok ? { ok: true, added } : status;
 }
 
-export async function acceptSuggestion(linkId: string): Promise<LinkStatus> {
-  if (!Id.safeParse(linkId).success) return invalid;
-  return run(
-    (db, { applicantId }, core) => {
-      const link = db.links.find((l) => l.id === linkId);
-      return link && ownsLink(db, linkId, applicantId) && core.has(link.requirementId) ? null : "not-found";
-    },
-    (db) => acceptLink(db, linkId),
-  );
-}
-
 export async function rejectSuggestion(linkId: string): Promise<LinkStatus> {
   if (!Id.safeParse(linkId).success) return invalid;
   return run(
     (db, { applicantId }) => (ownsLink(db, linkId, applicantId) ? null : "not-found"),
     (db) => rejectLink(db, linkId),
-  );
-}
-
-export async function moveSuggestion(linkId: string, toRequirementId: string): Promise<LinkStatus> {
-  if (!Id.safeParse(linkId).success || !Id.safeParse(toRequirementId).success) return invalid;
-  return run(
-    (db, { applicantId }, core) => (ownsLink(db, linkId, applicantId) && core.has(toRequirementId) ? null : "not-found"),
-    (db) => moveLink(db, linkId, toRequirementId),
-  );
-}
-
-export async function linkMyself(storyId: string, requirementId: string): Promise<LinkStatus> {
-  if (!Id.safeParse(storyId).success || !Id.safeParse(requirementId).success) return invalid;
-  return run(
-    (db, { applicantId }, core) => (ownsStory(db, storyId, applicantId) && core.has(requirementId) ? null : "not-found"),
-    (db) => linkManually(db, storyId, requirementId),
   );
 }

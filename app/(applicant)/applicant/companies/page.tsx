@@ -3,8 +3,6 @@ import { coverage } from "@/lib/domain/cards";
 import { coreRequirements } from "@/lib/domain/requirements";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
-import { LinkSuggestions } from "./LinkSuggestions";
-import type { RequirementOption } from "./ui";
 import { companiesAt } from "@/lib/domain/attendance";
 
 function examplesLine(covered: number, total: number, missing: number[]): string {
@@ -34,10 +32,6 @@ export default async function CompaniesPage() {
     const missing = reqs.flatMap((r, i) => (accepted.has(r.id) ? [] : [i + 1]));
     return { company, reqs, missing, ...coverage(db, company.id, applicant.id) };
   });
-  const options: RequirementOption[] = view.flatMap(({ company, reqs }) =>
-    reqs.map((r, i) => ({ id: r.id, companyId: company.id, companyName: company.name, position: i + 1, text: r.text })),
-  );
-  const stories = db.stories.filter((s) => s.applicantId === applicant.id);
 
   return (
     <main className="page">
@@ -65,21 +59,6 @@ export default async function CompaniesPage() {
                 </li>
               ))}
             </ol>
-          </li>
-        ))}
-      </ul>
-      <h2 className="h2 mt-12">Where your stories fit</h2>
-      <p className="hint mt-1">Ask for a suggestion, or link a story yourself. Nothing is linked until you accept it.</p>
-      {stories.length === 0 ? <p className="empty-slot mt-4">Write a story first, then come back to link it.</p> : null}
-      <ul className="mt-4 space-y-4">
-        {stories.map((story) => (
-          <li key={story.id}>
-            <LinkSuggestions
-              idPrefix={story.id}
-              story={{ id: story.id, title: story.title }}
-              links={db.links.filter((l) => l.storyId === story.id).map(({ id, requirementId, origin, status, aiReason }) => ({ id, requirementId, origin, status, aiReason }))}
-              options={options}
-            />
           </li>
         ))}
       </ul>

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { applicantsAt, companiesAt } from "./attendance";
+import { applicantsAt, companiesAt, coreIdsAtEvent } from "./attendance";
+import { makeDb } from "./fixtures";
 import { emptyDb, type Db } from "./types";
 
 const db: Db = {
@@ -27,5 +28,15 @@ describe("attendance", () => {
   test("test_companiesAt_unknownEvent_returnsEmpty", () => {
     expect(companiesAt(db, "event-99")).toEqual([]);
     expect(applicantsAt(db, "event-99")).toEqual([]);
+  });
+});
+
+describe("coreIdsAtEvent", () => {
+  test("test_coreIdsAtEvent_attendingCompany_returnsOnlyCoreRequirementIds", () => {
+    expect(coreIdsAtEvent(makeDb(), "event-01")).toEqual(new Set(["req-01-1", "req-01-2", "req-01-3", "req-01-4"]));
+  });
+
+  test("test_coreIdsAtEvent_eventWithoutCompanies_returnsEmpty", () => {
+    expect(coreIdsAtEvent(makeDb(), "event-99").size).toBe(0);
   });
 });
