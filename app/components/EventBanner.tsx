@@ -25,7 +25,7 @@ export async function EventBanner() {
   return (
     <div data-app-chrome>
       <p className="shell flex flex-wrap items-center gap-2 pt-4">
-        <span className="chip chip-ticket tone tone-sun">{event.name}</span>
+        <span className="chip chip-ticket tone tone-cobalt">{event.name}</span>
         <span className="chip">
           <ChipIcon name="date" />
           {formatEventDate(event.date)}

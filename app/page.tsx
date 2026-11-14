@@ -2,11 +2,12 @@ import { enterRole } from "@/app/actions/session";
 import { coreRequirements } from "@/lib/domain/requirements";
 import type { Db } from "@/lib/domain/types";
 import { readDb } from "@/lib/store/db";
+import { MascotOnEdge } from "./components/MascotOnEdge";
 
 const ENTRIES = [
-  { role: "recruiter", tone: "tone-sun", label: "Recruiter", detail: "Name the few things you hire on, then meet the people who show them." },
-  { role: "applicant", tone: "tone-bubblegum", label: "Applicant", detail: "Tell what you have done, in your own words. Choose who you want to meet." },
-  { role: "staff", tone: "tone-tangerine", label: "Event staff", detail: "See who might need help preparing before the event." },
+  { role: "recruiter", tone: "tone-cobalt", label: "Recruiter", detail: "Name the few things you hire on, then meet the people who show them." },
+  { role: "applicant", tone: "tone-pink", label: "Applicant", detail: "Tell what you have done, in your own words. Choose who you want to meet." },
+  { role: "staff", tone: "tone-ice", label: "Event staff", detail: "See who might need help preparing before the event." },
 ] as const;
 
 const STEPS = [
@@ -49,8 +50,9 @@ function SlotFigure({ slot }: { slot: Slot }) {
       aria-label={`Example: ${slot.label} shows evidence for ${slot.company}'s core requirement ${slot.rank}, ${slot.requirement}`}
       className="card !p-0 shadow-[var(--shadow-lift)]"
     >
-      <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3 text-sm text-muted sm:px-6">
+      <div className="flex flex-wrap items-center gap-x-2 border-b border-line py-3 pl-5 pr-40 text-sm text-muted sm:pl-6">
         <span>{slot.company}</span>
+        <span aria-hidden="true">·</span>
         <span>{slot.label}</span>
       </div>
       <div className="px-5 py-5 sm:px-6">
@@ -101,16 +103,19 @@ export default async function Home() {
           </form>
         </div>
         {slot ? (
-          <div className="relative" style={order(4)}>
+          <div className="relative mt-36 lg:mt-0" style={order(4)}>
             <SlotFigure slot={slot} />
-            <span className="sticker tone-bubblegum absolute -bottom-16 right-2 sm:-right-8" aria-hidden="true">
-              No CV needed
+            <MascotOnEdge pose="laptop" id="hero-mascot" width={190} side="right" inset="0.5rem" />
+            <span className="sticker absolute -bottom-16 right-2 sm:-right-8" aria-hidden="true">
+              <span>No CV</span>
+              <span>needed</span>
             </span>
           </div>
         ) : null}
       </section>
 
-      <section aria-labelledby="how-heading" className="band tone tone-sun mt-28 -mb-16 sm:-mb-20">
+      <section aria-labelledby="how-heading" className="band tone tone-pink mt-36 -mb-16 sm:-mb-20">
+        <MascotOnEdge pose="peek" id="band-mascot" width={200} side="right" inset="4%" />
         <h2 id="how-heading" className="h2">How an event runs</h2>
         <ol className="mt-8 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map(([title, text], i) => (

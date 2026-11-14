@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Palette "Happy mix": a flat, confident layout in the spirit of fraenk.de
- * (white and warm-grey grounds, black ink, solid black actions, bold tight headlines, big
- * rounded panels, full-bleed colour bands, a round sticker) with our own mix of happy colours
- * instead of one brand yellow. Sun, tangerine and bubblegum are decoration only: role cards,
- * bands, stickers, the hero scribble, core-requirement markers. Actions are ink, so colour
- * never competes with a button. Mint is reserved for AI (dashed note panels) and used nowhere
- * else. Tones stay bright in both themes and always carry dark ink. Dark is warm charcoal.
- * All text pairs meet WCAG AA in both themes; borders and focus rings meet 3:1.
+ * Design tokens. Palette "Moi": retro cartoon print in Finnish blue and white with a bubblegum
+ * pink, on cream paper. Electric cobalt carries headings, actions and every mascot outline;
+ * pink is the playful accent (applicant tone, starburst stickers, the hero scribble); ice is the
+ * quiet third tone. A blue-and-white checker edges the colour band. Mint is reserved for AI
+ * (dashed note panels) and used nowhere else. Tones keep their own text colour in both themes.
+ * Dark is a near-neutral black, never a blue ground. All text pairs meet WCAG AA in both
+ * themes; borders and focus rings meet 3:1.
  */
 :root {
-  --sun: #ffd23f;
-  --tangerine: #ff9f5a;
-  --bubblegum: #ff9ecd;
-  --on-tone: #1d1b19;
-  --tone-muted: #3f3a34;
+  --cobalt: #1f4ff0;
+  --pink: #ff9fdb;
+  --ice: #d6e4ff;
+  --paper: #fffaf0;
+  --on-tone: #141a3a;
+  --tone-muted: #3b3f5c;
 
   /* Easing from Emil Kowalski's animation guidance: strong ease-out for UI, ease-in-out for on-screen moves */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -24,25 +24,25 @@
 :root,
 :root[data-theme="light"] {
   color-scheme: light;
-  --canvas: #f4f2ee;
+  --canvas: #f3f1ec;
   --surface: #ffffff;
-  --sunken: #ebe8e2;
-  --ink: #1d1b19;
-  --heading: #1d1b19;
-  --muted: #5d5650;
-  --line: #e4e0d8;
-  --line-strong: #8c857b;
-  --edge: #1d1b19;
-  --accent: #1d1b19;
-  --accent-hover: #3a3632;
-  --accent-soft: #ebe8e2;
-  --accent-ink: #1d1b19;
+  --sunken: #e9e6df;
+  --ink: #141a3a;
+  --heading: #1f4ff0;
+  --muted: #4a5070;
+  --line: #e1ded6;
+  --line-strong: #8a8ea3;
+  --edge: #141a3a;
+  --accent: #1f4ff0;
+  --accent-hover: #1739b8;
+  --accent-soft: #e3e9fd;
+  --accent-ink: #1f4ff0;
   --on-accent: #ffffff;
-  --chrome: #1d1b19;
-  --chrome-raised: #2d2a27;
-  --chrome-line: #45403b;
-  --on-chrome: #f4f2ee;
-  --on-chrome-muted: #b3aaa1;
+  --chrome: #17181d;
+  --chrome-raised: #262830;
+  --chrome-line: #3d404c;
+  --on-chrome: #f3f1ec;
+  --on-chrome-muted: #aeb1bd;
   --ai: #0b5536;
   --ai-soft: #d5f5e6;
   --ai-line: #2f9e6e;
@@ -50,37 +50,38 @@
   --success-soft: #e2f3e6;
   --danger: #a12a22;
   --danger-soft: #fde8e5;
-  --thumb: #1d1b19;
+  --thumb: #1f4ff0;
   --on-thumb: #ffffff;
-  --shadow-lift: 0 14px 28px -16px rgb(29 27 25 / 0.28);
+  --mascot-line: #1f4ff0;
+  --shadow-lift: 0 14px 28px -16px rgb(20 26 58 / 0.3);
   --depth-1: none;
-  --depth-3: 0 18px 40px -18px rgb(29 27 25 / 0.26), 0 2px 6px rgb(29 27 25 / 0.06);
-  --shadow-rgb: 29 27 25;
+  --depth-3: 0 18px 40px -18px rgb(20 26 58 / 0.28), 0 2px 6px rgb(20 26 58 / 0.06);
+  --shadow-rgb: 20 26 58;
 }
 
-/* Dark: warm charcoal. Follows the system unless the viewer picked Light; or picked Dark */
+/* Dark: near-neutral black. Follows the system unless the viewer picked Light; or picked Dark */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --canvas: #181614;
-    --surface: #23201d;
-    --sunken: #2c2925;
-    --ink: #f5efe8;
-    --heading: #ffffff;
-    --muted: #b5ada4;
-    --line: #3a3631;
-    --line-strong: #7a7269;
-    --edge: #f5efe8;
-    --accent: #f5efe8;
-    --accent-hover: #ffffff;
-    --accent-soft: #2f2b27;
-    --accent-ink: #f5efe8;
-    --on-accent: #181614;
-    --chrome: #0f0e0c;
-    --chrome-raised: #23201d;
-    --chrome-line: #3a3631;
-    --on-chrome: #f5efe8;
-    --on-chrome-muted: #a39b92;
+    --canvas: #131418;
+    --surface: #1d1f26;
+    --sunken: #262933;
+    --ink: #eef1ff;
+    --heading: #a9bfff;
+    --muted: #a7adc4;
+    --line: #333745;
+    --line-strong: #6b7190;
+    --edge: #eef1ff;
+    --accent: #8aa5ff;
+    --accent-hover: #b3c5ff;
+    --accent-soft: #232b4a;
+    --accent-ink: #a9bfff;
+    --on-accent: #0b1033;
+    --chrome: #0b0c10;
+    --chrome-raised: #1d1f26;
+    --chrome-line: #333745;
+    --on-chrome: #eef1ff;
+    --on-chrome-muted: #9aa0b8;
     --ai: #8ee8bd;
     --ai-soft: #14291f;
     --ai-line: #3fae7d;
@@ -88,8 +89,9 @@
     --success-soft: #16261b;
     --danger: #ff9a8f;
     --danger-soft: #36181a;
-    --thumb: #f5efe8;
-    --on-thumb: #181614;
+    --thumb: #8aa5ff;
+    --on-thumb: #0b1033;
+    --mascot-line: #1f4ff0;
     --shadow-lift: 0 14px 28px -16px rgb(0 0 0 / 0.7);
     --depth-1: none;
     --depth-3: 0 18px 40px -18px rgb(0 0 0 / 0.7), 0 2px 6px rgb(0 0 0 / 0.3);
@@ -98,25 +100,25 @@
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --canvas: #181614;
-  --surface: #23201d;
-  --sunken: #2c2925;
-  --ink: #f5efe8;
-  --heading: #ffffff;
-  --muted: #b5ada4;
-  --line: #3a3631;
-  --line-strong: #7a7269;
-  --edge: #f5efe8;
-  --accent: #f5efe8;
-  --accent-hover: #ffffff;
-  --accent-soft: #2f2b27;
-  --accent-ink: #f5efe8;
-  --on-accent: #181614;
-  --chrome: #0f0e0c;
-  --chrome-raised: #23201d;
-  --chrome-line: #3a3631;
-  --on-chrome: #f5efe8;
-  --on-chrome-muted: #a39b92;
+  --canvas: #131418;
+  --surface: #1d1f26;
+  --sunken: #262933;
+  --ink: #eef1ff;
+  --heading: #a9bfff;
+  --muted: #a7adc4;
+  --line: #333745;
+  --line-strong: #6b7190;
+  --edge: #eef1ff;
+  --accent: #8aa5ff;
+  --accent-hover: #b3c5ff;
+  --accent-soft: #232b4a;
+  --accent-ink: #a9bfff;
+  --on-accent: #0b1033;
+  --chrome: #0b0c10;
+  --chrome-raised: #1d1f26;
+  --chrome-line: #333745;
+  --on-chrome: #eef1ff;
+  --on-chrome-muted: #9aa0b8;
   --ai: #8ee8bd;
   --ai-soft: #14291f;
   --ai-line: #3fae7d;
@@ -124,8 +126,9 @@
   --success-soft: #16261b;
   --danger: #ff9a8f;
   --danger-soft: #36181a;
-  --thumb: #f5efe8;
-  --on-thumb: #181614;
+  --thumb: #8aa5ff;
+  --on-thumb: #0b1033;
+  --mascot-line: #1f4ff0;
   --shadow-lift: 0 14px 28px -16px rgb(0 0 0 / 0.7);
   --depth-1: none;
   --depth-3: 0 18px 40px -18px rgb(0 0 0 / 0.7), 0 2px 6px rgb(0 0 0 / 0.3);
@@ -137,9 +140,9 @@
   /* Display face (Bricolage Grotesque); the utility keeps its old name so pages need no edits */
   --font-serif: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
   --color-heading: var(--heading);
-  --color-sun: var(--sun);
-  --color-tangerine: var(--tangerine);
-  --color-bubblegum: var(--bubblegum);
+  --color-cobalt: var(--cobalt);
+  --color-pink: var(--pink);
+  --color-ice: var(--ice);
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
   --color-sunken: var(--sunken);
@@ -166,6 +169,7 @@
 
 @layer base {
   body {
+    overflow-x: clip;
     background: var(--canvas);
     color: var(--ink);
     font-family: var(--font-sans);
@@ -185,7 +189,7 @@
     touch-action: manipulation;
   }
   ::selection {
-    background: var(--sun);
+    background: var(--pink);
     color: var(--on-tone);
   }
   :focus-visible {
@@ -240,7 +244,7 @@
   }
   /* A marker stroke under a word or two: the playful mark, used sparingly. Sits low so text stays legible */
   .scribble {
-    background: linear-gradient(transparent 72%, var(--sun) 72%, var(--sun) 96%, transparent 96%);
+    background: linear-gradient(transparent 72%, var(--pink) 72%, var(--pink) 96%, transparent 96%);
     padding-inline: 0.06em;
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
@@ -319,7 +323,7 @@
     color: var(--accent-ink);
     font-weight: 500;
     text-decoration: none;
-    background-image: linear-gradient(var(--tangerine), var(--tangerine)), linear-gradient(currentColor, currentColor);
+    background-image: linear-gradient(var(--pink), var(--pink)), linear-gradient(currentColor, currentColor);
     background-size: 0% 3px, 100% 1px;
     background-position: 0 100%, 0 100%;
     background-repeat: no-repeat;
@@ -352,9 +356,9 @@
     color: var(--accent-ink);
   }
   .req-no-core {
-    border-color: var(--edge);
-    background: var(--sun);
-    color: var(--on-tone);
+    border-color: var(--cobalt);
+    background: var(--cobalt);
+    color: #ffffff;
   }
   .req-no-muted {
     border-color: var(--line-strong);
@@ -685,42 +689,60 @@
     --ink: var(--on-tone);
     --heading: var(--on-tone);
     --muted: var(--tone-muted);
-    --line: rgb(29 27 25 / 0.16);
+    --line: var(--tone-line, rgb(20 26 58 / 0.16));
     --line-strong: var(--on-tone);
     --edge: var(--on-tone);
     background: var(--tone);
     border-color: transparent;
     color: var(--on-tone);
   }
-  .tone-sun {
-    --tone: var(--sun);
+  .tone-cobalt {
+    --tone: var(--cobalt);
+    --on-tone: #ffffff;
+    --tone-muted: #dfe6ff;
+    --tone-line: rgb(255 255 255 / 0.3);
   }
-  .tone-tangerine {
-    --tone: var(--tangerine);
+  .tone-pink {
+    --tone: var(--pink);
   }
-  .tone-bubblegum {
-    --tone: var(--bubblegum);
+  .tone-ice {
+    --tone: var(--ice);
   }
   /* A full-bleed colour band behind a section; content keeps the shell edges */
   .band {
-    background: var(--tone);
-    box-shadow: 0 0 0 100vmax var(--tone);
-    clip-path: inset(0 -100vmax);
-    padding-block: 3.5rem;
+    position: relative;
+    border-image: linear-gradient(var(--tone) 0 0) fill 0 / 0 / 0 100vmax;
+    padding-block: 5.5rem 5rem;
+  }
+  /* Blue-and-white checker along both edges of a band */
+  .band::before,
+  .band::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    width: 100vw;
+    height: 2.5rem;
+    translate: -50% 0;
+    background: repeating-conic-gradient(var(--cobalt) 0 25%, #ffffff 0 50%) 0 0 / 2.5rem 2.5rem;
+  }
+  .band::before {
+    top: 0;
+  }
+  .band::after {
+    bottom: 0;
   }
   .band .req-no {
     border-color: var(--on-tone);
     background: #ffffff;
     color: var(--on-tone);
   }
-  /* A round sticker slapped on a corner, the one rotated thing on a page */
+  /* A starburst sticker slapped on a corner, the one rotated thing on a page */
   .sticker {
     display: grid;
-    width: 6.5rem;
-    height: 6.5rem;
+    width: 7.5rem;
+    height: 7.5rem;
     place-content: center;
-    border-radius: 999px;
-    background: var(--tone, var(--sun));
+    background: url("data:image/svg+xml,%3Csvg xmlns=%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27 viewBox=%27-4 -4 140 140%27%3E%3Cpolygon points=%2764.0,6.0 74.0,20.1 89.2,11.7 92.1,28.8 109.3,27.8 104.5,44.5 120.5,51.1 109.0,64.0 120.5,76.9 104.5,83.5 109.3,100.2 92.1,99.2 89.2,116.3 74.0,107.9 64.0,122.0 54.0,107.9 38.8,116.3 35.9,99.2 18.7,100.2 23.5,83.5 7.5,76.9 19.0,64.0 7.5,51.1 23.5,44.5 18.7,27.8 35.9,28.8 38.8,11.7 54.0,20.1%27 transform=%27translate(6 6)%27 fill=%27none%27 stroke=%27%231f4ff0%27 stroke-width=%273%27 stroke-linejoin=%27round%27%2F%3E%3Cpolygon points=%2764.0,6.0 74.0,20.1 89.2,11.7 92.1,28.8 109.3,27.8 104.5,44.5 120.5,51.1 109.0,64.0 120.5,76.9 104.5,83.5 109.3,100.2 92.1,99.2 89.2,116.3 74.0,107.9 64.0,122.0 54.0,107.9 38.8,116.3 35.9,99.2 18.7,100.2 23.5,83.5 7.5,76.9 19.0,64.0 7.5,51.1 23.5,44.5 18.7,27.8 35.9,28.8 38.8,11.7 54.0,20.1%27 fill=%27%23ff9fdb%27 stroke=%27%231f4ff0%27 stroke-width=%273%27 stroke-linejoin=%27round%27%2F%3E%3C%2Fsvg%3E") center / contain no-repeat;
     color: var(--on-tone);
     font-family: var(--font-serif);
     font-size: 1.0625rem;
@@ -753,49 +775,79 @@
     -webkit-mask-image: var(--backdrop-mask);
     mask-image: var(--backdrop-mask);
   }
-  .backdrop .d-stroke,
-  .backdrop .d-hose,
-  .backdrop .d-thin {
+  /* Mascot drawings (mascots.tsx): cobalt outlines, fixed fills, the same in both themes */
+  .mascot-art .m-line,
+  .mascot-art .m-line-paper,
+  .mascot-art .m-tube-out,
+  .mascot-art .m-tube-in {
     fill: none;
-    stroke: var(--ink);
     stroke-linecap: round;
     stroke-linejoin: round;
   }
-  .backdrop .d-stroke {
-    stroke-width: 3.5;
+  .mascot-art .m-line {
+    stroke: var(--mascot-line);
+    stroke-width: 3;
   }
-  .backdrop .d-hose {
-    stroke-width: 5.5;
+  .mascot-art .m-line-paper {
+    stroke: var(--paper);
+    stroke-width: 3;
   }
-  .backdrop .d-thin {
-    stroke-width: 2.5;
+  .mascot-art .m-thin {
+    stroke-width: 2.25;
   }
-  .backdrop .d-edge {
-    stroke: var(--ink);
-    stroke-width: 3.5;
+  .mascot-art .m-edge {
+    stroke: var(--mascot-line);
+    stroke-width: 3;
     stroke-linejoin: round;
   }
-  .backdrop .d-ink {
-    fill: var(--ink);
+  .mascot-art .m-tube-out {
+    stroke: var(--mascot-line);
+    stroke-width: 13;
   }
-  .backdrop .d-paper {
-    fill: var(--surface);
+  .mascot-art .m-tube-in {
+    stroke-width: 7;
   }
-  .backdrop .d-sun {
-    fill: var(--sun);
+  .mascot-art .m-tube-blue {
+    stroke: var(--cobalt);
   }
-  .backdrop .d-tangerine {
-    fill: var(--tangerine);
+  .mascot-art .m-tube-pink {
+    stroke: var(--pink);
   }
-  .backdrop .d-bubblegum {
-    fill: var(--bubblegum);
+  .mascot-art .m-blue {
+    fill: var(--cobalt);
+  }
+  .mascot-art .m-pink {
+    fill: var(--pink);
+  }
+  .mascot-art .m-paper {
+    fill: var(--paper);
+  }
+  .mascot-art .m-white {
+    fill: #ffffff;
+  }
+  .mascot-art .m-ice {
+    fill: var(--ice);
+  }
+  .mascot-art .m-text {
+    fill: var(--cobalt);
+    font-family: var(--font-serif);
+    font-size: 24px;
+    font-weight: 800;
+  }
+  /* A mascot sticker sitting on, or peeking over, the top edge of its relative parent */
+  .mascot-on-edge {
+    position: absolute;
+    z-index: 1;
+    height: auto;
+    overflow: visible;
+    pointer-events: none;
   }
   :root[data-theme="dark"] .backdrop {
-    opacity: 0.1;
+    opacity: 0.16;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) .backdrop {
-      opacity: 0.1;
+      opacity: 0.16;
     }
   }
   @media (prefers-contrast: more) {
