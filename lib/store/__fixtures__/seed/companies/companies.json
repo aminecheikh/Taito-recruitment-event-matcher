@@ -1,0 +1,9 @@
+{
+  "companies": [
+    { "id": "company-01", "name": "Fixture Co One", "sector": "testing", "sizeRange": "1-10" },
+    { "id": "company-02", "name": "Fixture Co Two", "sector": "testing", "sizeRange": "11-50" }
+  ],
+  "requirements": [
+    { "id": "req-01", "companyId": "company-01", "text": "Fixture requirement", "inPractice": "Does fixture things", "rank": 1, "isCore": true }
+  ]
+}
