@@ -11,3 +11,13 @@ test("Score rejects values outside 0–10 and non-integers", () => {
 test("DbSchema accepts an empty db", () => {
   expect(DbSchema.safeParse(emptyDb()).success).toBe(true);
 });
+
+test("DbSchema parses a db without entries and answers, defaulting both to empty", () => {
+  const legacy: Record<string, unknown> = { ...emptyDb() };
+  delete legacy.entries;
+  delete legacy.answers;
+  const parsed = DbSchema.safeParse(legacy);
+  expect(parsed.success).toBe(true);
+  expect(parsed.success && parsed.data.entries).toEqual([]);
+  expect(parsed.success && parsed.data.answers).toEqual([]);
+});

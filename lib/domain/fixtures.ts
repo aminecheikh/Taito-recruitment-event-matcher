@@ -67,6 +67,8 @@ export function makeDb(overrides: Partial<Db> = {}): Db {
       makeLink("link-020-2", "story-020-a", "req-01-3", "accepted"),
       makeLink("link-020-3", "story-020-b", "req-01-4", "accepted"),
     ],
+    entries: [],
+    answers: [],
     signals: ["talent-017", "talent-020"].map((applicantId) => ({
       eventId: EVENT_ID,
       applicantId,
