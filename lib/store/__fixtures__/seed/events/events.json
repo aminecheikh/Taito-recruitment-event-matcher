@@ -1,0 +1,4 @@
+{
+  "events": [ { "id": "event-01", "name": "Fixture Event", "date": "2026-11-15", "signalsPerApplicant": 3 } ],
+  "companyEvents": [ { "companyId": "company-01", "eventId": "event-01", "meetingSlots": 2 } ]
+}
