@@ -6,8 +6,9 @@ import { loadSeed } from "./seed";
 const DEFAULT_DB_PATH = "data/runtime/db.json";
 
 // Env is read at call time so tests can point each test at its own files.
-const dbPath = () => process.env.DB_PATH ?? DEFAULT_DB_PATH;
-const seed = () => loadSeed(process.env.SEED_DIR);
+// `||` not `??`: a copied .env loads `DB_PATH=` as "", which must fall back to the default.
+export const dbPath = () => process.env.DB_PATH || DEFAULT_DB_PATH;
+const seed = () => loadSeed(process.env.SEED_DIR || undefined);
 
 let queue: Promise<unknown> = Promise.resolve();
 
@@ -36,7 +37,7 @@ function reseed(reason: string): Db {
 function readSync(): Db {
   let raw: string;
   try {
-    raw = readFileSync(dbPath(), "utf8");
+    raw = readFileSync(/*turbopackIgnore: true*/ dbPath(), "utf8");
   } catch {
     return reseed("db file missing");
   }

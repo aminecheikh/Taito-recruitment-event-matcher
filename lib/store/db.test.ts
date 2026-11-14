@@ -2,7 +2,7 @@ import { mkdtempSync, writeFileSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { beforeEach, describe, expect, test } from "vitest";
-import { readDb, resetDb, updateDb } from "./db";
+import { dbPath, readDb, resetDb, updateDb } from "./db";
 import { loadSeed } from "./seed";
 import { emptyDb } from "@/lib/domain/types";
 
@@ -28,6 +28,13 @@ describe("loadSeed", () => {
 
   test("loadSeed_missingDir_returnsEmptyDb", () => {
     expect(loadSeed(join(tmpdir(), "does-not-exist-xyz"))).toEqual(emptyDb());
+  });
+});
+
+describe("dbPath", () => {
+  test("dbPath_emptyEnvValue_fallsBackToDefault", () => {
+    process.env.DB_PATH = "";
+    expect(dbPath()).toBe("data/runtime/db.json");
   });
 });
 
