@@ -64,17 +64,19 @@ When a stack is chosen, add its install / dev / test commands here and make sure
 
 ## Skills
 
-Shared by both tools in `.agents/skills/` (`.claude/skills` is a symlink to it). Invoke as `/name` in Claude Code, `$name` in Codex, or just describe the task.
+Shared by both tools in `.agents/skills/` (`.claude/skills` is a symlink to it). Humans invoke them as `/name` in Claude Code or `$name` in Codex.
 
-| Skill | Use for |
+**Agents: use these on your own.** Humans will forget to ask. When a trigger below fits, run the skill yourself without waiting to be told, and say in one line which one you ran ("Ran `ship`: pushed abc123"). If two fit, run them in order (e.g. `responsible-ai-check` before `ship`).
+
+| Skill | Run it on your own when… |
 |---|---|
-| `sync` | Start of session: pull, read the board, claim a task |
-| `ship` | Check → commit → rebase → push, including conflict handling |
-| `responsible-ai-check` | Check a feature, prompt or diff against the product rules |
-| `synthetic-data` | Seeded, obviously fictional demo data and personas |
-| `log-idea` | Add and score an idea in `docs/ideas.md` |
-| `decide` | Record a decision so every agent picks it up |
-| `demo-ready` | Freeze, demo path, judging coverage, submission |
+| `sync` | A session starts, you switch task, or the briefing says you're behind origin |
+| `ship` | A slice works and `scripts/check.sh` is green, or 30–60 min of work is unpushed. Report what you pushed |
+| `responsible-ai-check` | A change touches matching, AI prompts, personal-data fields, what recruiters/applicants see, or the pitch |
+| `synthetic-data` | Code needs seed data, personas or fixtures, or data files under `data/` change |
+| `log-idea` | Someone floats a new idea or variant ("what if we…") |
+| `decide` | The human states a decision, cuts scope, picks a tool or schema, or relays a mentor answer |
+| `demo-ready` | Within ~4 h of the deadline, or anyone mentions the demo, pitch, freeze or submission |
 
 ## Repo map
 

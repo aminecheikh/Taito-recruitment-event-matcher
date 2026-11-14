@@ -96,7 +96,7 @@ export function briefing() {
     syncStatus(branch),
     `## Latest commits on origin\n${log || "(none yet)"}`,
     teamBoard(me),
-    "Before a big edit, check that nobody's Now overlaps it. Claim your task in docs/team/<you>.md (skill: sync), ship small (skill: ship).",
+    "Before a big edit, check that nobody's Now overlaps it. Run the skills in AGENTS.md › Skills on your own whenever their trigger fits (sync, ship, responsible-ai-check, decide, …); the humans won't always ask.",
   ]
     .filter(Boolean)
     .join("\n\n");
