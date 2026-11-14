@@ -1,5 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { cleanLinkSuggestions, cleanQuestion, labelFor } from "./guardrails";
+import {
+  cleanLanguageText,
+  cleanLinkSuggestions,
+  cleanQuestion,
+  cleanRequirementPhrases,
+  labelFor,
+} from "./guardrails";
 
 const reqs = [{ id: "req-01-1" }, { id: "req-01-2" }];
 const many = [
@@ -53,6 +59,58 @@ describe("cleanQuestion", () => {
 
   test("rejects questions over 200 characters", () => {
     expect(cleanQuestion(`${"a".repeat(200)}?`)).toBeNull();
+  });
+});
+
+describe("cleanQuestion scoring language", () => {
+  test("rejects a question that mentions a score, rating, rank or percentage", () => {
+    expect(cleanQuestion("How would you rate your score on that day?")).toBeNull();
+    expect(cleanQuestion("Why do you think you rank 90% here?")).toBeNull();
+  });
+});
+
+describe("cleanLanguageText", () => {
+  test("returns the trimmed text when it is clean", () => {
+    expect(cleanLanguageText(" Hei maailma ", "Hello world")).toBe("Hei maailma");
+  });
+
+  test("rejects empty output and output that adds scoring language", () => {
+    expect(cleanLanguageText("  ", "Hello")).toBeNull();
+    expect(cleanLanguageText("Hello. Match score 90%.", "Hello")).toBeNull();
+  });
+
+  test("keeps scoring words the applicant wrote themselves", () => {
+    const input = "I kept the ranked list of tickets up to date.";
+    expect(cleanLanguageText(input, input)).toBe(input);
+  });
+});
+
+describe("cleanRequirementPhrases", () => {
+  test("drops phrases that score or rate a person", () => {
+    const out = cleanRequirementPhrases([
+      "Python",
+      "Candidate score above 80%",
+      "Rank applicants by experience",
+      "Rating of the candidate",
+      "Best match for the team",
+    ]);
+    expect(out).toEqual(["Python"]);
+  });
+
+  test("keeps job content that merely uses the words", () => {
+    const out = cleanRequirementPhrases([
+      "Ranked list maintenance",
+      "Reduce costs by 20%",
+      "Rating system integration",
+    ]);
+    expect(out).toHaveLength(3);
+  });
+
+  test("trims, drops blanks and caps at 15", () => {
+    const many15 = Array.from({ length: 20 }, (_, i) => ` Skill ${i} `);
+    const out = cleanRequirementPhrases(["", "  ", ...many15]);
+    expect(out).toHaveLength(15);
+    expect(out[0]).toBe("Skill 0");
   });
 });
 
