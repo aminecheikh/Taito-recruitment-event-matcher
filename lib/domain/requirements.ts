@@ -14,7 +14,20 @@ export function setRequirements(db: Db, companyId: string, reqs: Requirement[]):
   const valid = validateCore(reqs);
   if (!valid.ok) return valid;
   const others = db.requirements.filter((r) => r.companyId !== companyId);
-  return { ok: true, value: { ...db, requirements: [...others, ...reqs] } };
+  const keptIds = new Set(reqs.map((r) => r.id));
+  const removedIds = new Set(
+    db.requirements.filter((r) => r.companyId === companyId && !keptIds.has(r.id)).map((r) => r.id),
+  );
+  return {
+    ok: true,
+    value: {
+      ...db,
+      requirements: [...others, ...reqs],
+      // A deleted requirement takes the examples linked to it and the scores given on it with it.
+      links: db.links.filter((l) => !removedIds.has(l.requirementId)),
+      scores: db.scores.filter((s) => !removedIds.has(s.requirementId)),
+    },
+  };
 }
 
 export function coreRequirements(db: Db, companyId: string): Requirement[] {

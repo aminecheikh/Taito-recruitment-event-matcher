@@ -81,6 +81,19 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
   const keep = (index: number) =>
     setItems((prev) => prev.map((item, i) => (i === index ? { ...item, suggested: false } : item)));
 
+  const savedIds = new Set(initial.map((req) => req.id));
+  const remove = (index: number) => {
+    const { req } = items[index];
+    const confirmed =
+      !savedIds.has(req.id) ||
+      window.confirm(
+        `Delete "${req.text}"? When you save, examples applicants linked to it and any scores on it are removed too.`,
+      );
+    if (!confirmed) return;
+    setItems((prev) => prev.filter((_, i) => i !== index));
+    setNotice({ kind: "success", text: "Deleted. Click Save requirements to keep the change." });
+  };
+
   const extract = async () => {
     setExtracting(true);
     setAiNote(null);
@@ -201,6 +214,11 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
                       Keep
                     </button>
                   )}
+                  <button type="button" className={`${button} text-danger`}
+                    onClick={() => remove(index)}
+                    aria-label={`Delete ${req.text}`}>
+                    Delete
+                  </button>
                 </div>
                 <div className="mt-3 sm:pl-9">
                   <label className="hint block" htmlFor={`practice-${req.id}`}>

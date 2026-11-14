@@ -25,6 +25,23 @@ describe("requirements", () => {
     expect(r.ok && r.value.requirements.some((x) => x.id === "other")).toBe(true);
     expect(JSON.stringify(db)).toBe(snapshot);
   });
+  test("setRequirements_deletedRequirement_dropsItsLinksAndScoresOnly", () => {
+    const base = makeDb();
+    const score = (requirementId: string) => ({
+      companyId: "company-01", applicantId: "talent-017", requirementId, stage: "card" as const, value: 7,
+    });
+    const db = makeDb({ scores: [score("req-01-1"), score("req-01-2")] });
+    const kept = base.requirements.filter((r) => r.companyId === "company-01" && r.id !== "req-01-2");
+    const r = setRequirements(db, "company-01", kept);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.value.requirements.some((x) => x.id === "req-01-2")).toBe(false);
+    expect(r.value.links.some((l) => l.requirementId === "req-01-2")).toBe(false);
+    expect(r.value.links.filter((l) => l.requirementId !== "req-01-2")).toEqual(
+      db.links.filter((l) => l.requirementId !== "req-01-2"),
+    );
+    expect(r.value.scores.map((s) => s.requirementId)).toEqual(["req-01-1"]);
+  });
   test("setRequirements_invalid_returnsError", () =>
     expect(setRequirements(makeDb(), "company-01", many(0))).toEqual({ ok: false, error: "no-core" }));
   test("setRequirements_wrongCompany_rejects", () =>
