@@ -1,6 +1,8 @@
 import { getSession, ROLES, type Role } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
-import { setSession } from "@/app/actions/session";
+import { enterRole, setSession } from "@/app/actions/session";
+import { ROLE_NAV } from "@/lib/nav";
+import { RoleNav } from "./RoleNav";
 import { resetDemoData } from "@/app/actions/reset";
 
 const ROLE_LABELS: Record<Role, string> = {
@@ -15,10 +17,6 @@ const control =
 export async function RoleBar() {
   const [session, db] = await Promise.all([getSession(), readDb()]);
 
-  async function pickRole(formData: FormData) {
-    "use server";
-    await setSession({ role: String(formData.get("role")) as Role });
-  }
   async function pickCompany(formData: FormData) {
     "use server";
     await setSession({ companyId: String(formData.get("companyId")) });
@@ -36,8 +34,9 @@ export async function RoleBar() {
     : [{ id: session.applicantId, label: session.applicantId }];
 
   return (
+    <>
     <nav aria-label="Demo controls" className="flex flex-wrap items-center gap-3 border-b border-neutral-300 bg-neutral-100 px-4 py-3">
-      <form action={pickRole} className="flex gap-1" role="group" aria-label="Role">
+      <form action={enterRole} className="flex gap-1" role="group" aria-label="Role">
         {ROLES.map((role) => (
           <button
             key={role}
@@ -84,5 +83,7 @@ export async function RoleBar() {
         <button type="submit" className={control}>Reset demo data</button>
       </form>
     </nav>
+    <RoleNav items={ROLE_NAV[session.role]} />
+    </>
   );
 }
