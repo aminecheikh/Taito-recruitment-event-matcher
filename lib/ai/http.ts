@@ -7,8 +7,9 @@ export const MAX_BODY_BYTES = 20_000;
 const FALLBACK_KEY = "local";
 
 function clientKey(req: Request): string {
-  const first = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return first || FALLBACK_KEY;
+  // The proxy appends the real peer last; earlier values are client-controlled.
+  const last = req.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
+  return last || FALLBACK_KEY;
 }
 
 async function readJson(req: Request): Promise<{ ok: true; value: unknown } | { ok: false; status: number }> {

@@ -48,6 +48,15 @@ describe("handle", () => {
     expect(live).toHaveBeenCalledTimes(2);
   });
 
+  test("handle_spoofedForwardedFor_keysOnLastHop", async () => {
+    const live = vi.fn(async () => ({ value: "live", source: "model" as const }));
+    const route = handle(schema, live, () => "mocked");
+    for (let i = 0; i < 3; i += 1) {
+      await route(post('{"text":"a"}', { "x-forwarded-for": `spoof-${i}, 7.7.7.7` }));
+    }
+    expect(live).toHaveBeenCalledTimes(2);
+  });
+
   test("handle_unknownResource_returns404", async () => {
     const route = handle(schema, async () => null, () => null);
     expect((await route(post('{"text":"a"}', { "x-forwarded-for": "nf" }))).status).toBe(404);

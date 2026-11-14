@@ -13,6 +13,11 @@ describe("getModel", () => {
     expect(getModel()).toBeNull();
   });
 
+  test("returns null for prototype-chain provider names", () => {
+    vi.stubEnv("AI_PROVIDER", "constructor");
+    expect(getModel()).toBeNull();
+  });
+
   test("honours AI_MODEL for a configured provider", () => {
     vi.stubEnv("AI_PROVIDER", "openai");
     vi.stubEnv("OPENAI_API_KEY", "test-key");

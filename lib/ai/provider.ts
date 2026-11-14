@@ -14,12 +14,12 @@ export const DEFAULT_PROVIDER = "mock";
 type RealProvider = keyof typeof DEFAULT_MODEL_BY_PROVIDER;
 
 function isRealProvider(name: string): name is RealProvider {
-  return name in DEFAULT_MODEL_BY_PROVIDER;
+  return Object.hasOwn(DEFAULT_MODEL_BY_PROVIDER, name);
 }
 
 /** Returns null when AI_PROVIDER is mock (the default), unknown, or the provider key is missing. */
 export function getModel(): LanguageModel | null {
-  const provider = process.env.AI_PROVIDER ?? DEFAULT_PROVIDER;
+  const provider = process.env.AI_PROVIDER || DEFAULT_PROVIDER;
   if (!isRealProvider(provider)) return null;
   const modelId = process.env.AI_MODEL || DEFAULT_MODEL_BY_PROVIDER[provider];
 

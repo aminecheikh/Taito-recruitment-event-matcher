@@ -31,6 +31,14 @@ const SuggestionsSchema = z.object({
 });
 const TextSchema = z.object({ text: z.string() });
 
+const DEFAULT_AI_TIMEOUT_MS = 8000;
+const MAX_RETRIES = 1;
+
+function aiTimeoutMs(): number {
+  const parsed = Number(process.env.AI_TIMEOUT_MS);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : DEFAULT_AI_TIMEOUT_MS;
+}
+
 type GetModel = () => LanguageModel | null;
 
 async function generate<S extends z.ZodType>(
@@ -44,6 +52,8 @@ async function generate<S extends z.ZodType>(
     system,
     prompt,
     output: Output.object({ schema }),
+    abortSignal: AbortSignal.timeout(aiTimeoutMs()),
+    maxRetries: MAX_RETRIES,
   });
   return schema.parse(output);
 }

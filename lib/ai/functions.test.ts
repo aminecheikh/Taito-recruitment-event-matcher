@@ -18,6 +18,14 @@ const throwingModel = new MockLanguageModelV4({
   },
 });
 
+// Never answers; rejects only when the caller aborts, like a fetch that is cut off.
+const hangingModel = new MockLanguageModelV4({
+  doGenerate: (options) =>
+    new Promise((_resolve, reject) => {
+      options.abortSignal?.addEventListener("abort", () => reject(options.abortSignal?.reason));
+    }),
+});
+
 function modelReturning(text: string) {
   return new MockLanguageModelV4({
     doGenerate: async () => ({
@@ -36,6 +44,16 @@ beforeEach(() => {
   vi.stubEnv("AI_PROVIDER", "mock");
 });
 afterEach(() => vi.unstubAllEnvs());
+
+describe("provider timeout", () => {
+  test("extractRequirements_providerHangs_fallsBackToMockAfterTimeout", async () => {
+    vi.stubEnv("AI_TIMEOUT_MS", "50");
+    const ai = createAiFunctions(() => hangingModel);
+    const out = await ai.extractRequirements("- Skill A");
+    expect(out.source).toBe("mock-fallback");
+    expect(out.value).toEqual(["Skill A"]);
+  });
+});
 
 describe("mock provider", () => {
   const ai = createAiFunctions(() => null);
