@@ -16,7 +16,7 @@ export const RequirementSchema = z.object({
   companyId: z.string(),
   text: z.string(),
   inPractice: z.string(),
-  rank: z.number(),
+  rank: z.number().int().min(1),
   isCore: z.boolean(),
 });
 
