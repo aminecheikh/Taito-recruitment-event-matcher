@@ -13,7 +13,7 @@ Hackathon repo for the City of Espoo "Rethinking Recruitment" challenge (Junctio
 
 ## Current phase
 
-Ideation → concept in `docs/pipeline.md`. No stack chosen, no app code. Record ideas in `docs/ideas.md` (skill `log-idea`); record decisions with skill `decide`.
+Build (MVP). Concept in `docs/pipeline.md`; technical design in `docs/superpowers/specs/2026-11-14-mvp-design.md`. Deadline: tomorrow 10:00. Record ideas in `docs/ideas.md` (skill `log-idea`); record decisions with skill `decide`.
 
 ## Product rules (non-negotiable, they are judged)
 
@@ -101,3 +101,6 @@ When something you learn would change how the next agent works (a decision, a go
 |---|---|---|
 | 2026-11-14 | `AGENTS.md` is the single instruction file; skills and hooks shared in `.agents/` | One teammate uses Codex, the rest Claude Code; one source avoids drift |
 | 2026-11-14 | Trunk-based on `main`, small pushes, `scripts/check.sh` as the only gate, per-person team boards | Hackathon pace: no PR queues, no waiting on reviews, no board merge conflicts |
+| 2026-11-14 | Stack: Next.js + TypeScript (one app, UI + API routes), Tailwind, Vitest | One thing to run, easy to split by page across 3 people |
+| 2026-11-14 | AI is provider-agnostic: Claude, Gemini or OpenAI chosen by env var, plus a scripted `mock` provider | Team has keys for all three; mock keeps the demo working offline and makes AI logic testable |
+| 2026-11-14 | MVP scope: thin full journey on synthetic data, depth on the story + AI-link step | Judges see the whole concept; the AI-link step is the most novel part |

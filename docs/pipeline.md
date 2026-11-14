@@ -24,6 +24,8 @@ The CV can still be shared — after the conversation, if both sides want to con
 | Documents | No CVs, applications or online profiles before the meeting |
 | Names | Hidden while recruiters choose whom to meet; revealed when a meeting is booked |
 | Judging people | Humans only. No scores, rankings or "top match" lists about applicants. |
+| Story → requirement links | Applicant tells stories first. AI suggests which company requirement a story could be evidence for, with a visible reason; the applicant accepts, rejects or moves each link. AI never changes the story. Cards show "linked by applicant". |
+| Hackathon demo | Thin full journey: every step works end to end on synthetic data; the story + AI-link step gets the most depth. |
 
 ## The journey
 
@@ -86,7 +88,7 @@ Pain point #5: *"Many professionals find it difficult to describe their competen
 
 The evidence card handles "describe what you did". Still open:
 
-1. **Transferable skills** — a bus-depot technician may have exactly the debugging skill a robotics company wants, but neither side uses the same words. How do we help the applicant see that an experience counts as evidence for a requirement written in different vocabulary?
+1. ~~**Transferable skills**~~ — **decided:** story first, AI-suggested links the applicant confirms (see Decisions so far).
 2. **Value proposition** — beyond single examples, how does the applicant say in one line what they bring, in their own voice?
 3. **Getting attention** — what makes a recruiter stop on a card, without rewarding polish over substance?
 
@@ -99,7 +101,6 @@ Starting points from the research (to brainstorm, not decided):
 
 ## Still open
 
-- How we tackle pain point #5 (above)
-- Which slice to build for the hackathon demo
+- Pain point #5: value proposition and getting attention (above)
 - Number of signals per applicant
 - What the recruiter sees if an applicant has examples for only some of the 4
