@@ -32,12 +32,17 @@ const SuggestionsSchema = z.object({
 const TextSchema = z.object({ text: z.string() });
 
 const DEFAULT_AI_TIMEOUT_MS = 8000;
+// Extraction reads a whole job ad and returns up to 15 phrases; real models need ~10 s for a long ad.
+const DEFAULT_AI_EXTRACT_TIMEOUT_MS = 30000;
 const MAX_RETRIES = 1;
 
-function aiTimeoutMs(): number {
-  const parsed = Number(process.env.AI_TIMEOUT_MS);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : DEFAULT_AI_TIMEOUT_MS;
+function timeoutFromEnv(name: string, fallback: number): number {
+  const parsed = Number(process.env[name]);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
+
+const aiTimeoutMs = () => timeoutFromEnv("AI_TIMEOUT_MS", DEFAULT_AI_TIMEOUT_MS);
+const aiExtractTimeoutMs = () => timeoutFromEnv("AI_EXTRACT_TIMEOUT_MS", DEFAULT_AI_EXTRACT_TIMEOUT_MS);
 
 type GetModel = () => LanguageModel | null;
 
@@ -46,13 +51,14 @@ async function generate<S extends z.ZodType>(
   schema: S,
   system: string,
   prompt: string,
+  timeoutMs: number = aiTimeoutMs(),
 ): Promise<z.infer<S>> {
   const { output } = await generateText({
     model,
     system,
     prompt,
     output: Output.object({ schema }),
-    abortSignal: AbortSignal.timeout(aiTimeoutMs()),
+    abortSignal: AbortSignal.timeout(timeoutMs),
     maxRetries: MAX_RETRIES,
   });
   return schema.parse(output);
@@ -91,6 +97,7 @@ export function createAiFunctions(getModelFn: GetModel) {
           RequirementsSchema,
           extractPrompt.system,
           extractPrompt.buildUser({ jobAd }),
+          aiExtractTimeoutMs(),
         );
         const cleaned = cleanRequirementPhrases(requirements);
         return cleaned.length > 0 ? cleaned : null;

@@ -92,8 +92,14 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
       });
       if (!res.ok) throw new Error(`status ${res.status}`);
       const data = (await res.json()) as { value: string[]; source: string };
-      setItems((prev) => appendNew(companyId, prev, data.value, true));
-      setAiNote(data.source === "mock-fallback" ? "AI unavailable — showing example" : null);
+      const next = appendNew(companyId, items, data.value, true);
+      const added = next.length - items.length;
+      setItems(next);
+      const result =
+        added > 0
+          ? `Added ${added} suggested requirement${added === 1 ? "" : "s"} at the bottom of the list.`
+          : "No new requirements found — they are already in the list.";
+      setAiNote(data.source === "mock-fallback" ? `AI unavailable — showing example. ${result}` : result);
       setPasted("");
     } catch {
       setAiNote("AI unavailable");

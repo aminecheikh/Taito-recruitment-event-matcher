@@ -45,13 +45,49 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllEnvs());
 
+// Answers correctly, but only after a delay, like a real model reading a long job ad.
+function slowModelReturning(text: string, delayMs: number) {
+  const fast = modelReturning(text);
+  return new MockLanguageModelV4({
+    doGenerate: async (options) => {
+      await new Promise((resolve, reject) => {
+        const timer = setTimeout(resolve, delayMs);
+        options.abortSignal?.addEventListener("abort", () => {
+          clearTimeout(timer);
+          reject(options.abortSignal?.reason);
+        });
+      });
+      return fast.doGenerate(options);
+    },
+  });
+}
+
 describe("provider timeout", () => {
-  test("extractRequirements_providerHangs_fallsBackToMockAfterTimeout", async () => {
-    vi.stubEnv("AI_TIMEOUT_MS", "50");
+  test("extractRequirements_providerHangs_fallsBackToMockAfterExtractTimeout", async () => {
+    vi.stubEnv("AI_EXTRACT_TIMEOUT_MS", "50");
     const ai = createAiFunctions(() => hangingModel);
     const out = await ai.extractRequirements("- Skill A");
     expect(out.source).toBe("mock-fallback");
     expect(out.value).toEqual(["Skill A"]);
+  });
+
+  test("extractRequirements_slowerThanDefaultTimeout_stillUsesModel", async () => {
+    vi.stubEnv("AI_TIMEOUT_MS", "50");
+    vi.stubEnv("AI_EXTRACT_TIMEOUT_MS", "1000");
+    const ai = createAiFunctions(() =>
+      slowModelReturning(JSON.stringify({ requirements: ["Own the robotics AI architecture"] }), 150),
+    );
+    const out = await ai.extractRequirements("A long job ad");
+    expect(out.source).toBe("model");
+    expect(out.value).toEqual(["Own the robotics AI architecture"]);
+  });
+
+  test("nextFollowUpQuestion_providerHangs_fallsBackAfterDefaultTimeout", async () => {
+    vi.stubEnv("AI_TIMEOUT_MS", "50");
+    vi.stubEnv("AI_EXTRACT_TIMEOUT_MS", "60000");
+    const ai = createAiFunctions(() => hangingModel);
+    const out = await ai.nextFollowUpQuestion({ storyBody: "x", history: [] });
+    expect(out.source).toBe("mock-fallback");
   });
 });
 
