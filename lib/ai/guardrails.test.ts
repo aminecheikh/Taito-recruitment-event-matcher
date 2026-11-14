@@ -3,7 +3,8 @@ import {
   cleanLanguageText,
   cleanLinkSuggestions,
   cleanQuestion,
-  cleanRequirementPhrases,
+  cleanExtractedRequirements,
+  MAX_IN_PRACTICE_LENGTH,
   labelFor,
 } from "./guardrails";
 
@@ -95,9 +96,12 @@ describe("cleanLanguageText", () => {
   });
 });
 
-describe("cleanRequirementPhrases", () => {
+const titles = (texts: string[]) => texts.map((text) => ({ text, inPractice: "" }));
+const cleanTitles = (texts: string[]) => cleanExtractedRequirements(titles(texts)).map((r) => r.text);
+
+describe("cleanExtractedRequirements", () => {
   test("drops phrases that score or rate a person", () => {
-    const out = cleanRequirementPhrases([
+    const out = cleanTitles([
       "Python",
       "Candidate score above 80%",
       "Rank applicants by experience",
@@ -114,7 +118,7 @@ describe("cleanRequirementPhrases", () => {
   });
 
   test("keeps job content that merely uses the words", () => {
-    const out = cleanRequirementPhrases([
+    const out = cleanTitles([
       "Ranked list maintenance",
       "Reduce costs by 20%",
       "Rating system integration",
@@ -124,9 +128,33 @@ describe("cleanRequirementPhrases", () => {
 
   test("trims, drops blanks and caps at 15", () => {
     const many15 = Array.from({ length: 20 }, (_, i) => ` Skill ${i} `);
-    const out = cleanRequirementPhrases(["", "  ", ...many15]);
+    const out = cleanTitles(["", "  ", ...many15]);
     expect(out).toHaveLength(15);
     expect(out[0]).toBe("Skill 0");
+  });
+
+  test("drops duplicate titles regardless of case, keeping the first", () => {
+    const out = cleanExtractedRequirements([
+      { text: "Python", inPractice: "Small scripts." },
+      { text: " python ", inPractice: "Other." },
+    ]);
+    expect(out).toEqual([{ text: "Python", inPractice: "Small scripts." }]);
+  });
+
+  test("keeps the title but blanks an inPractice line that scores a person", () => {
+    const out = cleanExtractedRequirements([{ text: "SQL", inPractice: "Top candidates write SQL daily." }]);
+    expect(out).toEqual([{ text: "SQL", inPractice: "" }]);
+  });
+
+  test("blanks an inPractice line over the length cap and trims the rest", () => {
+    const out = cleanExtractedRequirements([
+      { text: "SQL", inPractice: "x".repeat(MAX_IN_PRACTICE_LENGTH + 1) },
+      { text: "Dashboards", inPractice: "  Weekly sales dashboards.  " },
+    ]);
+    expect(out).toEqual([
+      { text: "SQL", inPractice: "" },
+      { text: "Dashboards", inPractice: "Weekly sales dashboards." },
+    ]);
   });
 });
 

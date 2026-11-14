@@ -5,8 +5,9 @@ import {
   cleanLanguageText,
   cleanLinkSuggestions,
   cleanQuestion,
-  cleanRequirementPhrases,
+  cleanExtractedRequirements,
   labelFor,
+  type ExtractedRequirement,
   type LinkSuggestion,
 } from "./guardrails";
 import {
@@ -20,11 +21,13 @@ import * as languagePrompt from "./prompts/languageAssist";
 import * as linksPrompt from "./prompts/suggestLinks";
 import { getModel } from "./provider";
 
-export type { LinkSuggestion } from "./guardrails";
+export type { ExtractedRequirement, LinkSuggestion } from "./guardrails";
 export type AiSource = "model" | "mock" | "mock-fallback";
 export type AiResult<T> = { value: T; source: AiSource };
 
-const RequirementsSchema = z.object({ requirements: z.array(z.string()) });
+const RequirementsSchema = z.object({
+  requirements: z.array(z.object({ text: z.string(), inPractice: z.string() })),
+});
 const QuestionSchema = z.object({ question: z.string() });
 const SuggestionsSchema = z.object({
   suggestions: z.array(z.object({ requirementId: z.string(), reason: z.string() })),
@@ -32,7 +35,7 @@ const SuggestionsSchema = z.object({
 const TextSchema = z.object({ text: z.string() });
 
 const DEFAULT_AI_TIMEOUT_MS = 8000;
-// Extraction reads a whole job ad and returns up to 15 phrases; real models need ~10 s for a long ad.
+// Extraction reads a whole job ad and returns up to 15 requirements with notes; real models need ~10-20 s for a long ad.
 const DEFAULT_AI_EXTRACT_TIMEOUT_MS = 30000;
 const MAX_RETRIES = 1;
 
@@ -89,7 +92,7 @@ export function createAiFunctions(getModelFn: GetModel) {
       : { value: attempt.value, source: "model" };
   }
 
-  function extractRequirements(jobAd: string): Promise<AiResult<string[]>> {
+  function extractRequirements(jobAd: string): Promise<AiResult<ExtractedRequirement[]>> {
     return resolve(
       async (model) => {
         const { requirements } = await generate(
@@ -99,7 +102,7 @@ export function createAiFunctions(getModelFn: GetModel) {
           extractPrompt.buildUser({ jobAd }),
           aiExtractTimeoutMs(),
         );
-        const cleaned = cleanRequirementPhrases(requirements);
+        const cleaned = cleanExtractedRequirements(requirements);
         return cleaned.length > 0 ? cleaned : null;
       },
       () => mockExtractRequirements(jobAd),

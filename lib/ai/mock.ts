@@ -1,5 +1,5 @@
 import type { Requirement } from "@/lib/domain/types";
-import type { LinkSuggestion } from "./guardrails";
+import type { ExtractedRequirement, LinkSuggestion } from "./guardrails";
 
 const MAX_EXTRACTED_REQUIREMENTS = 15;
 const DEMO_STORY_MARKER = "ticket reader";
@@ -24,12 +24,14 @@ export const FOLLOW_UP_LADDER: readonly string[] = [
   "What did you learn that you do differently now?",
 ];
 
-export function mockExtractRequirements(jobAd: string): string[] {
+/** Offline stand-in: one requirement per line of the ad, no inPractice note. */
+export function mockExtractRequirements(jobAd: string): ExtractedRequirement[] {
   return jobAd
     .split(/\r?\n/)
     .map((line) => line.replace(/^\s*(?:[-*•]|\d+[.)])\s*/, "").trim())
     .filter((line) => line.length > 0)
-    .slice(0, MAX_EXTRACTED_REQUIREMENTS);
+    .slice(0, MAX_EXTRACTED_REQUIREMENTS)
+    .map((text) => ({ text, inPractice: "" }));
 }
 
 export function mockNextFollowUpQuestion(history: readonly unknown[]): string {

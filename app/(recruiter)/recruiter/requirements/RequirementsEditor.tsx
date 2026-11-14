@@ -25,21 +25,23 @@ function nextReqNumber(items: Item[]): number {
   return Math.max(0, ...used, items.length) + 1;
 }
 
-function appendNew(companyId: string, items: Item[], texts: string[], suggested: boolean): Item[] {
+type NewRequirement = { text: string; inPractice: string };
+
+function appendNew(companyId: string, items: Item[], added: NewRequirement[], suggested: boolean): Item[] {
   const known = new Set(items.map((i) => i.req.text.trim().toLowerCase()));
-  const fresh = texts
-    .map((t) => t.trim())
-    .filter((t) => t !== "" && !known.has(t.toLowerCase()));
+  const fresh = added
+    .map((a) => ({ text: a.text.trim(), inPractice: a.inPractice.trim() }))
+    .filter((a) => a.text !== "" && !known.has(a.text.toLowerCase()));
   const start = nextReqNumber(items);
   return [
     ...items,
-    ...fresh.map((text, i) => ({
+    ...fresh.map(({ text, inPractice }, i) => ({
       suggested,
       req: {
         id: `req-${companyNumber(companyId)}-${start + i}`,
         companyId,
         text,
-        inPractice: "",
+        inPractice,
         rank: items.length + i + 1,
         isCore: false,
       },
@@ -114,7 +116,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
         body: JSON.stringify({ jobAd: pasted }),
       });
       if (!res.ok) throw new Error(`status ${res.status}`);
-      const data = (await res.json()) as { value: string[]; source: string };
+      const data = (await res.json()) as { value: NewRequirement[]; source: string };
       const next = appendNew(companyId, items, data.value, true);
       const added = next.length - items.length;
       setItems(next);
@@ -252,7 +254,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
           className="flex flex-wrap items-end gap-2"
           onSubmit={(e) => {
             e.preventDefault();
-            setItems((prev) => appendNew(companyId, prev, [newText], false));
+            setItems((prev) => appendNew(companyId, prev, [{ text: newText, inPractice: "" }], false));
             setNewText("");
           }}
         >

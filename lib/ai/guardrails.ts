@@ -7,6 +7,8 @@ const UNKNOWN_LANGUAGE = "another language";
 const SCORING_LANGUAGE = /\d+\s*%|\bscore\b|\brating\b|\brank|\bbest match\b/i;
 
 export const MAX_REQUIREMENT_PHRASES = 15;
+// The prompt asks for at most ~200 characters; anything far longer is an essay, not a hint.
+export const MAX_IN_PRACTICE_LENGTH = 300;
 // A requirement phrase is dropped only when it scores, rates or ranks a person, so job content such as
 // "ranked list maintenance" stays.
 const PERSON_NOUN = "(?:candidates?|applicants?|persons?|people|talents?|jobseekers?|hires?|employees?)";
@@ -62,10 +64,28 @@ export function cleanLanguageText(output: string, input: string): string | null 
   return SCORING_LANGUAGE.test(trimmed) && !SCORING_LANGUAGE.test(input) ? null : trimmed;
 }
 
-export function cleanRequirementPhrases(phrases: readonly string[]): string[] {
-  return phrases
-    .map((p) => p.trim())
-    .filter((p) => p.length > 0 && !SCORES_A_PERSON.test(p))
+/** A requirement the AI suggests from a job ad; inPractice is "" when the title explains itself. */
+export type ExtractedRequirement = { text: string; inPractice: string };
+
+/** Drops requirements that score a person, blanks an inPractice line that does or runs too long, dedupes, caps. */
+export function cleanExtractedRequirements(
+  items: readonly ExtractedRequirement[],
+): ExtractedRequirement[] {
+  const seen = new Set<string>();
+  return items
+    .map((item) => ({ text: item.text.trim(), inPractice: item.inPractice.trim() }))
+    .filter((item) => item.text.length > 0 && !SCORES_A_PERSON.test(item.text))
+    .filter((item) => {
+      const key = item.text.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .map((item) =>
+      SCORES_A_PERSON.test(item.inPractice) || item.inPractice.length > MAX_IN_PRACTICE_LENGTH
+        ? { ...item, inPractice: "" }
+        : item,
+    )
     .slice(0, MAX_REQUIREMENT_PHRASES);
 }
 
