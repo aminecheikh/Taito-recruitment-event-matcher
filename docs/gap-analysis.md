@@ -19,7 +19,7 @@ Legend: ✅ built · 🟡 partly built · ❌ not built · ⏸ open product deci
 | FR-C1 Job-ad extraction | ✅ | `extractRequirements` returns ≤ 15 phrases; guardrail drops phrases that score people; 30 s timeout; AI-tagged in `RequirementsEditor.tsx` |
 | FR-C2 Rank, 1–5 core | ✅ | `validateCore` + "Which ones would you actually hire on?" message |
 | FR-C3 "In practice" line | ✅ | Required for core requirements (`app/actions/requirements.ts` `checkContent`) |
-| FR-C4 Meeting slots | 🟡 | Shown on R2 ("x of y slots left"), enforced in `requestMeeting`, but only set in seed data. The recruiter can't change them |
+| FR-C4 Meeting slots | 🟡 | Slots now come from the event's time window (30-minute grid, `companyOpenSlots`), shown on R2 ("x of y meeting slots open") and enforced in `requestMeeting`. The recruiter can't change the window; it is set in seed data |
 | FR-C5 Cut-off date | ❌ Pitch | — |
 | FR-C6 ESCO mapping | ❌ Pitch | — |
 

@@ -66,9 +66,23 @@ describe("synthetic seed", () => {
     ]);
   });
 
-  it("test_event_when_seeded_has_three_signals_and_ten_slots", () => {
-    expect(db.events[0]?.signalsPerApplicant).toBe(3);
-    for (const ce of db.companyEvents) expect(ce.meetingSlots).toBe(10);
+  it("test_events_when_seeded_have_valid_window_location_and_fictional_name", () => {
+    expect(db.events.length).toBeGreaterThanOrEqual(3);
+    for (const e of db.events) {
+      expect(e.signalsPerApplicant, e.id).toBe(3);
+      expect(e.location.endsWith("(fictional)"), e.id).toBe(true);
+      expect(e.name.endsWith("(fictional)"), e.id).toBe(true);
+      expect(e.endTime > e.startTime, e.id).toBe(true);
+    }
+  });
+
+  it("test_demo_pair_when_seeded_attends_event_01", () => {
+    expect(db.applicantEvents).toContainEqual({ applicantId: "talent-017", eventId: "event-01" });
+    expect(db.companyEvents).toContainEqual({ companyId: "company-01", eventId: "event-01" });
+  });
+
+  it("test_meetings_when_seeded_are_empty", () => {
+    expect(db.meetings).toEqual([]);
   });
 
   it("test_acme_signals_when_seeded_cover_mixed_requirement_counts", () => {
@@ -100,6 +114,10 @@ describe("synthetic seed", () => {
     for (const ce of db.companyEvents) {
       expect(companies.has(ce.companyId)).toBe(true);
       expect(events.has(ce.eventId)).toBe(true);
+    }
+    for (const ae of db.applicantEvents) {
+      expect(applicants.has(ae.applicantId)).toBe(true);
+      expect(events.has(ae.eventId)).toBe(true);
     }
   });
 

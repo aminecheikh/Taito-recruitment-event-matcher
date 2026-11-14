@@ -7,7 +7,6 @@ import { fileURLToPath } from "node:url";
 
 const SEED = 20261114;
 const SIGNALS_PER_APPLICANT = 3;
-const MEETING_SLOTS = 10;
 const EVENT_ID = "event-01";
 
 // Small seeded PRNG (mulberry32).
@@ -200,10 +199,37 @@ function buildTalent(rng) {
   return { applicants, stories, links, signals };
 }
 
-function buildEvents(companies) {
+const EVENT_DEFS = [
+  {
+    id: EVENT_ID, name: "Winter Meetup Espoo (fictional)", date: "2026-12-05",
+    location: "Kaskela Hall, Espoo (fictional)", startTime: "14:00", endTime: "18:00",
+    companyIds: null, applicantIds: null, // null = everyone
+  },
+  {
+    id: "event-02", name: "Tech Evening Otaniemi (fictional)", date: "2027-01-21",
+    location: "Lantern House, Otaniemi (fictional)", startTime: "16:00", endTime: "19:00",
+    companyIds: ["company-01", "company-03"],
+    applicantIds: ["talent-017", "talent-003", "talent-009", "talent-021"],
+  },
+  {
+    id: "event-03", name: "Green Industry Day (fictional)", date: "2027-02-11",
+    location: "Harbour Pavilion, Espoo (fictional)", startTime: "10:00", endTime: "13:00",
+    companyIds: ["company-02", "company-04"],
+    applicantIds: ["talent-005", "talent-011", "talent-014", "talent-026"],
+  },
+];
+
+function buildEvents(companies, applicants) {
+  const attending = (ids, everyone) => (ids ?? everyone.map((x) => x.id));
   return {
-    events: [{ id: EVENT_ID, name: "Spring Meetup Helsinki (fictional)", date: "2026-12-05", signalsPerApplicant: SIGNALS_PER_APPLICANT }],
-    companyEvents: companies.map((c) => ({ companyId: c.id, eventId: EVENT_ID, meetingSlots: MEETING_SLOTS })),
+    events: EVENT_DEFS.map((e) => ({
+      id: e.id, name: e.name, date: e.date, location: e.location,
+      startTime: e.startTime, endTime: e.endTime, signalsPerApplicant: SIGNALS_PER_APPLICANT,
+    })),
+    companyEvents: EVENT_DEFS.flatMap((e) =>
+      attending(e.companyIds, companies).map((companyId) => ({ companyId, eventId: e.id }))),
+    applicantEvents: EVENT_DEFS.flatMap((e) =>
+      attending(e.applicantIds, applicants).map((applicantId) => ({ applicantId, eventId: e.id }))),
   };
 }
 
@@ -211,10 +237,11 @@ function buildEvents(companies) {
 export function buildSeed() {
   const rng = makeRng(SEED);
   const companyData = buildCompanies();
+  const talentData = buildTalent(rng);
   return {
     "companies/companies.json": companyData,
-    "talent/talent.json": buildTalent(rng),
-    "events/events.json": buildEvents(companyData.companies),
+    "talent/talent.json": talentData,
+    "events/events.json": buildEvents(companyData.companies, talentData.applicants),
   };
 }
 

@@ -2,31 +2,130 @@
   "events": [
     {
       "id": "event-01",
-      "name": "Spring Meetup Helsinki (fictional)",
+      "name": "Winter Meetup Espoo (fictional)",
       "date": "2026-12-05",
+      "location": "Kaskela Hall, Espoo (fictional)",
+      "startTime": "14:00",
+      "endTime": "18:00",
+      "signalsPerApplicant": 3
+    },
+    {
+      "id": "event-02",
+      "name": "Tech Evening Otaniemi (fictional)",
+      "date": "2027-01-21",
+      "location": "Lantern House, Otaniemi (fictional)",
+      "startTime": "16:00",
+      "endTime": "19:00",
+      "signalsPerApplicant": 3
+    },
+    {
+      "id": "event-03",
+      "name": "Green Industry Day (fictional)",
+      "date": "2027-02-11",
+      "location": "Harbour Pavilion, Espoo (fictional)",
+      "startTime": "10:00",
+      "endTime": "13:00",
       "signalsPerApplicant": 3
     }
   ],
   "companyEvents": [
     {
       "companyId": "company-01",
-      "eventId": "event-01",
-      "meetingSlots": 10
+      "eventId": "event-01"
     },
     {
       "companyId": "company-02",
-      "eventId": "event-01",
-      "meetingSlots": 10
+      "eventId": "event-01"
     },
     {
       "companyId": "company-03",
-      "eventId": "event-01",
-      "meetingSlots": 10
+      "eventId": "event-01"
     },
     {
       "companyId": "company-04",
-      "eventId": "event-01",
-      "meetingSlots": 10
+      "eventId": "event-01"
+    },
+    {
+      "companyId": "company-01",
+      "eventId": "event-02"
+    },
+    {
+      "companyId": "company-03",
+      "eventId": "event-02"
+    },
+    {
+      "companyId": "company-02",
+      "eventId": "event-03"
+    },
+    {
+      "companyId": "company-04",
+      "eventId": "event-03"
+    }
+  ],
+  "applicantEvents": [
+    {
+      "applicantId": "talent-003",
+      "eventId": "event-01"
+    },
+    {
+      "applicantId": "talent-005",
+      "eventId": "event-01"
+    },
+    {
+      "applicantId": "talent-009",
+      "eventId": "event-01"
+    },
+    {
+      "applicantId": "talent-011",
+      "eventId": "event-01"
+    },
+    {
+      "applicantId": "talent-014",
+      "eventId": "event-01"
+    },
+    {
+      "applicantId": "talent-017",
+      "eventId": "event-01"
+    },
+    {
+      "applicantId": "talent-021",
+      "eventId": "event-01"
+    },
+    {
+      "applicantId": "talent-026",
+      "eventId": "event-01"
+    },
+    {
+      "applicantId": "talent-017",
+      "eventId": "event-02"
+    },
+    {
+      "applicantId": "talent-003",
+      "eventId": "event-02"
+    },
+    {
+      "applicantId": "talent-009",
+      "eventId": "event-02"
+    },
+    {
+      "applicantId": "talent-021",
+      "eventId": "event-02"
+    },
+    {
+      "applicantId": "talent-005",
+      "eventId": "event-03"
+    },
+    {
+      "applicantId": "talent-011",
+      "eventId": "event-03"
+    },
+    {
+      "applicantId": "talent-014",
+      "eventId": "event-03"
+    },
+    {
+      "applicantId": "talent-026",
+      "eventId": "event-03"
     }
   ]
 }
