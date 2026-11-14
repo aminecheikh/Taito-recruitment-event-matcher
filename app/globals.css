@@ -1,48 +1,13 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Palette "stone and blueprint" (dealt by the design-taste skill for a
- * people-hiring service): a warm stone ground, white working surfaces, warm near-black ink,
+ * Design tokens. Palette "blueprint on cream" (dealt by the design-taste skill for a
+ * people-hiring service): a creamy white ground, white working surfaces, warm near-black ink,
  * one blueprint-blue action colour. Ochre stays reserved for AI content so it never mixes
- * with an action. The dark "prototype strip" uses the palette's inverse so demo controls
- * never read as product. All text pairs meet WCAG AA in both themes.
+ * with an action. Two themes: Bright (default) and Dark. The dark "prototype strip" uses the
+ * palette's inverse so demo controls never read as product. All text pairs meet WCAG AA in both.
  */
 :root,
-:root[data-theme="light"] {
-  color-scheme: light;
-  --canvas: #dfdedb;
-  --surface: #ffffff;
-  --sunken: #eceae6;
-  --ink: #26251e;
-  --muted: #5a5850;
-  --line: #cfcdc7;
-  --line-strong: #7a776d;
-  --accent: #2456d6;
-  --accent-hover: #1c46b4;
-  --accent-soft: #e4eafa;
-  --accent-ink: #1d47b6;
-  --on-accent: #ffffff;
-  --chrome: #26251e;
-  --chrome-raised: #313029;
-  --chrome-line: #48463d;
-  --on-chrome: #dfdedb;
-  --on-chrome-muted: #a8a69f;
-  --ai: #6b4a00;
-  --ai-soft: #fbf1d9;
-  --ai-line: #c99a2e;
-  --success: #1e6b3a;
-  --success-soft: #e3f0e6;
-  --danger: #a12a22;
-  --danger-soft: #fbeae7;
-  --shadow-lift: 0 10px 24px -14px rgb(38 37 30 / 0.28);
-  --depth-1: 0 1px 2px rgb(38 37 30 / 0.05);
-  --depth-3: 0 18px 40px -18px rgb(38 37 30 / 0.32), 0 2px 6px rgb(38 37 30 / 0.06);
-  /* Easing from Emil Kowalski's animation guidance: strong ease-out for UI, ease-in-out for on-screen moves */
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-}
-
-/* Bright: creamy white ground, chosen in the header theme switch */
 :root[data-theme="bright"] {
   color-scheme: light;
   --canvas: #fbf8f1;
@@ -72,11 +37,14 @@
   --shadow-lift: 0 10px 24px -14px rgb(38 37 30 / 0.22);
   --depth-1: 0 1px 2px rgb(38 37 30 / 0.04);
   --depth-3: 0 18px 40px -18px rgb(38 37 30 / 0.24), 0 2px 6px rgb(38 37 30 / 0.05);
+  /* Easing from Emil Kowalski's animation guidance: strong ease-out for UI, ease-in-out for on-screen moves */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
-/* Dark: follows the system unless the viewer picked Light or Bright; or picked Dark */
+/* Dark: follows the system unless the viewer picked Bright; or picked Dark */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]):not([data-theme="bright"]) {
+  :root:not([data-theme="bright"]) {
     color-scheme: dark;
     --canvas: #1b1a17;
     --surface: #24231f;
