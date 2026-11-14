@@ -48,7 +48,7 @@ export default async function SignalsPage({
     .filter((c) => companyIds.has(c.id))
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((c) => ({ company: c, ...coverage(db, c.id, applicant.id) }));
-  const errorMessage = query.error ? ERROR_MESSAGES[query.error] : undefined;
+  const errorMessage = query.error && Object.hasOwn(ERROR_MESSAGES, query.error) ? ERROR_MESSAGES[query.error] : undefined;
 
   return (
     <main className="mx-auto max-w-3xl p-4">

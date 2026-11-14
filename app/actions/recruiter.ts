@@ -19,7 +19,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   "not-core": "That is not one of your core requirements.",
 };
 
-const messageFor = (error: string) => ERROR_MESSAGES[error] ?? "Something went wrong. Try again.";
+const messageFor = (error: string) => Object.hasOwn(ERROR_MESSAGES, error) ? ERROR_MESSAGES[error] : "Something went wrong. Try again.";
 
 const hasSignal = (db: Db, eventId: string, companyId: string, applicantId: string) =>
   db.signals.some((s) => s.eventId === eventId && s.companyId === companyId && s.applicantId === applicantId);

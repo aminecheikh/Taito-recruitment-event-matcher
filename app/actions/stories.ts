@@ -15,6 +15,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   "empty-title": "Give your story a title.",
   "empty-body": "Write something in your story first.",
   "not-found": "That story was not found.",
+  "no-change": "The suggestion did not change your text, so there is nothing to label.",
 };
 
 const NewStory = z.object({ title: z.string().max(MAX_TITLE_CHARS), body: z.string().max(MAX_BODY_CHARS) });
@@ -28,7 +29,7 @@ export type StoryStatus =
   | { ok: true; storyId?: string }
   | { ok: false; error: "no-applicant" | "not-found" | "invalid" | string };
 
-const messageFor = (error: string) => ERROR_MESSAGES[error] ?? error;
+const messageFor = (error: string) => Object.hasOwn(ERROR_MESSAGES, error) ? ERROR_MESSAGES[error] : error;
 
 /** Returns a status (and the new story id), never database contents. */
 export async function createStory(input: { title: string; body: string }): Promise<StoryStatus> {
@@ -63,8 +64,11 @@ export async function saveStory(
   const session = await getSession();
   const result = await updateDb((db) => {
     if (!db.applicants.some((a) => a.id === session.applicantId)) return { ok: false, error: "no-applicant" };
-    const own = db.stories.some((s) => s.id === storyId && s.applicantId === session.applicantId);
+    const own = db.stories.find((s) => s.id === storyId && s.applicantId === session.applicantId);
     if (!own) return { ok: false, error: "not-found" };
+    // A language label may only ride along with a real change to the body.
+    const bodyUnchanged = parsed.data.body === undefined || parsed.data.body.trim() === own.body.trim();
+    if (parsed.data.languageLabel !== undefined && bodyUnchanged) return { ok: false, error: "no-change" };
     return updateStory(db, storyId, parsed.data);
   });
   if (!result.ok) {

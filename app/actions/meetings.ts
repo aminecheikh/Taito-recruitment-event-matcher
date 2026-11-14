@@ -25,7 +25,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 const ownMeeting = (db: Db, meetingId: string, companyId: string) =>
   db.meetings.find((m) => m.id === meetingId && m.companyId === companyId);
 
-const messageFor = (error: string) => ERROR_MESSAGES[error] ?? "Something went wrong. Try again.";
+const messageFor = (error: string) => Object.hasOwn(ERROR_MESSAGES, error) ? ERROR_MESSAGES[error] : "Something went wrong. Try again.";
 
 /** Saves the conversation scores and the company decision together. Returns a status only. */
 export async function decideAction(meetingId: string, input: unknown): Promise<ActionStatus> {

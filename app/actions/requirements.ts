@@ -48,7 +48,7 @@ export async function saveRequirements(companyId: string, reqs: Requirement[]): 
   if (contentError) return { ok: false, error: contentError };
 
   const result = await updateDb((db) => setRequirements(db, companyId, next));
-  if (!result.ok) return { ok: false, error: ERROR_MESSAGES[result.error] ?? result.error };
+  if (!result.ok) return { ok: false, error: Object.hasOwn(ERROR_MESSAGES, result.error) ? ERROR_MESSAGES[result.error] : result.error };
   revalidatePath("/recruiter/requirements");
   return { ok: true };
 }

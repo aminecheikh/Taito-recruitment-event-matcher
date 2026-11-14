@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import type { LanguageLabel } from "@/lib/domain/types";
-import { FALLBACK_NOTICE, LanguageResponseSchema, buttonClass, fieldClass, primaryClass } from "./ui";
+import { EXAMPLE_MODE_NOTICE, FALLBACK_NOTICE, LanguageResponseSchema, buttonClass, fieldClass, primaryClass } from "./ui";
 
 const LANGUAGE_URL = "/api/ai/language";
 const TARGET_LANGUAGE = "English";
 
 /** `original` is the text as it was when the suggestion was requested. */
-type Suggestion = { original: string; text: string; label: LanguageLabel; fallback: boolean };
+type Suggestion = { original: string; text: string; label: LanguageLabel; fallback: boolean; example: boolean };
 
 export function LanguagePanel({
   idPrefix,
@@ -41,7 +41,7 @@ export function LanguagePanel({
       });
       if (!res.ok) throw new Error("bad status");
       const data = LanguageResponseSchema.parse(await res.json());
-      setSuggestion({ original: text, text: data.value.text, label: data.value.label, fallback: data.source === "mock-fallback" });
+      setSuggestion({ original: text, text: data.value.text, label: data.value.label, fallback: data.source === "mock-fallback", example: data.source === "mock" });
     } catch {
       setError("Could not get a suggestion right now. Try again in a moment.");
     } finally {
@@ -49,6 +49,7 @@ export function LanguagePanel({
     }
   };
 
+  const unchanged = suggestion !== null && suggestion.text.trim() === suggestion.original.trim();
   const stale = suggestion !== null && suggestion.original !== text;
   const empty = text.trim() === "";
   const canTranslate = !empty && sourceLanguage.trim() !== "";
@@ -74,6 +75,9 @@ export function LanguagePanel({
         <div className="mt-3" aria-live="polite">
           <p className="text-sm font-medium text-neutral-800">AI suggestion ({suggestion.label})</p>
           {suggestion.fallback ? <p className="text-sm text-neutral-800">{FALLBACK_NOTICE}</p> : null}
+          {suggestion.example ? <p className="text-sm text-neutral-800">{EXAMPLE_MODE_NOTICE}</p> : null}
+          {unchanged ? <p className="mt-2 font-medium text-neutral-900">No changes suggested</p> : null}
+          {unchanged ? null : (
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
             <div>
               <h4 className="text-sm font-medium">Before (yours)</h4>
@@ -84,11 +88,14 @@ export function LanguagePanel({
               <p className="mt-1 whitespace-pre-wrap rounded border border-neutral-400 bg-white p-2">{suggestion.text}</p>
             </div>
           </div>
+          )}
           {stale ? <p role="alert" className="mt-2 text-red-800">Your story changed — ask again</p> : null}
           <div className="mt-3 flex gap-3">
-            <button type="button" className={primaryClass} disabled={disabled || stale} onClick={() => { onAccept(suggestion.text, suggestion.label); setSuggestion(null); }}>
-              Use this version
-            </button>
+            {unchanged ? null : (
+              <button type="button" className={primaryClass} disabled={disabled || stale} onClick={() => { onAccept(suggestion.text, suggestion.label); setSuggestion(null); }}>
+                Use this version
+              </button>
+            )}
             <button type="button" className={buttonClass} onClick={() => setSuggestion(null)}>Keep mine</button>
           </div>
         </div>

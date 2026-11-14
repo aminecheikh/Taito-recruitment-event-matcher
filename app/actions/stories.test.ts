@@ -45,6 +45,11 @@ describe("story actions", () => {
     expect((await saveStory("story-017-a", { body: "x", languageLabel: "made by a human, honest" })).ok).toBe(false);
     expect((await body("story-017-a"))?.languageLabel).toBeUndefined();
   });
+  test("saveStory_labelWithUnchangedBody_refusedAsNoChange", async () => {
+    const res = await saveStory("story-017-a", { body: "  Body of story-017-a ", languageLabel: "language edited" });
+    expect(res.ok).toBe(false);
+    expect((await body("story-017-a"))?.languageLabel).toBeUndefined();
+  });
   test("saveStory_validLabel_saved", async () => {
     expect(await saveStory("story-017-a", { body: "x", languageLabel: "translated from Ukrainian" })).toEqual({ ok: true });
     expect((await body("story-017-a"))?.languageLabel).toBe("translated from Ukrainian");

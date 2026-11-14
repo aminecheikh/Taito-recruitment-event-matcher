@@ -57,7 +57,7 @@ async function run(
     return refusal ? { ok: false, error: refusal } : change(db, core);
   });
   if (!result.ok) {
-    return { ok: false, error: result.error === "no-applicant" ? "Pick an applicant in the top bar" : (ERROR_MESSAGES[result.error] ?? result.error) };
+    return { ok: false, error: result.error === "no-applicant" ? "Pick an applicant in the top bar" : (Object.hasOwn(ERROR_MESSAGES, result.error) ? ERROR_MESSAGES[result.error] : result.error) };
   }
   revalidatePath(COMPANIES_PATH);
   return { ok: true };
