@@ -27,7 +27,7 @@ export default async function StoriesPage() {
       <ul className="mt-4 space-y-6">
         {stories.map((story) => (
           <li key={story.id}>
-            <StoryEditor key={`${story.id}:${story.body}:${story.title}`} story={story} />
+            <StoryEditor key={story.id} story={story} />
           </li>
         ))}
       </ul>
