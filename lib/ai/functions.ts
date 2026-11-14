@@ -25,8 +25,21 @@ export type { ExtractedRequirement, LinkSuggestion } from "./guardrails";
 export type AiSource = "model" | "mock" | "mock-fallback";
 export type AiResult<T> = { value: T; source: AiSource };
 
+// The descriptions travel with the JSON schema sent to the model, so the format rules sit next to each field.
 const RequirementsSchema = z.object({
-  requirements: z.array(z.object({ text: z.string(), inPractice: z.string(), evidence: z.string() })),
+  requirements: z
+    .array(
+      z.object({
+        text: z
+          .string()
+          .describe("Requirement name: a noun phrase of at most 10 words, never a copied duty sentence"),
+        inPractice: z
+          .string()
+          .describe('What it looks like in this job, at most 2 sentences and 45 words; "" if the name is clear'),
+        evidence: z.string().describe("A phrase of at most 15 words copied exactly from the job ad"),
+      }),
+    )
+    .describe("4 to 10 requirements in the order the ad brings them up, at most 15"),
 });
 const QuestionSchema = z.object({ question: z.string() });
 const SuggestionsSchema = z.object({
