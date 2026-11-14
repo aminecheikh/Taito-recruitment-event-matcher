@@ -3,6 +3,7 @@ import { Hanken_Grotesk, Newsreader } from "next/font/google";
 import "./globals.css";
 import { cookies } from "next/headers";
 import { RoleBar } from "./components/RoleBar";
+import { EventBanner } from "./components/EventBanner";
 import { parseTheme, THEME_COOKIE } from "@/lib/theme";
 
 const sans = Hanken_Grotesk({ subsets: ["latin", "latin-ext"], variable: "--font-hanken", display: "swap" });
@@ -22,6 +23,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" data-theme={theme} className={`${sans.variable} ${serif.variable}`}>
       <body className="flex min-h-screen flex-col">
         <RoleBar />
+        <EventBanner />
         <div className="flex-1">{children}</div>
         <footer data-app-chrome className="border-t border-line py-6 text-sm text-muted">
           <p className="shell">

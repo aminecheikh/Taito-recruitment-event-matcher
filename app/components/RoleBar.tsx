@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getSession, ROLES, type Role } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
-import { enterRole, setSession } from "@/app/actions/session";
+import { enterRole, pickEvent, setSession } from "@/app/actions/session";
 import { ROLE_NAV } from "@/lib/nav";
 import { RoleNav } from "./RoleNav";
 import { resetDemoData } from "@/app/actions/reset";
@@ -9,6 +9,7 @@ import { resetEnabled } from "@/lib/demoReset";
 import { ResetButton } from "./ResetButton";
 import { ThemeSwitch } from "./ThemeSwitch";
 import { cookies } from "next/headers";
+import { formatShortDate } from "@/lib/domain/eventFormat";
 import { parseTheme, THEME_COOKIE } from "@/lib/theme";
 
 const ROLE_LABELS: Record<Role, string> = {
@@ -33,11 +34,15 @@ export async function RoleBar() {
     await setSession({ applicantId: String(formData.get("applicantId")) });
   }
 
-  const companies = db.companies.length
-    ? db.companies
+  const companyIds = new Set(db.companyEvents.filter((ce) => ce.eventId === session.eventId).map((ce) => ce.companyId));
+  const applicantIds = new Set(db.applicantEvents.filter((ae) => ae.eventId === session.eventId).map((ae) => ae.applicantId));
+  const attendingCompanies = db.companies.filter((c) => companyIds.has(c.id));
+  const attendingApplicants = db.applicants.filter((a) => applicantIds.has(a.id));
+  const companies = attendingCompanies.length
+    ? attendingCompanies
     : [{ id: session.companyId, name: session.companyId }];
-  const applicants = db.applicants.length
-    ? db.applicants.map((a) => ({ id: a.id, label: a.pseudonym }))
+  const applicants = attendingApplicants.length
+    ? attendingApplicants.map((a) => ({ id: a.id, label: a.pseudonym }))
     : [{ id: session.applicantId, label: session.applicantId }];
 
   return (
@@ -69,6 +74,18 @@ export async function RoleBar() {
               </button>
             ))}
           </form>
+
+          {db.events.length > 0 && (
+            <form action={pickEvent} className="flex w-full min-w-0 items-center gap-2 sm:w-auto">
+              <label htmlFor="eventId" className="text-sm text-on-chrome-muted">Event</label>
+              <select id="eventId" name="eventId" defaultValue={session.eventId} className={select}>
+                {db.events.map((e) => (
+                  <option key={e.id} value={e.id}>{e.name}, {formatShortDate(e.date)}</option>
+                ))}
+              </select>
+              <button type="submit" className={control}>Switch</button>
+            </form>
+          )}
 
           {session.role === "recruiter" && (
             <form action={pickCompany} className="flex w-full min-w-0 items-center gap-2 sm:w-auto">

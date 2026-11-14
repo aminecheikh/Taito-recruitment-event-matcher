@@ -1,11 +1,14 @@
 import { PageHeader } from "@/app/components/PageHeader";
 import { needsHelp } from "@/lib/domain/readiness";
+import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
 import { OfferButton } from "./OfferButton";
 
 export default async function StaffPage() {
   // Pass only the row fields the table needs; never the whole Db to the client.
-  const rows = needsHelp(await readDb());
+  const [session, db] = await Promise.all([getSession(), readDb()]);
+  const registered = new Set(db.applicantEvents.filter((ae) => ae.eventId === session.eventId).map((ae) => ae.applicantId));
+  const rows = needsHelp(db).filter((row) => registered.has(row.applicantId));
 
   return (
     <main className="page">
