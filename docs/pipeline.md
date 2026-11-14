@@ -4,13 +4,13 @@ Working concept for the Espoo challenge. Evidence for each choice is in [researc
 
 ## Idea in one line
 
-Recruiters commit to the 4 things they really hire on; applicants show one real example for each, in their own words; humans meet, talk about those 4, and both decide.
+Recruiters commit to the few things they really hire on (up to 5 core requirements); applicants show one real example for each, in their own words; humans meet, talk about those requirements, and both decide.
 
 ## What replaces the traditional documents
 
 | Traditional document | Replaced by |
 |---|---|
-| Job ad with a long wishlist | **Ranked top 4** — the recruiter's own priorities, each with one line on what it looks like in practice |
+| Job ad with a long wishlist | **Core requirements** — 1 to 5, ranked by the recruiter, each with one line on what it looks like in practice |
 | CV / application / online profile | **Evidence cards** — one real example per requirement, in the applicant's own words |
 
 The CV can still be shared — after the conversation, if both sides want to continue.
@@ -19,11 +19,13 @@ The CV can still be shared — after the conversation, if both sides want to con
 
 | Decision | Choice |
 |---|---|
-| Recruiter requirements | Recruiter ranks their own requirements; the top 4 define the event conversation |
+| Recruiter requirements | Recruiter ranks their own requirements and picks **1 to 5 core requirements** (maximum 5); these define the event conversation |
 | AI and the applicant's words | Content is the applicant's own. AI asks questions; it may fix grammar or translate, always with a visible label ("language edited", "translated from …"). AI never drafts content. |
 | Documents | No CVs, applications or online profiles before the meeting |
 | Names | Hidden while recruiters choose whom to meet; revealed when a meeting is booked |
-| Judging people | Humans only. No scores, rankings or "top match" lists about applicants. |
+| Judging people | Humans only. The **recruiter** scores each core requirement 0–10 (total out of 10 × number of core requirements). AI never scores, ranks or filters people, and shows no "top match" lists. Scoring guide and how scores are used to screen at volume: **open, being researched by two teammates**. |
+| Signalling | An applicant needs at least 1 accepted example for a company before they can signal it. The recruiter sees every core-requirement slot; empty ones show "no example yet". |
+| Shortlisting | The recruiter filters by coverage: how many core requirements have an example (all first, then one fewer, …). The rule is visible to applicants. |
 | Story → requirement links | Applicant tells stories first. AI suggests which company requirement a story could be evidence for, with a visible reason; the applicant accepts, rejects or moves each link. AI never changes the story. Cards show "linked by applicant". |
 | Hackathon demo | Thin full journey: every step works end to end on synthetic data; the story + AI-link step gets the most depth. |
 
@@ -31,13 +33,13 @@ The CV can still be shared — after the conversation, if both sides want to con
 
 ### Before the event (2–3 weeks out)
 
-**1. Recruiter sets the top 4**
+**1. Recruiter sets the core requirements**
 - Pastes an existing job ad (optional); AI extracts the requirements as a list.
-- Recruiter ranks them and commits to a top 4, adding one line per item: what it looks like in practice.
-- AI pushes back on wishlists ("you marked 9 as must-have — which 4 would you actually hire on?"). The recruiter decides.
+- Recruiter ranks them and commits to 1–5 core requirements, adding one line per item: what it looks like in practice.
+- AI pushes back on wishlists ("you marked 9 as must-have — which ones (at most 5) would you actually hire on?"). The recruiter decides.
 
 **2. Applicant builds evidence cards**
-- Browses companies by their top 4 — no job ads.
+- Browses companies by their core requirements — no job ads.
 - Builds a personal library of examples. AI asks recall questions (situation → what *you* did → what changed); the applicant writes or speaks the answer.
 - Examples can come from anywhere: work, volunteering, studies, family business, caregiving.
 - One example can serve several companies when they ask for the same thing.
@@ -45,11 +47,17 @@ The CV can still be shared — after the conversation, if both sides want to con
 
 **3. Applicant spends signals**
 - Each applicant has a small number of interest signals per event (e.g. 3).
+- An applicant can signal a company only with at least 1 accepted example for its core requirements.
 - Signals are how an applicant says "I chose you on purpose". Scarcity keeps them meaningful and keeps companies from being flooded.
 
-**4. Recruiter chooses whom to meet**
-- Sees only applicants who signalled them: evidence cards against their own top 4, no names.
-- Picks who to meet. Name is revealed when the meeting is booked.
+**4. Recruiter chooses whom to meet** — a funnel, every step done by the recruiter
+- Sees only applicants who signalled them: evidence cards against their own core requirements, every slot shown, no names.
+- The company has a fixed number of meeting slots *(proposal: set in step 1, e.g. 10)*.
+- **4a. Coverage filter.** Filter by how many core requirements have an example: all of them first, then one fewer, and so on. Applicants see this rule while they build their cards.
+- **4b. Screening at volume — open.** When more applicants cover every core requirement than there are slots (e.g. 100 for 10 slots), how the recruiter narrows the list is being researched by two teammates. Ruled out: cutting on requirement #1 before reading the rest, because someone strong on the others but weak on #1 would be screened out.
+- The recruiter requests meetings; the applicant accepts; the name is revealed when the meeting is booked.
+
+Why this stays human-decided: the coverage rule is set and applied by the recruiter and is visible to applicants; every score is a person's judgment; AI is not involved in this step.
 
 **5. Espoo staff support** *(proposal)*
 - Staff see who is stuck (no cards, empty requirements) and offer a human coaching session.
@@ -59,14 +67,15 @@ The CV can still be shared — after the conversation, if both sides want to con
 
 **6. The conversation**
 - 15-minute 1:1 (in person or online), built on Espoo's existing TalentMatch format.
-- Both sides see the same card: the recruiter's top 4 next to the applicant's examples.
-- The talk goes through the 4 — a short structured interview, which is the best-evidenced conversation format.
+- Both sides see the same card: the recruiter's core requirements next to the applicant's examples.
+- The talk goes through the core requirements — a short structured interview, which is the best-evidenced conversation format.
 - *(proposal)* Cards load before the event, so a platform crash at event start doesn't block the conversation.
 
 ### After the event
 
 **7. Match or not**
-- After the meeting, each side independently answers: **continue or not**.
+- After the meeting, the recruiter scores the conversation on each core requirement (0–10). Scoring guide: open (see Still open).
+- Each side independently answers: **continue or not**. The score informs the recruiter's answer; it never decides it.
 - Answers are revealed together. A match happens only if both say continue.
 - Humans decide on both sides. No AI suggestion is shown at this step.
 
@@ -96,11 +105,15 @@ Starting points from the research (to brainstorm, not decided):
 - AI suggests a possible link and the applicant confirms or rejects it: "This sounds like it could be evidence for #2 'explaining tech to non-technical staff' — does that fit?" ([research 03](research/03-psychology-methods.md), question bank)
 - A shared skills vocabulary (ESCO) as a translator between domains, not as a scorer ([research 06](research/06-matching-research.md))
 - A reflection step after the cards: "Looking at your examples, what do they have in common?" → applicant writes their own one-liner
-- Attention through relevance, not polish: the recruiter sees evidence against *their own* top 4, plus the applicant's scarce signal
+- Attention through relevance, not polish: the recruiter sees evidence against *their own* core requirements, plus the applicant's scarce signal
 - Fact recall over confidence coaching — underselling comes from self-evaluation, not lack of salesmanship ([research 02](research/02-science-of-miscommunication.md))
 
 ## Still open
 
 - Pain point #5: value proposition and getting attention (above)
 - Number of signals per applicant
-- What the recruiter sees if an applicant has examples for only some of the 4
+- Scoring guide (being researched by two teammates)
+- Does the applicant see their scores, or only the feedback lines?
+- Screening at volume (e.g. 100 applicants cover every requirement): two teammates are researching this. Rejected: scoring requirement #1 first and cutting before reading the others — someone strong on #2–#5 but weak on #1 gets screened out.
+- Confirm meeting slots per company (step 4)
+- Minimum number of core requirements (currently 1)
