@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { slotEnd } from "@/lib/domain/calendar";
 import { buildCard } from "@/lib/domain/cards";
 import { revealDecisions } from "@/lib/domain/decisions";
 import { coreRequirements } from "@/lib/domain/requirements";
@@ -116,6 +117,9 @@ export default async function MeetingPage({ params }: { params: Params }) {
           </Link>
         )}
       </div>
+      {meeting.slotStart ? (
+        <p className="lede">Booked time: {`${meeting.slotStart}\u2013${slotEnd(meeting.slotStart)}`}</p>
+      ) : null}
       <div className="mt-8">
         <EvidenceCard card={card} />
       </div>

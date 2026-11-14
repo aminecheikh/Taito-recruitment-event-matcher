@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageHeader } from "@/app/components/PageHeader";
-import { sharedFreeSlots } from "@/lib/domain/calendar";
+import { EventCalendar } from "@/app/components/EventCalendar";
+import { applicantCalendar, slotEnd, sharedFreeSlots } from "@/lib/domain/calendar";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
 import { AcceptButton, RefreshButton } from "./MeetingControls";
@@ -21,12 +22,26 @@ export default async function MeetingsPage() {
     .filter((m) => m.applicantId === applicant.id && m.eventId === session.eventId)
     .map((m) => ({ meeting: m, name: db.companies.find((c) => c.id === m.companyId)?.name ?? m.companyId }))
     .sort((a, b) => a.name.localeCompare(b.name));
+  const event = db.events.find((e) => e.id === session.eventId);
+  const calendar = applicantCalendar(db, session.eventId, applicant.id);
+  const companyName = (id: string) => db.companies.find((c) => c.id === id)?.name ?? id;
   const requested = meetings.filter((m) => m.meeting.status === "requested");
   const booked = meetings.filter((m) => m.meeting.status === "booked");
 
   return (
     <main className="page">
       <PageHeader eyebrow={applicant.pseudonym} title="Meetings" actions={<RefreshButton />} />
+
+      {event ? (
+        <div className="mt-8">
+          <EventCalendar
+            event={event}
+            calendar={calendar}
+            nameFor={(m) => companyName(m.companyId)}
+            hrefFor={(m) => `/applicant/meetings/${m.id}`}
+          />
+        </div>
+      ) : null}
 
       <h2 className="h2 mt-10">Requests from companies</h2>
       {requested.length === 0 ? <p className="empty-slot mt-3">No requests right now.</p> : null}
@@ -53,6 +68,9 @@ export default async function MeetingsPage() {
             >
               <span>
                 <span className="block font-serif text-xl font-semibold">{name}</span>
+                {meeting.slotStart ? (
+                  <span className="mt-1 block text-muted">{`${meeting.slotStart}\u2013${slotEnd(meeting.slotStart)}`}</span>
+                ) : null}
                 <span className="link mt-1 block">Open meeting with {name}</span>
               </span>
               <span aria-hidden="true" className="text-xl text-accent-ink transition-transform group-hover:translate-x-1">→</span>

@@ -36,21 +36,30 @@ export function AcceptButton({ meetingId, companyName, freeSlots }: AcceptProps)
     });
   return (
     <div className="mt-4">
-      <label htmlFor={`slot-${meetingId}`} className="label">Choose a time</label>
-      <select
-        id={`slot-${meetingId}`}
-        value={slot}
-        onChange={(e) => setSlot(e.target.value)}
-        className="field field-inline mb-3 block"
-      >
-        <option value="" disabled>Select a time</option>
-        {freeSlots.map((start) => (
-          <option key={start} value={start}>{`${start}\u2013${slotEnd(start)}`}</option>
-        ))}
-      </select>
-      <button type="button" onClick={accept} disabled={pending || slot === ""} className="btn btn-primary">
-        Accept meeting with {companyName}
-      </button>
+      {freeSlots.length === 0 ? (
+        <p className="notice">There is no time left that suits both calendars, so this request cannot be booked.</p>
+      ) : (
+        <fieldset>
+          <legend className="label">Choose a time with {companyName}</legend>
+          <div className="mt-2 mb-3 grid gap-2 sm:grid-cols-2">
+            {freeSlots.map((start) => (
+              <label key={start} className="slot-option">
+                <input
+                  type="radio"
+                  name={`slot-${meetingId}`}
+                  value={start}
+                  checked={slot === start}
+                  onChange={() => setSlot(start)}
+                />
+                {`${start}\u2013${slotEnd(start)}`}
+              </label>
+            ))}
+          </div>
+          <button type="button" onClick={accept} disabled={pending || slot === ""} className="btn btn-primary">
+            Book this time
+          </button>
+        </fieldset>
+      )}
       {error ? (
         <p role="alert" className="notice notice-error mt-3">
           {error}
