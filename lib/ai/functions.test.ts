@@ -68,18 +68,23 @@ describe("provider timeout", () => {
     const ai = createAiFunctions(() => hangingModel);
     const out = await ai.extractRequirements("- Skill A");
     expect(out.source).toBe("mock-fallback");
-    expect(out.value).toEqual(["Skill A"]);
+    expect(out.value).toEqual([{ text: "Skill A", inPractice: "" }]);
   });
 
   test("extractRequirements_slowerThanDefaultTimeout_stillUsesModel", async () => {
     vi.stubEnv("AI_TIMEOUT_MS", "50");
     vi.stubEnv("AI_EXTRACT_TIMEOUT_MS", "1000");
     const ai = createAiFunctions(() =>
-      slowModelReturning(JSON.stringify({ requirements: ["Own the robotics AI architecture"] }), 150),
+      slowModelReturning(
+        JSON.stringify({
+          requirements: [{ text: "Robotics AI architecture", inPractice: "", evidence: "long job ad" }],
+        }),
+        150,
+      ),
     );
     const out = await ai.extractRequirements("A long job ad");
     expect(out.source).toBe("model");
-    expect(out.value).toEqual(["Own the robotics AI architecture"]);
+    expect(out.value).toEqual([{ text: "Robotics AI architecture", inPractice: "" }]);
   });
 
   test("nextFollowUpQuestion_providerHangs_fallsBackAfterDefaultTimeout", async () => {
@@ -99,7 +104,7 @@ describe("mock provider", () => {
     const out = await ai.extractRequirements(ad);
     expect(out.source).toBe("mock");
     expect(out.value).toHaveLength(15);
-    expect(out.value[0]).toBe("Skill 0");
+    expect(out.value[0]).toEqual({ text: "Skill 0", inPractice: "" });
   });
 
   test("nextFollowUpQuestion asks one recall question and walks the ladder", async () => {
@@ -177,9 +182,40 @@ describe("with a real model", () => {
 
   test("extracted phrases that score a person are dropped, others kept", async () => {
     const ai = createAiFunctions(() =>
-      modelReturning(JSON.stringify({ requirements: ["Python", "Candidate score above 80%"] })),
+      modelReturning(
+        JSON.stringify({
+          requirements: [
+            { text: "Python", inPractice: "Small data scripts.", evidence: "Python" },
+            { text: "Candidate score above 80%", inPractice: "", evidence: "Python" },
+          ],
+        }),
+      ),
     );
-    expect(await ai.extractRequirements("ad")).toEqual({ source: "model", value: ["Python"] });
+    expect(await ai.extractRequirements("We use Python daily.")).toEqual({
+      source: "model",
+      value: [{ text: "Python", inPractice: "Small data scripts." }],
+    });
+  });
+
+  test("extractRequirements_modelFindsNothing_returnsEmptyNotTheExample", async () => {
+    const ai = createAiFunctions(() => modelReturning(JSON.stringify({ requirements: [] })));
+    const out = await ai.extractRequirements("Join our amazing team! Competitive salary.");
+    expect(out).toEqual({ source: "model", value: [] });
+  });
+
+  test("extractRequirements_allEvidenceInvented_fallsBackToMock", async () => {
+    const ai = createAiFunctions(() =>
+      modelReturning(
+        JSON.stringify({ requirements: [{ text: "Kubernetes", inPractice: "", evidence: "run Kubernetes clusters" }] }),
+      ),
+    );
+    const out = await ai.extractRequirements("- Python");
+    expect(out).toEqual({ source: "mock-fallback", value: [{ text: "Python", inPractice: "" }] });
+  });
+
+  test("the old bare-string reply shape is rejected and falls back to the mock", async () => {
+    const ai = createAiFunctions(() => modelReturning(JSON.stringify({ requirements: ["Python"] })));
+    expect((await ai.extractRequirements("- a")).source).toBe("mock-fallback");
   });
 
   test("language label comes from code, not the model", async () => {

@@ -70,7 +70,7 @@ Four functions in `lib/ai/functions.ts`, each with a zod output schema, a prompt
 
 | Function | Input → Output | Rules baked into the prompt |
 |---|---|---|
-| `extractRequirements` | job-ad text → `string[]` (≤ 15 short requirement phrases) | Extract only; no invented requirements; plain language |
+| `extractRequirements` | job-ad text → `{text, inPractice}[]` (≤ 15; name 2–6 words, inPractice optional) | Infer skills/knowledge/tools from the described work, grounded in the ad; no copied task sentences, no perks, no identity traits; plain language (decided 2026-11-14) |
 | `nextFollowUpQuestion` | story draft + previous Q&A → one question | Ask exactly one recall question (situation → own action → result → detail). Never suggest content or wording. Never encourage "confidence". Question bank: research 03 |
 | `suggestLinks` | one story + list of requirements (from companies at the event) → up to 3 `{requirementId, reason}` | Reason quotes the story; no scores; no ordering by company popularity; empty list is fine |
 | `languageAssist` | text + mode (`grammar` \| `translate`, target language) → text | Keep meaning and facts; change nothing else. Result shown as a diff; saved only on accept, with label |

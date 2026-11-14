@@ -5,8 +5,9 @@ import {
   cleanLanguageText,
   cleanLinkSuggestions,
   cleanQuestion,
-  cleanRequirementPhrases,
+  cleanExtractedRequirements,
   labelFor,
+  type ExtractedRequirement,
   type LinkSuggestion,
 } from "./guardrails";
 import {
@@ -20,11 +21,26 @@ import * as languagePrompt from "./prompts/languageAssist";
 import * as linksPrompt from "./prompts/suggestLinks";
 import { getModel } from "./provider";
 
-export type { LinkSuggestion } from "./guardrails";
+export type { ExtractedRequirement, LinkSuggestion } from "./guardrails";
 export type AiSource = "model" | "mock" | "mock-fallback";
 export type AiResult<T> = { value: T; source: AiSource };
 
-const RequirementsSchema = z.object({ requirements: z.array(z.string()) });
+// The descriptions travel with the JSON schema sent to the model, so the format rules sit next to each field.
+const RequirementsSchema = z.object({
+  requirements: z
+    .array(
+      z.object({
+        text: z
+          .string()
+          .describe("Requirement name: a noun phrase of at most 10 words, never a copied duty sentence"),
+        inPractice: z
+          .string()
+          .describe('What it looks like in this job, at most 2 sentences and 45 words; "" if the name is clear'),
+        evidence: z.string().describe("A phrase of at most 15 words copied exactly from the job ad"),
+      }),
+    )
+    .describe("4 to 10 requirements in the order the ad brings them up, at most 15"),
+});
 const QuestionSchema = z.object({ question: z.string() });
 const SuggestionsSchema = z.object({
   suggestions: z.array(z.object({ requirementId: z.string(), reason: z.string() })),
@@ -32,7 +48,7 @@ const SuggestionsSchema = z.object({
 const TextSchema = z.object({ text: z.string() });
 
 const DEFAULT_AI_TIMEOUT_MS = 8000;
-// Extraction reads a whole job ad and returns up to 15 phrases; real models need ~10 s for a long ad.
+// Extraction reads a whole job ad and returns up to 15 requirements with notes; real models need ~10-20 s for a long ad.
 const DEFAULT_AI_EXTRACT_TIMEOUT_MS = 30000;
 const MAX_RETRIES = 1;
 
@@ -72,8 +88,12 @@ async function tryModel<T>(
   if (!model) return { value: null, source: "mock" };
   try {
     const value = await run(model);
+    if (value === null) console.warn("[ai] model reply was rejected by the guardrails; showing the example");
     return value === null ? { value: null, source: "mock-fallback" } : { value, source: "model" };
-  } catch {
+  } catch (error) {
+    // Server log only, so a failed call is diagnosable from the dev-server terminal. Provider errors carry no key.
+    const reason = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    console.warn(`[ai] model call failed; showing the example. ${reason}`);
     return { value: null, source: "mock-fallback" };
   }
 }
@@ -89,7 +109,7 @@ export function createAiFunctions(getModelFn: GetModel) {
       : { value: attempt.value, source: "model" };
   }
 
-  function extractRequirements(jobAd: string): Promise<AiResult<string[]>> {
+  function extractRequirements(jobAd: string): Promise<AiResult<ExtractedRequirement[]>> {
     return resolve(
       async (model) => {
         const { requirements } = await generate(
@@ -99,7 +119,13 @@ export function createAiFunctions(getModelFn: GetModel) {
           extractPrompt.buildUser({ jobAd }),
           aiExtractTimeoutMs(),
         );
-        const cleaned = cleanRequirementPhrases(requirements);
+        const cleaned = cleanExtractedRequirements(requirements, jobAd);
+        const dropped = requirements.filter((r) => !cleaned.some((c) => c.text === r.text.trim()));
+        if (dropped.length > 0) {
+          console.warn(`[ai] guardrails dropped ${dropped.length}: ${dropped.map((r) => `"${r.text}" (evidence "${r.evidence}")`).join("; ")}`);
+        }
+        // The model finding nothing in a vague ad is a valid answer: show none, not the ad's blurb as an example.
+        if (requirements.length === 0) return [];
         return cleaned.length > 0 ? cleaned : null;
       },
       () => mockExtractRequirements(jobAd),

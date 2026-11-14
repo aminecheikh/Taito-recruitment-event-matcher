@@ -25,21 +25,23 @@ function nextReqNumber(items: Item[]): number {
   return Math.max(0, ...used, items.length) + 1;
 }
 
-function appendNew(companyId: string, items: Item[], texts: string[], suggested: boolean): Item[] {
+type NewRequirement = { text: string; inPractice: string };
+
+function appendNew(companyId: string, items: Item[], added: NewRequirement[], suggested: boolean): Item[] {
   const known = new Set(items.map((i) => i.req.text.trim().toLowerCase()));
-  const fresh = texts
-    .map((t) => t.trim())
-    .filter((t) => t !== "" && !known.has(t.toLowerCase()));
+  const fresh = added
+    .map((a) => ({ text: a.text.trim(), inPractice: a.inPractice.trim() }))
+    .filter((a) => a.text !== "" && !known.has(a.text.toLowerCase()));
   const start = nextReqNumber(items);
   return [
     ...items,
-    ...fresh.map((text, i) => ({
+    ...fresh.map(({ text, inPractice }, i) => ({
       suggested,
       req: {
         id: `req-${companyNumber(companyId)}-${start + i}`,
         companyId,
         text,
-        inPractice: "",
+        inPractice,
         rank: items.length + i + 1,
         isCore: false,
       },
@@ -114,15 +116,21 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
         body: JSON.stringify({ jobAd: pasted }),
       });
       if (!res.ok) throw new Error(`status ${res.status}`);
-      const data = (await res.json()) as { value: string[]; source: string };
+      const data = (await res.json()) as { value: NewRequirement[]; source: string };
       const next = appendNew(companyId, items, data.value, true);
       const added = next.length - items.length;
       setItems(next);
       const result =
         added > 0
           ? `Added ${added} suggested requirement${added === 1 ? "" : "s"} at the bottom of the list.`
-          : "No new requirements found — they are already in the list.";
-      setAiNote(data.source === "mock-fallback" ? `AI unavailable — showing example. ${result}` : result);
+          : data.value.length === 0
+            ? "The ad doesn't describe the work clearly enough to suggest requirements. Add them below."
+            : "No new requirements found — they are already in the list.";
+      const prefix: Record<string, string> = {
+        mock: "No AI connected (offline example: one line of the ad per item). ",
+        "mock-fallback": "AI unavailable — showing example. ",
+      };
+      setAiNote(`${prefix[data.source] ?? ""}${result}`);
       setPasted("");
     } catch {
       setAiNote("AI unavailable");
@@ -252,7 +260,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
           className="flex flex-wrap items-end gap-2"
           onSubmit={(e) => {
             e.preventDefault();
-            setItems((prev) => appendNew(companyId, prev, [newText], false));
+            setItems((prev) => appendNew(companyId, prev, [{ text: newText, inPractice: "" }], false));
             setNewText("");
           }}
         >

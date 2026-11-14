@@ -3,7 +3,9 @@ import {
   cleanLanguageText,
   cleanLinkSuggestions,
   cleanQuestion,
-  cleanRequirementPhrases,
+  cleanExtractedRequirements,
+  isQuotedFrom,
+  MAX_IN_PRACTICE_LENGTH,
   labelFor,
 } from "./guardrails";
 
@@ -95,9 +97,38 @@ describe("cleanLanguageText", () => {
   });
 });
 
-describe("cleanRequirementPhrases", () => {
+const AD = "We need Python, SQL and dashboards. You will build weekly sales reports for managers.";
+const grounded = (text: string, inPractice = "") => ({ text, inPractice, evidence: "Python, SQL" });
+const cleanTitles = (texts: string[]) =>
+  cleanExtractedRequirements(texts.map((t) => grounded(t)), AD).map((r) => r.text);
+
+describe("isQuotedFrom", () => {
+  test("finds the quote despite case, spacing, punctuation and quote styles", () => {
+    expect(isQuotedFrom("python,  sql AND Dashboards", AD)).toBe(true);
+    expect(isQuotedFrom("“weekly sales reports”", AD)).toBe(true);
+  });
+
+  test("rejects a quote that is not in the ad, a partial word, or an empty quote", () => {
+    expect(isQuotedFrom("Kubernetes clusters", AD)).toBe(false);
+    expect(isQuotedFrom("ytho", AD)).toBe(false);
+    expect(isQuotedFrom("  ", AD)).toBe(false);
+  });
+});
+
+describe("cleanExtractedRequirements", () => {
+  test("drops items whose evidence is not in the ad and hides evidence from the result", () => {
+    const out = cleanExtractedRequirements(
+      [
+        { text: "Business reporting", inPractice: "Weekly sales reports.", evidence: "weekly sales reports" },
+        { text: "Kubernetes", inPractice: "", evidence: "deploy on Kubernetes" },
+      ],
+      AD,
+    );
+    expect(out).toEqual([{ text: "Business reporting", inPractice: "Weekly sales reports." }]);
+  });
+
   test("drops phrases that score or rate a person", () => {
-    const out = cleanRequirementPhrases([
+    const out = cleanTitles([
       "Python",
       "Candidate score above 80%",
       "Rank applicants by experience",
@@ -114,19 +145,36 @@ describe("cleanRequirementPhrases", () => {
   });
 
   test("keeps job content that merely uses the words", () => {
-    const out = cleanRequirementPhrases([
-      "Ranked list maintenance",
-      "Reduce costs by 20%",
-      "Rating system integration",
-    ]);
+    const out = cleanTitles(["Ranked list maintenance", "Reduce costs by 20%", "Rating system integration"]);
     expect(out).toHaveLength(3);
   });
 
   test("trims, drops blanks and caps at 15", () => {
-    const many15 = Array.from({ length: 20 }, (_, i) => ` Skill ${i} `);
-    const out = cleanRequirementPhrases(["", "  ", ...many15]);
+    const many = Array.from({ length: 20 }, (_, i) => ` Skill ${i} `);
+    const out = cleanTitles(["", "  ", ...many]);
     expect(out).toHaveLength(15);
     expect(out[0]).toBe("Skill 0");
+  });
+
+  test("drops duplicate titles regardless of case, keeping the first", () => {
+    const out = cleanExtractedRequirements([grounded("Python", "Small scripts."), grounded(" python ", "Other.")], AD);
+    expect(out).toEqual([{ text: "Python", inPractice: "Small scripts." }]);
+  });
+
+  test("keeps the title but blanks an inPractice line that scores a person", () => {
+    const out = cleanExtractedRequirements([grounded("SQL", "Top candidates write SQL daily.")], AD);
+    expect(out).toEqual([{ text: "SQL", inPractice: "" }]);
+  });
+
+  test("blanks an inPractice line over the length cap and trims the rest", () => {
+    const out = cleanExtractedRequirements(
+      [grounded("SQL", "x".repeat(MAX_IN_PRACTICE_LENGTH + 1)), grounded("Dashboards", "  Weekly sales dashboards.  ")],
+      AD,
+    );
+    expect(out).toEqual([
+      { text: "SQL", inPractice: "" },
+      { text: "Dashboards", inPractice: "Weekly sales dashboards." },
+    ]);
   });
 });
 
