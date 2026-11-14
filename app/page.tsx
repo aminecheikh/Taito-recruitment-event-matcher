@@ -27,7 +27,8 @@ export default function Home() {
           </button>
         ))}
       </form>
-      <p className="mt-6 text-sm text-neutral-700">Prototype — all people and companies are fictional.</p>
+      <p className="mt-6 text-sm text-neutral-700">Shared demo: other visitors may be clicking at the same time.</p>
+      <p className="mt-2 text-sm text-neutral-700">Prototype — all people and companies are fictional.</p>
     </main>
   );
 }

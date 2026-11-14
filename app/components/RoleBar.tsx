@@ -4,6 +4,8 @@ import { enterRole, setSession } from "@/app/actions/session";
 import { ROLE_NAV } from "@/lib/nav";
 import { RoleNav } from "./RoleNav";
 import { resetDemoData } from "@/app/actions/reset";
+import { resetEnabled } from "@/lib/demoReset";
+import { ResetButton } from "./ResetButton";
 
 const ROLE_LABELS: Record<Role, string> = {
   recruiter: "Recruiter",
@@ -79,9 +81,7 @@ export async function RoleBar() {
         </form>
       )}
 
-      <form action={resetDemoData} className="sm:ml-auto">
-        <button type="submit" className={control}>Reset demo data</button>
-      </form>
+      {resetEnabled() ? <ResetButton action={resetDemoData} className={control} /> : null}
     </nav>
     <RoleNav items={ROLE_NAV[session.role]} />
     </>

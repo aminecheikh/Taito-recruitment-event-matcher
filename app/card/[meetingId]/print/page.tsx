@@ -31,6 +31,7 @@ export default async function PrintCardPage({ params }: { params: Promise<{ meet
               slot.examples.map((ex) => (
                 <div key={ex.story.id} className="mt-2">
                   <p className="font-medium">{ex.story.title}</p>
+                  {ex.story.languageLabel ? <p className="text-sm">{ex.story.languageLabel}</p> : null}
                   <p>{ex.story.body}</p>
                 </div>
               ))
