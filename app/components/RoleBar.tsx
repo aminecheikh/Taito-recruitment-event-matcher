@@ -7,6 +7,9 @@ import { RoleNav } from "./RoleNav";
 import { resetDemoData } from "@/app/actions/reset";
 import { resetEnabled } from "@/lib/demoReset";
 import { ResetButton } from "./ResetButton";
+import { ThemeSwitch } from "./ThemeSwitch";
+import { cookies } from "next/headers";
+import { parseTheme, THEME_COOKIE } from "@/lib/theme";
 
 const ROLE_LABELS: Record<Role, string> = {
   recruiter: "Recruiter",
@@ -18,7 +21,8 @@ const control = "chrome-control";
 const select = "chrome-control min-w-0 flex-1 sm:max-w-64 sm:flex-none";
 
 export async function RoleBar() {
-  const [session, db] = await Promise.all([getSession(), readDb()]);
+  const [session, db, jar] = await Promise.all([getSession(), readDb(), cookies()]);
+  const theme = parseTheme(jar.get(THEME_COOKIE)?.value);
 
   async function pickCompany(formData: FormData) {
     "use server";
@@ -98,10 +102,15 @@ export async function RoleBar() {
       </div>
       <header data-app-chrome className="border-b border-line bg-surface">
         <div className="shell flex flex-wrap items-center gap-x-10">
-          <Link href="/" className="flex min-h-14 items-center font-serif text-[1.625rem] tracking-[-0.015em] text-ink">
+          <Link href="/" className="order-1 flex min-h-14 items-center font-serif text-[1.625rem] tracking-[-0.015em] text-ink">
             Taito
           </Link>
-          <RoleNav items={ROLE_NAV[session.role]} />
+          <div className="order-3 w-full min-w-0 lg:order-2 lg:w-auto">
+            <RoleNav items={ROLE_NAV[session.role]} />
+          </div>
+          <div className="order-2 ml-auto py-2 lg:order-3">
+            <ThemeSwitch initial={theme} />
+          </div>
         </div>
       </header>
     </>

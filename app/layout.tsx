@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Hanken_Grotesk, Newsreader } from "next/font/google";
 import "./globals.css";
+import { cookies } from "next/headers";
 import { RoleBar } from "./components/RoleBar";
+import { parseTheme, THEME_COOKIE } from "@/lib/theme";
 
 const sans = Hanken_Grotesk({ subsets: ["latin", "latin-ext"], variable: "--font-hanken", display: "swap" });
 const serif = Newsreader({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-newsreader", display: "swap" });
@@ -14,9 +16,10 @@ export const metadata: Metadata = {
 // Every page reads the JSON store and the session cookie fresh on each request.
 export const dynamic = "force-dynamic";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const theme = parseTheme((await cookies()).get(THEME_COOKIE)?.value);
   return (
-    <html lang="en" className={`${sans.variable} ${serif.variable}`}>
+    <html lang="en" data-theme={theme} className={`${sans.variable} ${serif.variable}`}>
       <body className="flex min-h-screen flex-col">
         <RoleBar />
         <div className="flex-1">{children}</div>

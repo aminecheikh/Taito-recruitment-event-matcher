@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { flushSync } from "react-dom";
 import { saveRequirements } from "@/app/actions/requirements";
 import { MAX_CORE_REQUIREMENTS, type Requirement } from "@/lib/domain/types";
 
@@ -77,6 +78,14 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
     }
     setNotice(null);
     patch(index, { isCore: checked });
+  };
+
+  /** Spatial consistency: rows slide to their new rank instead of jumping (instant without support or under reduced motion). */
+  const reorder = (from: number, to: number) => {
+    const update = () => setItems((prev) => move(prev, from, to));
+    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (calm || !("startViewTransition" in document)) return update();
+    document.startViewTransition(() => flushSync(update));
   };
 
   const keep = (index: number) =>
@@ -173,7 +182,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
           </h2>
           <div aria-hidden="true" className="flex gap-1.5">
             {Array.from({ length: MAX_CORE_REQUIREMENTS }, (_, i) => (
-              <span key={i} className={`h-2 w-6 rounded-sm ${i < coreCount ? "bg-accent" : "border border-line-strong"}`} />
+              <span key={i} className={`pip h-2 w-6 rounded-sm ${i < coreCount ? "bg-accent" : "border border-line-strong"}`} />
             ))}
           </div>
         </div>
@@ -184,6 +193,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
             return (
               <li
                 key={req.id}
+                style={{ viewTransitionName: `row-${req.id}` }}
                 className={`card !p-4 sm:!p-5 ${req.isCore ? "border-l-[3px] !border-l-accent" : ""}`}
               >
                 <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
@@ -206,12 +216,12 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
                     </button>
                   )}
                   <button type="button" className={`${small} btn-icon`} disabled={index === 0}
-                    onClick={() => setItems((p) => move(p, index, index - 1))}
+                    onClick={() => reorder(index, index - 1)}
                     aria-label={`Move ${req.text} up`} title="Move up">
                     <span aria-hidden="true">↑</span>
                   </button>
                   <button type="button" className={`${small} btn-icon`} disabled={index === items.length - 1}
-                    onClick={() => setItems((p) => move(p, index, index + 1))}
+                    onClick={() => reorder(index, index + 1)}
                     aria-label={`Move ${req.text} down`} title="Move down">
                     <span aria-hidden="true">↓</span>
                   </button>

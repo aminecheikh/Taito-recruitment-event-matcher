@@ -65,7 +65,7 @@ function Outcome({ db, meeting }: { db: Db; meeting: Meeting }) {
   }
   const company = db.shares.find((s) => s.meetingId === meeting.id)?.company;
   return (
-    <section className="card mt-8 border-l-4 border-l-[var(--success)]">
+    <section className="card moment-match mt-8 border-l-4 border-l-[var(--success)]">
       <p><span className="tag tag-success">Both chose to continue</span></p>
       <h2 className="h2 mt-3">Match — shared details</h2>
       <div className="mt-6 grid gap-8 md:grid-cols-2">

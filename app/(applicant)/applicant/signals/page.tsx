@@ -63,7 +63,7 @@ export default async function SignalsPage({
         {Array.from({ length: event.signalsPerApplicant }, (_, i) => (
           <span
             key={i}
-            className={`h-2.5 w-10 rounded-sm ${i < left ? "bg-accent" : "border border-line-strong bg-transparent"}`}
+            className={`pip h-2.5 w-10 rounded-sm ${i < left ? "bg-accent" : "border border-line-strong bg-transparent"}`}
           />
         ))}
       </div>

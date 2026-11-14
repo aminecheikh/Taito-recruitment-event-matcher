@@ -58,7 +58,7 @@ function Result({ db, meeting, applicantEmail }: { db: Db; meeting: Meeting; app
   if (reveal.match) {
     const share = db.shares.find((s) => s.meetingId === meeting.id);
     return (
-      <section className="card mt-8 border-l-4 border-l-[var(--success)]">
+      <section className="card moment-match mt-8 border-l-4 border-l-[var(--success)]">
         <p><span className="tag tag-success">Both chose to continue</span></p>
         <h2 className="h2 mt-3">It is a match</h2>
         <p className="mt-2 text-muted">Both of you chose to continue. Choose what you share with the company.</p>
