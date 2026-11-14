@@ -1,73 +1,77 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Calm, Nordic, public-service: cool stone canvas, white surfaces,
- * spruce accent, one ochre marker reserved for AI content, and a dark "prototype strip"
- * for demo controls so they never read as part of the product. All text pairs meet WCAG AA
- * in both themes. Use the semantic utilities (bg-surface, text-muted, border-line…)
- * or the component classes below; avoid raw neutral-* colours so dark mode keeps working.
+ * Design tokens. Palette "stone and blueprint" (dealt by the design-taste skill for a
+ * people-hiring service): a warm stone ground, white working surfaces, warm near-black ink,
+ * one blueprint-blue action colour. Ochre stays reserved for AI content so it never mixes
+ * with an action. The dark "prototype strip" uses the palette's inverse so demo controls
+ * never read as product. All text pairs meet WCAG AA in both themes.
  */
 :root {
   color-scheme: light;
-  --canvas: #f1f2ee;
+  --canvas: #dfdedb;
   --surface: #ffffff;
-  --sunken: #e8eae5;
-  --ink: #17201c;
-  --muted: #4a5550;
-  --line: #d5d9d2;
-  --line-strong: #737c77;
-  --accent: #1f5c4f;
-  --accent-hover: #174a3f;
-  --accent-soft: #e1ede8;
-  --accent-ink: #174a3f;
+  --sunken: #eceae6;
+  --ink: #26251e;
+  --muted: #5a5850;
+  --line: #cfcdc7;
+  --line-strong: #7a776d;
+  --accent: #2456d6;
+  --accent-hover: #1c46b4;
+  --accent-soft: #e4eafa;
+  --accent-ink: #1d47b6;
   --on-accent: #ffffff;
-  --chrome: #1c2a25;
-  --chrome-raised: #2a3b35;
-  --chrome-line: #3f5049;
-  --on-chrome: #e3ebe7;
-  --on-chrome-muted: #a9bab3;
+  --chrome: #26251e;
+  --chrome-raised: #313029;
+  --chrome-line: #48463d;
+  --on-chrome: #dfdedb;
+  --on-chrome-muted: #a8a69f;
   --ai: #6b4a00;
   --ai-soft: #fbf1d9;
   --ai-line: #c99a2e;
   --success: #1e6b3a;
-  --success-soft: #e5f1e8;
+  --success-soft: #e3f0e6;
   --danger: #a12a22;
   --danger-soft: #fbeae7;
+  --shadow-lift: 0 10px 24px -14px rgb(38 37 30 / 0.28);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --canvas: #121514;
-    --surface: #1a1e1d;
-    --sunken: #222826;
-    --ink: #eceeea;
-    --muted: #a9b1ac;
-    --line: #313835;
-    --line-strong: #78817c;
-    --accent: #7cc4af;
-    --accent-hover: #9ad3c2;
-    --accent-soft: #1d2f2a;
-    --accent-ink: #9ad3c2;
-    --on-accent: #0d211c;
-    --chrome: #0c1110;
-    --chrome-raised: #1b2421;
-    --chrome-line: #2c3833;
-    --on-chrome: #dfe7e3;
-    --on-chrome-muted: #93a49d;
+    --canvas: #1b1a17;
+    --surface: #24231f;
+    --sunken: #2c2b26;
+    --ink: #e6e4df;
+    --muted: #aaa79e;
+    --line: #3a3832;
+    --line-strong: #7f7c72;
+    --accent: #8eadff;
+    --accent-hover: #adc4ff;
+    --accent-soft: #1f2a45;
+    --accent-ink: #a9c0ff;
+    --on-accent: #0f1a33;
+    --chrome: #121110;
+    --chrome-raised: #23221e;
+    --chrome-line: #3a3832;
+    --on-chrome: #dfdedb;
+    --on-chrome-muted: #9e9d99;
     --ai: #e8c26a;
-    --ai-soft: #2a2416;
+    --ai-soft: #2c2616;
     --ai-line: #a07b25;
     --success: #8fd0a2;
     --success-soft: #19281e;
     --danger: #f2a197;
     --danger-soft: #2e1a18;
+    --shadow-lift: 0 10px 24px -14px rgb(0 0 0 / 0.6);
   }
 }
 
 @theme inline {
-  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-source-serif), ui-serif, Georgia, serif;
+  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
   --color-sunken: var(--sunken);
@@ -158,23 +162,36 @@
   }
   .h1 {
     font-family: var(--font-serif);
-    font-size: 2rem;
-    line-height: 1.15;
-    font-weight: 600;
-    letter-spacing: -0.015em;
+    font-size: 2.25rem;
+    line-height: 1.08;
+    font-weight: 400;
+    letter-spacing: -0.02em;
     text-wrap: balance;
   }
   @media (min-width: 640px) {
     .h1 {
-      font-size: 2.5rem;
+      font-size: 3rem;
+    }
+  }
+  .display {
+    font-family: var(--font-serif);
+    font-size: 3rem;
+    line-height: 1;
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  @media (min-width: 640px) {
+    .display {
+      font-size: 4.5rem;
     }
   }
   .h2 {
     font-family: var(--font-serif);
-    font-size: 1.5rem;
-    line-height: 1.25;
-    font-weight: 600;
-    letter-spacing: -0.005em;
+    font-size: 1.625rem;
+    line-height: 1.2;
+    font-weight: 400;
+    letter-spacing: -0.012em;
     text-wrap: balance;
   }
   .h3 {
@@ -199,15 +216,21 @@
     font-size: 0.875rem;
     color: var(--muted);
   }
+  /* Links rest on a faint hairline; an ink line draws left to right on hover */
   .link {
     color: var(--accent-ink);
     font-weight: 500;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-thickness: 1px;
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor),
+      linear-gradient(color-mix(in srgb, currentColor 30%, transparent), color-mix(in srgb, currentColor 30%, transparent));
+    background-size: 0% 1px, 100% 1px;
+    background-position: 0 100%, 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 150ms var(--ease);
   }
-  .link:hover {
-    text-decoration-thickness: 2px;
+  .link:hover,
+  .link:focus-visible {
+    background-size: 100% 1px, 100% 1px;
   }
 
   /*
@@ -223,10 +246,10 @@
     align-items: center;
     justify-content: center;
     border: 1.5px solid var(--accent);
-    border-radius: 0.25rem;
+    border-radius: 999px;
     font-family: var(--font-serif);
     font-size: 0.9375rem;
-    font-weight: 600;
+    font-weight: 500;
     font-variant-numeric: lining-nums tabular-nums;
     line-height: 1;
     color: var(--accent-ink);
@@ -244,7 +267,7 @@
   .card {
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
     padding: 1.25rem;
   }
   @media (min-width: 640px) {
@@ -254,7 +277,7 @@
   }
   .panel {
     background: var(--sunken);
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
     padding: 1rem 1.25rem;
   }
   .ai-panel {
@@ -305,16 +328,17 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border-radius: 0.375rem;
+    border-radius: 0.5rem;
     border: 1px solid var(--line-strong);
     background: var(--surface);
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1.125rem;
     font-size: 0.9375rem;
     font-weight: 600;
     line-height: 1.25;
     color: var(--ink);
     cursor: pointer;
-    transition: background-color 120ms, border-color 120ms, color 120ms;
+    transition: background-color 120ms var(--ease), border-color 120ms var(--ease), color 120ms var(--ease),
+      transform 120ms var(--ease);
   }
   .btn:hover:not(:disabled) {
     background: var(--sunken);
@@ -362,7 +386,7 @@
     display: block;
     width: 100%;
     min-height: 2.75rem;
-    border-radius: 0.375rem;
+    border-radius: 0.5rem;
     border: 1px solid var(--line-strong);
     background: var(--surface);
     padding: 0.5rem 0.75rem;
@@ -442,5 +466,79 @@
     background: var(--success-soft);
     color: var(--success);
     font-weight: 500;
+  }
+
+  /* Linked surfaces (role entries, list rows that navigate) lift 2px on hover */
+  .card-link {
+    transition: transform 180ms var(--ease), border-color 180ms var(--ease), box-shadow 180ms var(--ease),
+      background-color 180ms var(--ease);
+  }
+}
+
+/*
+ * Motion layer. Three places only: the hero enters once on load, every control answers the
+ * pointer, and nothing moves on scroll. Transform and opacity only; reduced motion rests.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  .btn:active:not(:disabled) {
+    transform: translateY(1px) scale(0.985);
+    transition-duration: 90ms;
+  }
+  .card-link:hover {
+    transform: translateY(-2px);
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-lift);
+  }
+  .chrome-control:active,
+  .chrome-seg:active {
+    transform: scale(0.985);
+  }
+}
+
+@keyframes enter-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes slot-fill {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* Hero entrance: children of [data-enter] arrive in order, about 1.1 s in all */
+[data-enter] > * {
+  animation: enter-rise 700ms var(--ease-enter) both;
+  animation-delay: calc(var(--i, 0) * 110ms);
+}
+/* The one dealt moment: an applicant's example settles into a requirement slot */
+.slot-fill {
+  animation: slot-fill 800ms var(--ease-enter) both;
+  animation-delay: 900ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0ms !important;
+  }
+  .btn:hover:not(:disabled),
+  .btn:active:not(:disabled),
+  .card-link:hover {
+    transform: none;
   }
 }

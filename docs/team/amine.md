@@ -4,7 +4,7 @@
 <!-- Update Now when you start something and push right away; teammates' agents read it at session start. -->
 
 ## Now
-- Visual refresh v2 (stone + blueprint blue, Newsreader/Hanken): `app/globals.css`, `app/layout.tsx`, `app/page.tsx`, `app/components/*`
+- 
 
 ## Next
 - 
