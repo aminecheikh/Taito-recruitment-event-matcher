@@ -35,3 +35,8 @@ htmlcov/
 # Codex local
 .codex/*
 !.codex/hooks.json
+
+# Runtime
+data/runtime/
+next-env.d.ts
+*.tsbuildinfo

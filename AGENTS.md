@@ -59,8 +59,13 @@ API keys live in `.env` (gitignored); commit names only, in `.env.example`. Agen
 | One-time setup per clone (see First run) | `scripts/setup.sh <your-name>` |
 | Gate before push (also pre-push) | `scripts/check.sh` |
 | Team board + sync status | `node .agents/hooks/session-start.mjs` |
+| Install dependencies | `npm install` |
+| Dev server (in a tmux session) | `npm run dev` |
+| Tests | `npm test` |
+| Lint | `npm run lint` |
+| Type check | `npm run typecheck` |
 
-When a stack is chosen, add its install / dev / test commands here and make sure `scripts/check.sh` picks them up (`package.json` scripts named `lint`, `typecheck`, `test`; `pyproject.toml` with ruff/pytest).
+`scripts/check.sh` picks up the `lint`, `typecheck` and `test` scripts in `package.json`.
 
 ## Skills
 
@@ -106,3 +111,13 @@ When something you learn would change how the next agent works (a decision, a go
 | 2026-11-14 | Stack: Next.js + TypeScript (one app, UI + API routes), Tailwind, Vitest | One thing to run, easy to split by page across 3 people |
 | 2026-11-14 | AI is provider-agnostic: Claude, Gemini or OpenAI chosen by env var, plus a scripted `mock` provider | Team has keys for all three; mock keeps the demo working offline and makes AI logic testable |
 | 2026-11-14 | MVP scope: thin full journey on synthetic data, depth on the story + AI-link step | Judges see the whole concept; the AI-link step is the most novel part |
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
