@@ -2,22 +2,16 @@ import { z } from "zod";
 import { suggestLinks } from "@/lib/ai/functions";
 import { handle } from "@/lib/ai/http";
 import { mockSuggestLinks } from "@/lib/ai/mock";
-import { coreRequirements } from "@/lib/domain/requirements";
+import { findOwnSuggestInput } from "@/lib/ai/suggestInput";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
 
 const Body = z.object({ storyId: z.string().min(1) });
 
-/** Loads the story and every core requirement of companies at the session event; server-side only. */
+/** Server-side lookup scoped to the session applicant; the client never sends requirements. */
 async function load(storyId: string) {
   const [db, session] = await Promise.all([readDb(), getSession()]);
-  const story = db.stories.find((s) => s.id === storyId);
-  if (!story) return null;
-  const companyIds = db.companyEvents
-    .filter((ce) => ce.eventId === session.eventId)
-    .map((ce) => ce.companyId);
-  const requirements = companyIds.flatMap((id) => coreRequirements(db, id));
-  return { story: { id: story.id, body: story.body }, requirements };
+  return findOwnSuggestInput(db, storyId, session.applicantId, session.eventId);
 }
 
 export const POST = handle(
