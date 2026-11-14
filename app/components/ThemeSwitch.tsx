@@ -16,7 +16,7 @@ function apply(theme: Theme) {
   document.cookie = `${THEME_COOKIE}=${theme}; path=/; max-age=${THEME_MAX_AGE_SECONDS}; samesite=lax`;
 }
 
-/** Light (cream) or Dark. Until the viewer picks one, the system setting decides. */
+/** Light or Dark. Until the viewer picks one, the system setting decides. */
 export function ThemeSwitch({ initial }: { initial?: Theme }) {
   const [chosen, setChosen] = useState<Theme | undefined>(initial);
   const systemDark = useSyncExternalStore(
