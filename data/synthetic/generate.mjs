@@ -2,7 +2,7 @@
 // Rewrites companies/companies.json, talent/talent.json, events/events.json deterministically.
 // Everything here is fictional: no real people, no real companies, emails only on example.org.
 import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const SEED = 20261114;
@@ -21,8 +21,6 @@ function makeRng(seed) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-const rng = makeRng(SEED);
-const pick = (items) => items[Math.floor(rng() * items.length)];
 const pad = (n, width = 2) => String(n).padStart(width, "0");
 
 // ---------- companies and requirements ----------
@@ -165,7 +163,8 @@ const SIGNAL_DEFS = {
   11: ["company-03"], 21: ["company-04"],
 };
 
-function buildTalent() {
+function buildTalent(rng) {
+  const pick = (items) => items[Math.floor(rng() * items.length)];
   const applicants = [];
   const stories = [];
   const links = [];
@@ -208,14 +207,24 @@ function buildEvents(companies) {
   };
 }
 
+/** Pure: builds the three output documents. Same SEED gives deep-equal results on every call. */
+export function buildSeed() {
+  const rng = makeRng(SEED);
+  const companyData = buildCompanies();
+  return {
+    "companies/companies.json": companyData,
+    "talent/talent.json": buildTalent(rng),
+    "events/events.json": buildEvents(companyData.companies),
+  };
+}
+
 function write(root, rel, data) {
   const file = join(root, rel);
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, JSON.stringify(data, null, 2) + "\n");
 }
 
-const root = dirname(fileURLToPath(import.meta.url));
-const companyData = buildCompanies();
-write(root, "companies/companies.json", companyData);
-write(root, "talent/talent.json", buildTalent());
-write(root, "events/events.json", buildEvents(companyData.companies));
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  const root = dirname(fileURLToPath(import.meta.url));
+  for (const [rel, data] of Object.entries(buildSeed())) write(root, rel, data);
+}

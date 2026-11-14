@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { buildSeed } from "./generate.mjs";
 import { DbSchema, emptyDb, MAX_CORE_REQUIREMENTS, type Db } from "@/lib/domain/types";
 
 const dir = __dirname;
@@ -79,5 +80,43 @@ describe("synthetic seed", () => {
       return new Set(reqs.map((l) => l.requirementId)).size;
     }).sort();
     expect(coverage).toEqual([1, 2, 3, 3, 4]);
+  });
+
+  it("test_references_when_seeded_all_resolve", () => {
+    const ids = (xs: { id: string }[]) => new Set(xs.map((x) => x.id));
+    const companies = ids(db.companies), reqs = ids(db.requirements), stories = ids(db.stories);
+    const applicants = ids(db.applicants), events = ids(db.events);
+    for (const r of db.requirements) expect(companies.has(r.companyId), r.id).toBe(true);
+    for (const s of db.stories) expect(applicants.has(s.applicantId), s.id).toBe(true);
+    for (const l of db.links) {
+      expect(stories.has(l.storyId), l.id).toBe(true);
+      expect(reqs.has(l.requirementId), l.id).toBe(true);
+    }
+    for (const s of db.signals) {
+      expect(events.has(s.eventId)).toBe(true);
+      expect(applicants.has(s.applicantId)).toBe(true);
+      expect(companies.has(s.companyId)).toBe(true);
+    }
+    for (const ce of db.companyEvents) {
+      expect(companies.has(ce.companyId)).toBe(true);
+      expect(events.has(ce.eventId)).toBe(true);
+    }
+  });
+
+  it("test_acme_accepted_links_when_seeded_point_at_core_requirements", () => {
+    const core = new Set(db.requirements.filter((r) => r.companyId === "company-01" && r.isCore).map((r) => r.id));
+    const acme = db.links.filter((l) => l.requirementId.startsWith("req-01-") && l.status === "accepted");
+    expect(acme.length).toBeGreaterThan(0);
+    for (const l of acme) expect(core.has(l.requirementId), l.id).toBe(true);
+  });
+
+  it("test_generator_when_called_twice_is_deterministic", () => {
+    expect(buildSeed()).toEqual(buildSeed());
+  });
+
+  it("test_generator_output_matches_committed_json_files", () => {
+    for (const [rel, data] of Object.entries(buildSeed())) {
+      expect(read(rel), rel).toEqual(data);
+    }
   });
 });
