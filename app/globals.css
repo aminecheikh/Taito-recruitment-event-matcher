@@ -834,6 +834,38 @@
     font-size: 24px;
     font-weight: 800;
   }
+  /* Logo lockup: the pipo mascot head as a sticker mark + a chunky wordmark */
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .logo-mark {
+    width: 2.375rem;
+    height: 3.125rem;
+    overflow: visible;
+    rotate: -6deg;
+    transition: rotate 200ms var(--ease-out);
+  }
+  .logo-word {
+    font-family: var(--font-serif);
+    font-size: 2.125rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    color: var(--heading);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    a:hover > .logo .logo-mark {
+      rotate: 6deg;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .logo-mark {
+      transition: none;
+    }
+  }
+
   /* A mascot sticker sitting on, or peeking over, the top edge of its relative parent */
   .mascot-on-edge {
     position: absolute;

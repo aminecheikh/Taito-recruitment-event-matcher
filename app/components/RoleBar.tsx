@@ -8,6 +8,7 @@ import { resetDemoData } from "@/app/actions/reset";
 import { resetEnabled } from "@/lib/demoReset";
 import { ResetButton } from "./ResetButton";
 import { ThemeSwitch } from "./ThemeSwitch";
+import { Logo } from "./Logo";
 import { cookies } from "next/headers";
 import { formatShortDate } from "@/lib/domain/eventFormat";
 import { parseTheme, THEME_COOKIE } from "@/lib/theme";
@@ -122,8 +123,8 @@ export async function RoleBar() {
       </div>
       <header data-app-chrome className="material scroll-edge sticky top-0 z-30">
         <div className="shell flex flex-wrap items-center gap-x-10">
-          <Link href="/" className="order-1 flex min-h-14 items-center font-serif text-[1.625rem] tracking-[-0.015em] text-ink">
-            Taito
+          <Link href="/" aria-label="Taito, home" className="order-1 flex min-h-16 items-center">
+            <Logo />
           </Link>
           <div className="order-3 w-full min-w-0 lg:order-2 lg:w-auto">
             <RoleNav items={ROLE_NAV[session.role]} />
