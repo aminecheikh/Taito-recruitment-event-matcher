@@ -26,6 +26,7 @@ The CV can still be shared — after the conversation, if both sides want to con
 | Judging people | Humans only. The **recruiter** scores each core requirement 0–10 (total out of 10 × number of core requirements). AI never scores, ranks or filters people, and shows no "top match" lists. Scoring guide and how scores are used to screen at volume: **open, being researched by two teammates**. |
 | Signalling | An applicant needs at least 1 accepted example for a company before they can signal it. The recruiter sees every core-requirement slot; empty ones show "no example yet". |
 | Shortlisting | The recruiter filters by coverage: how many core requirements have an example (all first, then one fewer, …). The rule is visible to applicants. |
+| Job ad → suggested requirements | Job ads describe tasks, not needs. AI infers the skills, knowledge and tools the described work relies on (concise names, optional "in practice" line), each grounded in the ad; never identity traits. Shown as "AI suggestion"; the recruiter keeps, edits or deletes each one. |
 | Story → requirement links | Applicant tells stories first. AI suggests which company requirement a story could be evidence for, with a visible reason; the applicant accepts, rejects or moves each link. AI never changes the story. Cards show "linked by applicant". |
 | Product name | **Taito**, Finnish for "ability" (replaces the working title "No CV, No Job Ad"): the product is about what people can do, not their documents |
 | Hackathon demo | Thin full journey: every step works end to end on synthetic data; the story + AI-link step gets the most depth. |
@@ -35,7 +36,7 @@ The CV can still be shared — after the conversation, if both sides want to con
 ### Before the event (2–3 weeks out)
 
 **1. Recruiter sets the core requirements**
-- Pastes an existing job ad (optional); AI extracts the requirements as a list.
+- Pastes an existing job ad (optional); AI suggests the requirements the described work needs, each with an optional "in practice" line.
 - Recruiter ranks them and commits to 1–5 core requirements, adding one line per item: what it looks like in practice.
 - AI pushes back on wishlists ("you marked 9 as must-have — which ones (at most 5) would you actually hire on?"). The recruiter decides.
 
