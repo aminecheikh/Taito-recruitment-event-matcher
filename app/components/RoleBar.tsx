@@ -52,8 +52,10 @@ export async function RoleBar() {
             action={enterRole}
             role="group"
             aria-label="Role"
-            className="flex rounded-md border border-chrome-line bg-chrome-raised p-0.5"
+            className="seg seg-chrome"
+            style={{ "--n": ROLES.length, "--i": ROLES.indexOf(session.role) } as React.CSSProperties}
           >
+            <span aria-hidden="true" className="seg-thumb" />
             {ROLES.map((role) => (
               <button
                 key={role}
@@ -100,7 +102,7 @@ export async function RoleBar() {
           ) : null}
         </nav>
       </div>
-      <header data-app-chrome className="border-b border-line bg-surface">
+      <header data-app-chrome className="material scroll-edge sticky top-0 z-30">
         <div className="shell flex flex-wrap items-center gap-x-10">
           <Link href="/" className="order-1 flex min-h-14 items-center font-serif text-[1.625rem] tracking-[-0.015em] text-ink">
             Taito

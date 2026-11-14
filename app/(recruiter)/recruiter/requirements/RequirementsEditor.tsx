@@ -266,7 +266,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
         </form>
       </section>
 
-      <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line bg-canvas px-4 py-4 sm:mx-0 sm:rounded-lg sm:border sm:bg-surface sm:shadow-[0_-8px_24px_-12px_rgb(23_32_28/0.18)] sm:px-5">
+      <div className="material material-float sticky bottom-3 z-20 -mx-1 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-line px-4 py-3 sm:mx-0 sm:px-5">
         <button type="button" onClick={save} disabled={saving || coreCount === 0} className={primary}>
           {saving ? "Saving…" : "Save requirements"}
         </button>

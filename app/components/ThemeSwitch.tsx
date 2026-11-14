@@ -34,7 +34,13 @@ export function ThemeSwitch({ initial }: { initial?: Theme }) {
   };
 
   return (
-    <div role="group" aria-label="Colour theme" className="seg">
+    <div
+      role="group"
+      aria-label="Colour theme"
+      className="seg"
+      style={{ "--n": THEMES.length, "--i": THEMES.indexOf(active) } as React.CSSProperties}
+    >
+      <span aria-hidden="true" className="seg-thumb" />
       {THEMES.map((theme) => (
         <button
           key={theme}
