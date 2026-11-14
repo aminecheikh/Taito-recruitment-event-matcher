@@ -25,7 +25,8 @@ export default async function EntriesPage() {
     const answered = new Set(db.answers.filter((a) => a.applicantId === applicant.id && a.entryId === entryId).map((a) => a.requirementId));
     return db.requirements.flatMap((req) => {
       if (!answered.has(req.id)) return [];
-      const position = coreRequirements(db, req.companyId).findIndex((r) => r.id === req.id) + 1;
+      const found = coreRequirements(db, req.companyId).findIndex((r) => r.id === req.id);
+      const position = found === -1 ? undefined : found + 1;
       return [{ requirementId: req.id, companyId: req.companyId, companyName: companyName.get(req.companyId) ?? req.companyId, position, text: req.text }];
     });
   };

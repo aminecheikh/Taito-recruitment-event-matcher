@@ -66,7 +66,7 @@ export function SuggestStoriesButton({ stories }: { stories: StoryRef[] }) {
       </button>
       {fallback ? <p className="hint mt-2">{FALLBACK_NOTICE}</p> : null}
       {added === 0 ? <p className="hint mt-2" aria-live="polite">No new suggestions.</p> : null}
-      {added !== null && added > 0 ? <p className="hint mt-2" aria-live="polite">{added} new {added === 1 ? "suggestion" : "suggestions"} added to the cards below.</p> : null}
+      {added !== null && added > 0 ? <p className="hint mt-2" aria-live="polite">{added} new {added === 1 ? "suggestion" : "suggestions"} across your companies.</p> : null}
       {error ? <p role="alert" className="mt-2 font-medium text-danger">{error}</p> : null}
     </div>
   );

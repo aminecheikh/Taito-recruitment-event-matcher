@@ -49,7 +49,7 @@ async function run(
   if (!result.ok) {
     return { ok: false, error: result.error === "no-applicant" ? "Pick an applicant in the top bar" : (Object.hasOwn(ERROR_MESSAGES, result.error) ? ERROR_MESSAGES[result.error] : result.error) };
   }
-  revalidatePath(COMPANIES_PATH);
+  revalidatePath(COMPANIES_PATH, "layout");
   return { ok: true };
 }
 

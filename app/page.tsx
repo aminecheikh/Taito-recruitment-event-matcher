@@ -12,7 +12,7 @@ const ENTRIES = [
 
 const STEPS = [
   ["Recruiters commit", "1 to 5 core requirements, each with one line on what it looks like in practice."],
-  ["Applicants show", "Short real stories, linked to those requirements by the applicant."],
+  ["Applicants show", "Short real examples, written for each requirement by the applicant."],
   ["AI only helps", "It asks questions, suggests links and fixes language. Always labelled, never decides."],
   ["People decide", "Recruiters meet anonymous evidence. Both sides answer; a match needs both."],
 ] as const;

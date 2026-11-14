@@ -11,7 +11,7 @@ export type EntryView = {
   body: string;
   languageLabel?: string;
   storyTitle?: string;
-  usedFor: { requirementId: string; companyId: string; companyName: string; position: number; text: string }[];
+  usedFor: { requirementId: string; companyId: string; companyName: string; position?: number; text: string }[];
 };
 
 const DELETE_PROMPT = "Delete this entry? It will be removed from every card that uses it.";
@@ -76,7 +76,7 @@ export function EntryItem({ entry }: { entry: EntryView }) {
           <ul aria-labelledby={usedId} className="mt-1 space-y-1">
             {entry.usedFor.map((u) => (
               <li key={u.requirementId}>
-                <Link href={`/applicant/companies/${u.companyId}`} className="link">{u.companyName} #{u.position} — {u.text}</Link>
+                <Link href={`/applicant/companies/${u.companyId}`} className="link">{u.companyName}{u.position === undefined ? "" : ` #${u.position}`} — {u.text}</Link>
               </li>
             ))}
           </ul>
@@ -91,7 +91,7 @@ export function EntryItem({ entry }: { entry: EntryView }) {
         ) : (
           <button type="button" className={`${buttonClass} btn-sm`} disabled={busy} onClick={startEdit}>Edit</button>
         )}
-        <button type="button" className={`${buttonClass} btn-sm`} disabled={busy} onClick={remove}>Delete</button>
+        <button type="button" className={`${buttonClass} btn-sm btn-danger`} disabled={busy} onClick={remove}>Delete</button>
       </div>
       {error ? <p role="alert" className="mt-3 font-medium text-danger">{error}</p> : null}
     </li>
