@@ -105,7 +105,7 @@ const APPLICANT_DEFS = [
   { n: 9, name: "Noor Fennwick (fictional)", note: "non-traditional education, self-taught" },
   { n: 11, name: "Sigrid Alderbrook (fictional)", note: "caregiving gap" },
   { n: 14, name: "Tomasz Greywillow (fictional)", note: "family business" },
-  { n: 17, name: "Lakshmi Hartwell (fictional)", note: "demo applicant, bus depot IT support" },
+  { n: 17, name: "Lakshmi Wrenfield (fictional)", note: "demo applicant, bus depot IT support" },
   { n: 21, name: "Yusuf Marrowby (fictional)", note: "international student, story translated" },
   { n: 26, name: "Ilkka Dunmoor (fictional)", note: "former conscript technician turned career changer" },
 ];
