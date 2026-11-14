@@ -4,9 +4,9 @@ import type { Db } from "@/lib/domain/types";
 import { readDb } from "@/lib/store/db";
 
 const ENTRIES = [
-  { role: "recruiter", label: "Recruiter", detail: "Name the few things you hire on, then meet the people who show them." },
-  { role: "applicant", label: "Applicant", detail: "Tell what you have done, in your own words. Choose who you want to meet." },
-  { role: "staff", label: "Event staff", detail: "See who might need help preparing before the event." },
+  { role: "recruiter", tone: "tone-sun", label: "Recruiter", detail: "Name the few things you hire on, then meet the people who show them." },
+  { role: "applicant", tone: "tone-bubblegum", label: "Applicant", detail: "Tell what you have done, in your own words. Choose who you want to meet." },
+  { role: "staff", tone: "tone-tangerine", label: "Event staff", detail: "See who might need help preparing before the event." },
 ] as const;
 
 const STEPS = [
@@ -47,7 +47,7 @@ function SlotFigure({ slot }: { slot: Slot }) {
   return (
     <figure
       aria-label={`Example: ${slot.label} shows evidence for ${slot.company}'s core requirement ${slot.rank}, ${slot.requirement}`}
-      className="card !p-0 shadow-[0_30px_60px_-30px_rgb(38_37_30/0.35)]"
+      className="card !p-0 shadow-[var(--shadow-lift)]"
     >
       <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3 text-sm text-muted sm:px-6">
         <span>{slot.company}</span>
@@ -92,7 +92,7 @@ export default async function Home() {
                 type="submit"
                 name="role"
                 value={entry.role}
-                className="card card-link flex w-full flex-col gap-1 !px-5 !py-4 text-left sm:flex-row sm:items-baseline sm:gap-4"
+                className={`card card-link tone ${entry.tone} flex w-full flex-col gap-1 !px-5 !py-4 text-left sm:flex-row sm:items-baseline sm:gap-4`}
               >
                 <span className="shrink-0 font-serif text-xl text-ink sm:w-28">{entry.label}</span>
                 <span className="text-[0.9375rem] text-muted">{entry.detail}</span>
@@ -101,13 +101,16 @@ export default async function Home() {
           </form>
         </div>
         {slot ? (
-          <div style={order(4)}>
+          <div className="relative" style={order(4)}>
             <SlotFigure slot={slot} />
+            <span className="sticker tone-bubblegum absolute -bottom-16 right-2 sm:-right-8" aria-hidden="true">
+              No CV needed
+            </span>
           </div>
         ) : null}
       </section>
 
-      <section aria-labelledby="how-heading" className="mt-20 border-t border-line pt-10">
+      <section aria-labelledby="how-heading" className="band tone tone-sun mt-28 -mb-16 sm:-mb-20">
         <h2 id="how-heading" className="h2">How an event runs</h2>
         <ol className="mt-8 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map(([title, text], i) => (

@@ -1,58 +1,61 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Palette "Espoo playground": the brighter half of espoo.fi's colour system,
- * made playful. A blush paper ground (from Espoo's soft peach) with warm ink; Espoo blue
- * #0050bb is still the one action colour; Espoo pink is the playful highlight (switch thumb,
- * link underline, hero scribble); highlighter yellow is reserved for AI so AI content never
- * reads as an action. No blue grounds anywhere. Dark is warm charcoal, not navy. Clickable
- * cards and primary buttons carry an ink outline and a hard offset shadow (--edge, --hard).
+ * Design tokens. Palette "Happy mix": a flat, confident layout in the spirit of fraenk.de
+ * (white and warm-grey grounds, black ink, solid black actions, bold tight headlines, big
+ * rounded panels, full-bleed colour bands, a round sticker) with our own mix of happy colours
+ * instead of one brand yellow. Sun, tangerine and bubblegum are decoration only: role cards,
+ * bands, stickers, the hero scribble, core-requirement markers. Actions are ink, so colour
+ * never competes with a button. Mint is reserved for AI (dashed note panels) and used nowhere
+ * else. Tones stay bright in both themes and always carry dark ink. Dark is warm charcoal.
  * All text pairs meet WCAG AA in both themes; borders and focus rings meet 3:1.
  */
-:root,
-:root[data-theme="light"] {
-  color-scheme: light;
-  --canvas: #fdf4ee;
-  --surface: #ffffff;
-  --sunken: #f9e5da;
-  --ink: #1d1b19;
-  --heading: #1d1b19;
-  --muted: #5d5650;
-  --line: #ecd9cf;
-  --line-strong: #8f8178;
-  --edge: #1d1b19;
-  --hard: #1d1b19;
-  --accent: #0050bb;
-  --accent-hover: #003a8c;
-  --accent-soft: #e3ecf9;
-  --accent-ink: #0050bb;
-  --on-accent: #ffffff;
-  --pop: #fca5c7;
-  --pop-soft: #fde0ec;
-  --pop-ink: #9b1b52;
-  --scribble: #fca5c7;
-  --chrome: #1d1b19;
-  --chrome-raised: #2d2a27;
-  --chrome-line: #45403b;
-  --on-chrome: #fdf4ee;
-  --on-chrome-muted: #b3aaa1;
-  --ai: #5c4500;
-  --ai-soft: #fff3b0;
-  --ai-line: #a07a00;
-  --success: #1e6b3a;
-  --success-soft: #e2f3e6;
-  --danger: #a12a22;
-  --danger-soft: #fde8e5;
-  --thumb: var(--pop);
-  --on-thumb: #1d1b19;
-  --shadow-lift: 0 10px 24px -14px rgb(29 27 25 / 0.22);
-  --depth-1: 0 1px 2px rgb(29 27 25 / 0.05);
-  --depth-3: 0 18px 40px -18px rgb(29 27 25 / 0.26), 0 2px 6px rgb(29 27 25 / 0.06);
-  --shadow-rgb: 29 27 25;
+:root {
+  --sun: #ffd23f;
+  --tangerine: #ff9f5a;
+  --bubblegum: #ff9ecd;
+  --on-tone: #1d1b19;
+  --tone-muted: #3f3a34;
 
   /* Easing from Emil Kowalski's animation guidance: strong ease-out for UI, ease-in-out for on-screen moves */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --canvas: #f4f2ee;
+  --surface: #ffffff;
+  --sunken: #ebe8e2;
+  --ink: #1d1b19;
+  --heading: #1d1b19;
+  --muted: #5d5650;
+  --line: #e4e0d8;
+  --line-strong: #8c857b;
+  --edge: #1d1b19;
+  --accent: #1d1b19;
+  --accent-hover: #3a3632;
+  --accent-soft: #ebe8e2;
+  --accent-ink: #1d1b19;
+  --on-accent: #ffffff;
+  --chrome: #1d1b19;
+  --chrome-raised: #2d2a27;
+  --chrome-line: #45403b;
+  --on-chrome: #f4f2ee;
+  --on-chrome-muted: #b3aaa1;
+  --ai: #0b5536;
+  --ai-soft: #d5f5e6;
+  --ai-line: #2f9e6e;
+  --success: #1e6b3a;
+  --success-soft: #e2f3e6;
+  --danger: #a12a22;
+  --danger-soft: #fde8e5;
+  --thumb: #1d1b19;
+  --on-thumb: #ffffff;
+  --shadow-lift: 0 14px 28px -16px rgb(29 27 25 / 0.28);
+  --depth-1: none;
+  --depth-3: 0 18px 40px -18px rgb(29 27 25 / 0.26), 0 2px 6px rgb(29 27 25 / 0.06);
+  --shadow-rgb: 29 27 25;
 }
 
 /* Dark: warm charcoal. Follows the system unless the viewer picked Light; or picked Dark */
@@ -67,34 +70,28 @@
     --muted: #b5ada4;
     --line: #3a3631;
     --line-strong: #7a7269;
-    --edge: #7a7269;
-    --hard: #fca5c7;
-    --accent: #8cb8ff;
-    --accent-hover: #b4d0ff;
-    --accent-soft: #1c2a42;
-    --accent-ink: #9dc2ff;
+    --edge: #f5efe8;
+    --accent: #f5efe8;
+    --accent-hover: #ffffff;
+    --accent-soft: #2f2b27;
+    --accent-ink: #f5efe8;
     --on-accent: #181614;
-    --pop: #fca5c7;
-    --pop-soft: #4a2434;
-    --pop-ink: #fca5c7;
-    --scribble: #9e3d66;
-  --scribble: #9e3d66;
     --chrome: #0f0e0c;
     --chrome-raised: #23201d;
     --chrome-line: #3a3631;
     --on-chrome: #f5efe8;
     --on-chrome-muted: #a39b92;
-    --ai: #ffe17a;
-    --ai-soft: #2e2812;
-    --ai-line: #b39316;
+    --ai: #8ee8bd;
+    --ai-soft: #14291f;
+    --ai-line: #3fae7d;
     --success: #8fd0a2;
     --success-soft: #16261b;
     --danger: #ff9a8f;
     --danger-soft: #36181a;
-    --thumb: var(--pop);
+    --thumb: #f5efe8;
     --on-thumb: #181614;
-    --shadow-lift: 0 10px 24px -14px rgb(0 0 0 / 0.6);
-    --depth-1: 0 1px 2px rgb(0 0 0 / 0.3);
+    --shadow-lift: 0 14px 28px -16px rgb(0 0 0 / 0.7);
+    --depth-1: none;
     --depth-3: 0 18px 40px -18px rgb(0 0 0 / 0.7), 0 2px 6px rgb(0 0 0 / 0.3);
     --shadow-rgb: 0 0 0;
   }
@@ -109,33 +106,28 @@
   --muted: #b5ada4;
   --line: #3a3631;
   --line-strong: #7a7269;
-  --edge: #7a7269;
-  --hard: #fca5c7;
-  --accent: #8cb8ff;
-  --accent-hover: #b4d0ff;
-  --accent-soft: #1c2a42;
-  --accent-ink: #9dc2ff;
+  --edge: #f5efe8;
+  --accent: #f5efe8;
+  --accent-hover: #ffffff;
+  --accent-soft: #2f2b27;
+  --accent-ink: #f5efe8;
   --on-accent: #181614;
-  --pop: #fca5c7;
-  --pop-soft: #4a2434;
-  --pop-ink: #fca5c7;
-  --scribble: #9e3d66;
   --chrome: #0f0e0c;
   --chrome-raised: #23201d;
   --chrome-line: #3a3631;
   --on-chrome: #f5efe8;
   --on-chrome-muted: #a39b92;
-  --ai: #ffe17a;
-  --ai-soft: #2e2812;
-  --ai-line: #b39316;
+  --ai: #8ee8bd;
+  --ai-soft: #14291f;
+  --ai-line: #3fae7d;
   --success: #8fd0a2;
   --success-soft: #16261b;
   --danger: #ff9a8f;
   --danger-soft: #36181a;
-  --thumb: var(--pop);
+  --thumb: #f5efe8;
   --on-thumb: #181614;
-  --shadow-lift: 0 10px 24px -14px rgb(0 0 0 / 0.6);
-  --depth-1: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-lift: 0 14px 28px -16px rgb(0 0 0 / 0.7);
+  --depth-1: none;
   --depth-3: 0 18px 40px -18px rgb(0 0 0 / 0.7), 0 2px 6px rgb(0 0 0 / 0.3);
   --shadow-rgb: 0 0 0;
 }
@@ -145,9 +137,9 @@
   /* Display face (Bricolage Grotesque); the utility keeps its old name so pages need no edits */
   --font-serif: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
   --color-heading: var(--heading);
-  --color-pop: var(--pop);
-  --color-pop-soft: var(--pop-soft);
-  --color-pop-ink: var(--pop-ink);
+  --color-sun: var(--sun);
+  --color-tangerine: var(--tangerine);
+  --color-bubblegum: var(--bubblegum);
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
   --color-sunken: var(--sunken);
@@ -193,8 +185,8 @@
     touch-action: manipulation;
   }
   ::selection {
-    background: var(--pop-soft);
-    color: var(--ink);
+    background: var(--sun);
+    color: var(--on-tone);
   }
   :focus-visible {
     outline: 2px solid var(--accent);
@@ -246,9 +238,9 @@
     font-weight: 700;
     letter-spacing: -0.012em;
   }
-  /* A highlighter stroke behind a word or two: the playful mark, used sparingly */
+  /* A marker stroke under a word or two: the playful mark, used sparingly. Sits low so text stays legible */
   .scribble {
-    background: linear-gradient(transparent 56%, var(--scribble) 56%, var(--scribble) 92%, transparent 92%);
+    background: linear-gradient(transparent 72%, var(--sun) 72%, var(--sun) 96%, transparent 96%);
     padding-inline: 0.06em;
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
@@ -327,16 +319,15 @@
     color: var(--accent-ink);
     font-weight: 500;
     text-decoration: none;
-    background-image: linear-gradient(var(--pop), var(--pop)),
-      linear-gradient(color-mix(in srgb, currentColor 30%, transparent), color-mix(in srgb, currentColor 30%, transparent));
-    background-size: 0% 2px, 100% 1px;
+    background-image: linear-gradient(var(--tangerine), var(--tangerine)), linear-gradient(currentColor, currentColor);
+    background-size: 0% 3px, 100% 1px;
     background-position: 0 100%, 0 100%;
     background-repeat: no-repeat;
     transition: background-size 150ms var(--ease-out);
   }
   .link:hover,
   .link:focus-visible {
-    background-size: 100% 2px, 100% 1px;
+    background-size: 100% 3px, 100% 1px;
   }
 
   /*
@@ -361,9 +352,9 @@
     color: var(--accent-ink);
   }
   .req-no-core {
-    background: var(--accent);
-    color: var(--on-accent);
-    box-shadow: 2px 2px 0 var(--hard);
+    border-color: var(--edge);
+    background: var(--sun);
+    color: var(--on-tone);
   }
   .req-no-muted {
     border-color: var(--line-strong);
@@ -373,8 +364,8 @@
   /* Surfaces: radius grows with the size of the thing */
   .card {
     background: var(--surface);
-    border: 1.5px solid var(--line);
-    border-radius: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 1.25rem;
     padding: 1.25rem;
     box-shadow: var(--depth-1);
     transition: border-color 150ms ease;
@@ -439,7 +430,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border-radius: 999px;
+    border-radius: 0.5rem;
     border: 1.5px solid var(--edge);
     background: var(--surface);
     padding: 0.5rem 1.25rem;
@@ -460,18 +451,15 @@
     color: var(--muted);
     background: transparent;
   }
-  /* Primary sits on a hard ink shadow and presses down into it */
+  /* Primary is solid ink: the one thing on a screen that is not decoration */
   .btn-primary {
-    border-color: var(--edge);
+    border-color: var(--accent);
     background: var(--accent);
     color: var(--on-accent);
-    box-shadow: 3px 3px 0 var(--hard);
   }
   .btn-primary:hover:not(:disabled) {
+    border-color: var(--accent-hover);
     background: var(--accent-hover);
-  }
-  .btn-primary:disabled {
-    box-shadow: none;
   }
   .btn-quiet {
     border-color: transparent;
@@ -540,18 +528,18 @@
     display: inline-grid;
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
-    border: 1.5px solid var(--line);
-    border-radius: 999px;
+    border: 0;
+    border-radius: 0.625rem;
     background: var(--sunken);
-    padding: 0.125rem;
+    padding: 0.1875rem;
   }
   .seg-thumb {
     position: absolute;
     top: 0.125rem;
     bottom: 0.125rem;
     left: 0.125rem;
-    width: calc((100% - 0.25rem) / var(--n, 3));
-    border-radius: 999px;
+    width: calc((100% - 0.375rem) / var(--n, 3));
+    border-radius: 0.5rem;
     background: var(--thumb, var(--surface));
     box-shadow: 0 1px 2px rgb(var(--shadow-rgb) / 0.12), 0 0 0 0.5px rgb(var(--shadow-rgb) / 0.06);
     transform: translateX(calc(100% * var(--i, 0)));
@@ -564,7 +552,7 @@
     position: relative;
     z-index: 1;
     min-height: 2.25rem;
-    border-radius: 999px;
+    border-radius: 0.5rem;
     padding-inline: 0.875rem;
     font-size: 0.875rem;
     font-weight: 600;
@@ -661,10 +649,62 @@
     font-weight: 500;
   }
 
+  /*
+   * Happy tones: a flat colour block that re-points ink and muted at dark text, so anything
+   * inside stays readable in both themes. Decoration only, never an action or AI.
+   */
+  .tone {
+    --ink: var(--on-tone);
+    --heading: var(--on-tone);
+    --muted: var(--tone-muted);
+    --line: rgb(29 27 25 / 0.16);
+    --line-strong: var(--on-tone);
+    --edge: var(--on-tone);
+    background: var(--tone);
+    border-color: transparent;
+    color: var(--on-tone);
+  }
+  .tone-sun {
+    --tone: var(--sun);
+  }
+  .tone-tangerine {
+    --tone: var(--tangerine);
+  }
+  .tone-bubblegum {
+    --tone: var(--bubblegum);
+  }
+  /* A full-bleed colour band behind a section; content keeps the shell edges */
+  .band {
+    background: var(--tone);
+    box-shadow: 0 0 0 100vmax var(--tone);
+    clip-path: inset(0 -100vmax);
+    padding-block: 3.5rem;
+  }
+  .band .req-no {
+    border-color: var(--on-tone);
+    background: #ffffff;
+    color: var(--on-tone);
+  }
+  /* A round sticker slapped on a corner, the one rotated thing on a page */
+  .sticker {
+    display: grid;
+    width: 6.5rem;
+    height: 6.5rem;
+    place-content: center;
+    border-radius: 999px;
+    background: var(--tone, var(--sun));
+    color: var(--on-tone);
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    text-align: center;
+    rotate: -10deg;
+  }
+
   /* Linked surfaces (role entries, list rows that navigate) lift 2px on hover */
   .card-link {
-    border-color: var(--edge);
-    box-shadow: 4px 4px 0 var(--hard);
     transition: transform 180ms var(--ease-out), border-color 180ms var(--ease-out), box-shadow 180ms var(--ease-out),
       background-color 180ms var(--ease-out);
   }
@@ -681,13 +721,9 @@
   .btn:hover:not(:disabled) {
     transform: translateY(-1px);
   }
-  .btn-primary:hover:not(:disabled) {
-    transform: translate(-1px, -1px);
-    box-shadow: 4px 4px 0 var(--hard);
-  }
   .card-link:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 var(--hard);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
   }
 }
 /* Response: feedback lands on pointer-down, in 100ms, on every pointer */
@@ -698,13 +734,8 @@
   transform: scale(0.97);
   transition-duration: 100ms;
 }
-.btn-primary:active:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 var(--hard);
-}
 .card-link:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--hard);
+  transform: scale(0.99);
   transition-duration: 100ms;
 }
 
@@ -841,8 +872,6 @@
   }
   .btn:hover:not(:disabled),
   .btn:active:not(:disabled),
-  .btn-primary:hover:not(:disabled),
-  .btn-primary:active:not(:disabled),
   .card-link:hover,
   .card-link:active,
   .seg-btn:active,
