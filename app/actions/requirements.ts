@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { setRequirements } from "@/lib/domain/requirements";
-import { MAX_CORE_REQUIREMENTS, RequirementSchema, type Db, type Requirement, type Result } from "@/lib/domain/types";
+import { MAX_CORE_REQUIREMENTS, RequirementSchema, type Requirement } from "@/lib/domain/types";
 import { getSession } from "@/lib/session";
 import { updateDb } from "@/lib/store/db";
 
@@ -33,7 +33,10 @@ function checkContent(reqs: Requirement[]): string | null {
   return null;
 }
 
-export async function saveRequirements(companyId: string, reqs: Requirement[]): Promise<Result<Db>> {
+export type SaveStatus = { ok: true } | { ok: false; error: string };
+
+/** Returns a status only, never database contents. */
+export async function saveRequirements(companyId: string, reqs: Requirement[]): Promise<SaveStatus> {
   const parsed = z.array(RequirementSchema).safeParse(reqs);
   if (!parsed.success) return { ok: false, error: "Those requirements could not be read." };
   const session = await getSession();
@@ -47,5 +50,5 @@ export async function saveRequirements(companyId: string, reqs: Requirement[]): 
   const result = await updateDb((db) => setRequirements(db, companyId, next));
   if (!result.ok) return { ok: false, error: ERROR_MESSAGES[result.error] ?? result.error };
   revalidatePath("/recruiter/requirements");
-  return result;
+  return { ok: true };
 }
