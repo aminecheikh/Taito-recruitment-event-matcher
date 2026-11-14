@@ -4,7 +4,7 @@
 <!-- Update Now when you start something and push right away; teammates' agents read it at session start. -->
 
 ## Now
-- 
+- Apple-design pass (materials, segmented thumb, type tracking): `app/globals.css`, `app/components/*`, requirements save bar
 
 ## Next
 - 
