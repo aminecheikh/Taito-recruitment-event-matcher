@@ -1,0 +1,302 @@
+{
+  "companies": [
+    {
+      "id": "company-01",
+      "name": "Acme Robotics Oy (fictional)",
+      "sector": "Robotics",
+      "sizeRange": "51-200"
+    },
+    {
+      "id": "company-02",
+      "name": "Kestrel Logistics Ab (fictional)",
+      "sector": "Logistics",
+      "sizeRange": "201-500"
+    },
+    {
+      "id": "company-03",
+      "name": "Birchline Care Services (fictional)",
+      "sector": "Health and social care",
+      "sizeRange": "51-200"
+    },
+    {
+      "id": "company-04",
+      "name": "Tidewater Energy Oy (fictional)",
+      "sector": "Energy",
+      "sizeRange": "201-500"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "req-01-1",
+      "companyId": "company-01",
+      "text": "Debugging embedded systems",
+      "inPractice": "You have found why a device misbehaved when the cause was not obvious, and fixed it.",
+      "rank": 1,
+      "isCore": true
+    },
+    {
+      "id": "req-01-2",
+      "companyId": "company-01",
+      "text": "Explaining technology to non-technical staff",
+      "inPractice": "You have made a technical problem clear to people who do not work with it.",
+      "rank": 2,
+      "isCore": true
+    },
+    {
+      "id": "req-01-3",
+      "companyId": "company-01",
+      "text": "Working with suppliers",
+      "inPractice": "You have chased, negotiated with or relied on an outside supplier to get something resolved.",
+      "rank": 3,
+      "isCore": true
+    },
+    {
+      "id": "req-01-4",
+      "companyId": "company-01",
+      "text": "Python",
+      "inPractice": "You have written Python to automate or analyse something real, however small.",
+      "rank": 4,
+      "isCore": true
+    },
+    {
+      "id": "req-01-5",
+      "companyId": "company-01",
+      "text": "Reading electrical schematics",
+      "inPractice": "You can follow a circuit diagram to locate a fault.",
+      "rank": 5,
+      "isCore": false
+    },
+    {
+      "id": "req-01-6",
+      "companyId": "company-01",
+      "text": "Writing test plans",
+      "inPractice": "You have written down how to check that something works before shipping it.",
+      "rank": 6,
+      "isCore": false
+    },
+    {
+      "id": "req-01-7",
+      "companyId": "company-01",
+      "text": "Working in English",
+      "inPractice": "You can work through technical discussions in English.",
+      "rank": 7,
+      "isCore": false
+    },
+    {
+      "id": "req-01-8",
+      "companyId": "company-01",
+      "text": "Learning unfamiliar hardware quickly",
+      "inPractice": "You have picked up a device you had never seen and made it work.",
+      "rank": 8,
+      "isCore": false
+    },
+    {
+      "id": "req-02-1",
+      "companyId": "company-02",
+      "text": "Planning routes under changing constraints",
+      "inPractice": "You have replanned a day's work when something broke or someone was missing.",
+      "rank": 1,
+      "isCore": true
+    },
+    {
+      "id": "req-02-2",
+      "companyId": "company-02",
+      "text": "Calm handling of customer complaints",
+      "inPractice": "You have turned an angry customer into a settled one.",
+      "rank": 2,
+      "isCore": true
+    },
+    {
+      "id": "req-02-3",
+      "companyId": "company-02",
+      "text": "Warehouse management systems",
+      "inPractice": "You have used a stock or warehouse system day to day.",
+      "rank": 3,
+      "isCore": true
+    },
+    {
+      "id": "req-02-4",
+      "companyId": "company-02",
+      "text": "Coordinating shift teams",
+      "inPractice": "You have kept a group of people on task across a shift.",
+      "rank": 4,
+      "isCore": true
+    },
+    {
+      "id": "req-02-5",
+      "companyId": "company-02",
+      "text": "Spreadsheet analysis",
+      "inPractice": "You have used a spreadsheet to find a pattern and acted on it.",
+      "rank": 5,
+      "isCore": true
+    },
+    {
+      "id": "req-02-6",
+      "companyId": "company-02",
+      "text": "Forklift licence",
+      "inPractice": "You hold or have held a forklift licence.",
+      "rank": 6,
+      "isCore": false
+    },
+    {
+      "id": "req-02-7",
+      "companyId": "company-02",
+      "text": "Fluent Swedish",
+      "inPractice": "You can handle customers in Swedish.",
+      "rank": 7,
+      "isCore": false
+    },
+    {
+      "id": "req-02-8",
+      "companyId": "company-02",
+      "text": "Fluent English",
+      "inPractice": "You can handle customers in English.",
+      "rank": 8,
+      "isCore": false
+    },
+    {
+      "id": "req-02-9",
+      "companyId": "company-02",
+      "text": "Customs documentation",
+      "inPractice": "You have filled in or checked cross-border shipping paperwork.",
+      "rank": 9,
+      "isCore": false
+    },
+    {
+      "id": "req-02-10",
+      "companyId": "company-02",
+      "text": "Dangerous goods rules",
+      "inPractice": "You have handled goods that need special labelling or storage.",
+      "rank": 10,
+      "isCore": false
+    },
+    {
+      "id": "req-03-1",
+      "companyId": "company-03",
+      "text": "Staying calm with distressed people",
+      "inPractice": "You have stayed steady while someone close to you or in your care was upset.",
+      "rank": 1,
+      "isCore": true
+    },
+    {
+      "id": "req-03-2",
+      "companyId": "company-03",
+      "text": "Writing clear care notes",
+      "inPractice": "You have recorded what happened so that the next person could act on it.",
+      "rank": 2,
+      "isCore": true
+    },
+    {
+      "id": "req-03-3",
+      "companyId": "company-03",
+      "text": "Coordinating with families",
+      "inPractice": "You have kept relatives informed and agreed on who does what.",
+      "rank": 3,
+      "isCore": true
+    },
+    {
+      "id": "req-03-4",
+      "companyId": "company-03",
+      "text": "First aid",
+      "inPractice": "You have first aid training or have used it.",
+      "rank": 4,
+      "isCore": false
+    },
+    {
+      "id": "req-03-5",
+      "companyId": "company-03",
+      "text": "Flexible shifts",
+      "inPractice": "You can work evenings and weekends on a rota.",
+      "rank": 5,
+      "isCore": false
+    },
+    {
+      "id": "req-03-6",
+      "companyId": "company-03",
+      "text": "Finnish at B1 level",
+      "inPractice": "You can follow and give simple instructions in Finnish.",
+      "rank": 6,
+      "isCore": false
+    },
+    {
+      "id": "req-03-7",
+      "companyId": "company-03",
+      "text": "Driving licence",
+      "inPractice": "You hold a valid driving licence.",
+      "rank": 7,
+      "isCore": false
+    },
+    {
+      "id": "req-04-1",
+      "companyId": "company-04",
+      "text": "Diagnosing faults in electrical equipment",
+      "inPractice": "You have found the cause of a power or equipment fault methodically.",
+      "rank": 1,
+      "isCore": true
+    },
+    {
+      "id": "req-04-2",
+      "companyId": "company-04",
+      "text": "Safety-first decision making",
+      "inPractice": "You have stopped or delayed work because it was not safe.",
+      "rank": 2,
+      "isCore": true
+    },
+    {
+      "id": "req-04-3",
+      "companyId": "company-04",
+      "text": "Reading technical drawings",
+      "inPractice": "You can read single-line diagrams or equipment drawings.",
+      "rank": 3,
+      "isCore": true
+    },
+    {
+      "id": "req-04-4",
+      "companyId": "company-04",
+      "text": "Writing incident reports",
+      "inPractice": "You have written up an incident so others could learn from it.",
+      "rank": 4,
+      "isCore": true
+    },
+    {
+      "id": "req-04-5",
+      "companyId": "company-04",
+      "text": "Working with contractors",
+      "inPractice": "You have directed or coordinated outside crews.",
+      "rank": 5,
+      "isCore": true
+    },
+    {
+      "id": "req-04-6",
+      "companyId": "company-04",
+      "text": "SCADA familiarity",
+      "inPractice": "You have watched or operated a plant monitoring screen.",
+      "rank": 6,
+      "isCore": false
+    },
+    {
+      "id": "req-04-7",
+      "companyId": "company-04",
+      "text": "Data analysis in Python",
+      "inPractice": "You have used Python to look at measurements or logs.",
+      "rank": 7,
+      "isCore": false
+    },
+    {
+      "id": "req-04-8",
+      "companyId": "company-04",
+      "text": "Working in English",
+      "inPractice": "You can work through technical discussions in English.",
+      "rank": 8,
+      "isCore": false
+    },
+    {
+      "id": "req-04-9",
+      "companyId": "company-04",
+      "text": "Mentoring apprentices",
+      "inPractice": "You have shown a newcomer how to do a task properly.",
+      "rank": 9,
+      "isCore": false
+    }
+  ]
+}
