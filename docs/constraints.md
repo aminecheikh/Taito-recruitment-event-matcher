@@ -26,6 +26,10 @@ Non-negotiable rules from the challenge, plus the regulatory context they come f
 - Organiser stays the human in the loop for any curation.
 - Log what the system suggested and why (auditability), without logging more personal data than needed.
 
+### Known MVP limits
+
+- Language labels are enforced in the UI; a real deployment has the language route return a signed one-time token that saveStory verifies.
+
 ## GDPR
 
 - **Art. 22** — right not to be subject to a decision based solely on automated processing with significant effects. Hiring/shortlisting counts.
