@@ -137,3 +137,36 @@ export function cleanCvSuggestions(
     .slice(0, MAX_CV_SUGGESTIONS);
   return { storyStarts, relevant };
 }
+
+// Input guard: refuses job-ad text that asks the AI to judge people. These patterns are narrower than
+// SCORES_A_PERSON on purpose: ad copy such as "we hire the best people" or "rating employee surveys"
+// must pass, so the person noun is limited to candidates, applicants and jobseekers.
+const CANDIDATE = "(?:candidates?|applicants?|jobseekers?)";
+export const HIRING_DECISION =
+  /\b(?:should|do|would) (?:we|i) (?:hire(?! you\b)|reject|(?:pick|choose) (?:the |this |that |which )?(?:candidate|applicant|person|one)\b)|\bwho (?:should|to) (?:hire|reject|pick)\b|\bwho is (?:the )?(?:best|strongest|top)\b/i;
+const JUDGES_CANDIDATES = new RegExp(
+  `${CANDIDATE}\\W+(?:\\w+\\W+)?(?:score|rating|rank)|` +
+    `\\b(?:score|rate|rank)\\w*\\W+(?:\\w+\\W+)?(?:of\\W+)?(?:the\\W+)?${CANDIDATE}|` +
+    `\\b(?:top|best)\\W+(?:\\w+\\W+)?${CANDIDATE}|` +
+    `\\b(?:compar|shortlist|reject|filter|screen|weed)\\w*\\W+(?:out\\W+)?(?:\\w+\\W+){0,2}?${CANDIDATE}|` +
+    `\\bfit\\W+(?:score|rating|percentage)\\b|%\\s*fit\\b|\\bbest match\\b|\\bmatch(?:ing)? (?:score|percentage)\\b`,
+  "i",
+);
+export const REFUSAL_MESSAGE =
+  "Taito's AI doesn't rank, score or pick people. A person decides. It can help you describe what you need.";
+
+export function judgesPeople(text: string): boolean {
+  return JUDGES_CANDIDATES.test(text) || HIRING_DECISION.test(text);
+}
+
+export type JobAdGuard = { kind: "refuse" } | { kind: "ok"; text: string; removed: number };
+
+/** Drops the lines that ask to judge people; refuses when nothing is left to read. */
+export function guardJobAd(text: string): JobAdGuard {
+  const lines = text.split("\n");
+  const kept = lines.filter((line) => !judgesPeople(line));
+  if (kept.length === lines.length) return { kind: "ok", text, removed: 0 };
+  const rest = kept.join("\n");
+  if (rest.trim() === "") return { kind: "refuse" };
+  return { kind: "ok", text: rest, removed: lines.length - kept.length };
+}

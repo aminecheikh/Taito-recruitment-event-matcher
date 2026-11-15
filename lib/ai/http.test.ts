@@ -61,4 +61,26 @@ describe("handle", () => {
     const route = handle(schema, async () => null, () => null);
     expect((await route(post('{"text":"a"}', { "x-forwarded-for": "nf" }))).status).toBe(404);
   });
+
+  test("handle_guardRefuses_returns422WithoutCallingModelOrMock", async () => {
+    const live = vi.fn(async () => ({ value: "live", source: "model" as const }));
+    const mock = vi.fn(() => "mock");
+    const route = handle(schema, live, mock, () => ({
+      kind: "refuse",
+      error: "judges-people",
+      message: "no",
+    }));
+    const res = await route(post('{"text":"hi"}', { "x-forwarded-for": "guard-1" }));
+    expect(res.status).toBe(422);
+    expect(await res.json()).toEqual({ error: "judges-people", message: "no" });
+    expect(live).not.toHaveBeenCalled();
+    expect(mock).not.toHaveBeenCalled();
+  });
+
+  test("handle_guardRemovedLines_addsRemovedAndPassesCleanedInput", async () => {
+    const live = vi.fn(async ({ text }: { text: string }) => ({ value: text, source: "model" as const }));
+    const route = handle(schema, live, () => "m", () => ({ kind: "ok", input: { text: "clean" }, removed: 2 }));
+    const res = await route(post('{"text":"dirty"}', { "x-forwarded-for": "guard-2" }));
+    expect(await res.json()).toEqual({ value: "clean", source: "model", removed: 2 });
+  });
 });
