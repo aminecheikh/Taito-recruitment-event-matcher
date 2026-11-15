@@ -196,6 +196,7 @@ describe("input guard", () => {
     "Give each applicant a score",
     "Filter out weak candidates",
     "Show me the top 3 applicants",
+    "Screen out unsuitable applicants",
   ])("judgesPeople_rankingRequest_true: %s", (text) => {
     expect(judgesPeople(text)).toBe(true);
   });
@@ -204,6 +205,11 @@ describe("input guard", () => {
     "Maintain a ranked list of support tickets",
     "Improve test scores of the build pipeline",
     "Reduced downtime by 30%",
+    "We hire the best people in Espoo",
+    "Work with top talent from around the Nordics",
+    "Rating employee satisfaction surveys is part of the role",
+    "Should we choose React or Vue? You help decide.",
+    "Would we pick you? Tell us what you built.",
   ])("judgesPeople_jobContent_false: %s", (text) => {
     expect(judgesPeople(text)).toBe(false);
   });

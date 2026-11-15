@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { flushSync } from "react-dom";
 import { saveRequirements } from "@/app/actions/requirements";
+import { REFUSAL_MESSAGE } from "@/lib/ai/guardrails";
 import { MAX_CORE_REQUIREMENTS, type Requirement } from "@/lib/domain/types";
 
 const TOO_MANY_CORE = `Which ones would you actually hire on? Pick at most ${MAX_CORE_REQUIREMENTS}.`;
@@ -119,7 +120,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
       });
       if (res.status === 422) {
         const refused = (await res.json()) as { message?: string };
-        setAiRefusal(refused.message ?? "Taito's AI doesn't rank, score or pick people.");
+        setAiRefusal(refused.message ?? REFUSAL_MESSAGE);
         return;
       }
       if (!res.ok) throw new Error(`status ${res.status}`);
