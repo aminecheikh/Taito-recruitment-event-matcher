@@ -66,6 +66,7 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
     .map((r) => r.applicantId)
     .sort((a, b) => pseudonym(a).localeCompare(pseudonym(b)));
   const coreIds = coreRequirements(db, company.id).map((r) => r.id);
+  const coreTexts = coreRequirements(db, company.id).map((r) => r.text);
   const queryFor = (view: string) => {
     const q = new URLSearchParams({ view });
     if (min > 0) q.set("min", String(min));
@@ -96,7 +97,10 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
           </p>
         }
       >
-        Anonymous evidence cards, in alphabetical order. No names, no photos, no AI score. You choose who to meet.
+        {tableView
+          ? "Your own scores, highest first. People you haven't scored stay listed. No AI score."
+          : "Anonymous evidence cards, in alphabetical order. No names, no photos, no AI score."}{" "}
+        You choose who to meet.
       </PageHeader>
       <ReminderBanner />
       <PoolSummaryStrip summary={poolSummary(db, session.eventId, company.id)} />
@@ -143,6 +147,7 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
             scored={result.scored}
             notScored={result.notScored}
             requirementIds={coreIds}
+            requirementTexts={coreTexts}
             cardsHref={queryFor("cards")}
           />
         )
