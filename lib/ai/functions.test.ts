@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createAiFunctions } from "./functions";
 import { cleanCvSuggestions } from "./guardrails";
+import { RECRUITER_LADDER } from "./mock";
 
 const demoStory = {
   id: "story-1",
@@ -198,6 +199,27 @@ describe("with a real model", () => {
   test("follow-up question with scoring language falls back to the mock", async () => {
     const ai = createAiFunctions(() => modelReturning(JSON.stringify({ question: "What score would you give it?" })));
     expect((await ai.nextFollowUpQuestion({ storyBody: "x", history: [] })).source).toBe("mock-fallback");
+  });
+
+  test("nextRecruiterQuestion_noModel_returnsLadderQuestion", async () => {
+    const ai = createAiFunctions(() => null);
+    const input = { requirementText: "Fault finding", inPractice: "", history: [] };
+    const first = await ai.nextRecruiterQuestion(input);
+    const second = await ai.nextRecruiterQuestion({ ...input, history: [{ question: first.value, answer: "a" }] });
+    expect(first).toEqual({ source: "mock", value: RECRUITER_LADDER[0] });
+    expect(second.value).toBe(RECRUITER_LADDER[1]);
+  });
+
+  test("nextRecruiterQuestion_scoringQuestion_fallsBack", async () => {
+    const ai = createAiFunctions(() => modelReturning(JSON.stringify({ question: "What score would you give them?" })));
+    const out = await ai.nextRecruiterQuestion({ requirementText: "x", inPractice: "", history: [] });
+    expect(out).toEqual({ source: "mock-fallback", value: RECRUITER_LADDER[0] });
+  });
+
+  test("nextRecruiterQuestion_twoQuestions_fallsBack", async () => {
+    const ai = createAiFunctions(() => modelReturning(JSON.stringify({ question: "Who did it well? What did they do?" })));
+    const out = await ai.nextRecruiterQuestion({ requirementText: "x", inPractice: "", history: [] });
+    expect(out.source).toBe("mock-fallback");
   });
 
   test("language assist output with scoring language falls back to the mock", async () => {
