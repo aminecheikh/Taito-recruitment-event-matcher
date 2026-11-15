@@ -7,10 +7,12 @@ import {
   cleanQuestion,
   cleanExtractedRequirements,
   cleanSearchResult,
+  cleanSuggestedFilters,
   labelFor,
   type ExtractedRequirement,
   type LinkSuggestion,
   type SearchResult,
+  type SuggestedFilter,
 } from "./guardrails";
 import {
   mockExtractRequirements,
@@ -22,10 +24,11 @@ import * as followUpPrompt from "./prompts/nextFollowUpQuestion";
 import * as languagePrompt from "./prompts/languageAssist";
 import * as linksPrompt from "./prompts/suggestLinks";
 import * as searchPrompt from "./prompts/searchApplicants";
+import * as suggestFiltersPrompt from "./prompts/suggestFilters";
 import { getModel } from "./provider";
 import type { SearchInput } from "./searchInput";
 
-export type { ExtractedRequirement, LinkSuggestion, SearchResult } from "./guardrails";
+export type { ExtractedRequirement, LinkSuggestion, SearchResult, SuggestedFilter } from "./guardrails";
 export type AiSource = "model" | "mock" | "mock-fallback";
 export type AiResult<T> = { value: T; source: AiSource };
 
@@ -64,6 +67,23 @@ const SearchSchema = z.object({
     }),
   ),
 });
+
+const SuggestFiltersSchema = z.object({
+  suggested_filters: z.array(
+    z.object({
+      label: z.string().describe("At most 6 words, the evidence the filter checks, never a quality judgment"),
+      description: z.string().describe("At most 20 words, what this filter checks"),
+      applicants: z.array(
+        z.object({
+          id: z.string().describe("An applicant id from the input, e.g. A1"),
+          reason: z.string().describe("At most 25 words, quoting the applicant's card"),
+        }),
+      ),
+    }),
+  ),
+});
+// Fewer than this many cards cannot be split usefully.
+const MIN_CARDS_FOR_SUGGESTIONS = 2;
 
 /** No AI connected, rate limited or failed: the UI says so and keeps the full list. */
 export const NO_SEARCH_RESULT: SearchResult = { interpretation: "", groups: [] };
@@ -226,8 +246,30 @@ export function createAiFunctions(getModelFn: GetModel) {
     );
   }
 
-  return { extractRequirements, nextFollowUpQuestion, suggestLinks, languageAssist, searchApplicants };
+  /** 5-10 filters the recruiter may apply, each with its matching applicants; [] when there is nothing to split. */
+  async function suggestFilters(input: SearchInput): Promise<AiResult<SuggestedFilter[]>> {
+    if (input.cards.length < MIN_CARDS_FOR_SUGGESTIONS) return { value: [], source: "model" };
+    return resolve(
+      async (model) => {
+        const raw = await generate(
+          model,
+          SuggestFiltersSchema,
+          suggestFiltersPrompt.system,
+          suggestFiltersPrompt.buildUser(input),
+          aiSearchTimeoutMs(),
+        );
+        const cleaned = cleanSuggestedFilters(raw, input.aliases, input.cards.length);
+        if (cleaned.length < raw.suggested_filters.length) {
+          console.warn(`[ai] guardrails dropped ${raw.suggested_filters.length - cleaned.length} suggested filter(s)`);
+        }
+        return cleaned;
+      },
+      () => [],
+    );
+  }
+
+  return { extractRequirements, nextFollowUpQuestion, suggestLinks, languageAssist, searchApplicants, suggestFilters };
 }
 
-export const { extractRequirements, nextFollowUpQuestion, suggestLinks, languageAssist, searchApplicants } =
+export const { extractRequirements, nextFollowUpQuestion, suggestLinks, languageAssist, searchApplicants, suggestFilters } =
   createAiFunctions(getModel);

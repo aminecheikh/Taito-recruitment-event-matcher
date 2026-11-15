@@ -20,7 +20,8 @@ export const system = `You help a recruiter at a city-run hiring event search th
 
 Reply only as JSON: {"interpretation": "...", "groups": [{"label": "...", "applicants": [{"id": "A1", "reason": "..."}]}]}.`;
 
-export function buildUser(input: Pick<SearchInput, "query" | "requirements" | "cards">): string {
+/** The requirements and cards, as both the search and the suggested filters send them. */
+export function buildData(input: Pick<SearchInput, "requirements" | "cards">): string {
   const requirements = input.requirements
     .map((r) => `${r.id}: ${r.text}${r.inPractice ? ` (in practice: ${r.inPractice})` : ""}`)
     .join("\n");
@@ -32,5 +33,9 @@ export function buildUser(input: Pick<SearchInput, "query" | "requirements" | "c
       return `<card id="${card.alias}">\n${examples}\n</card>`;
     })
     .join("\n");
-  return `<request>\n${input.query}\n</request>\n\n<requirements>\n${requirements}\n</requirements>\n\n<cards>\n${cards}\n</cards>`;
+  return `<requirements>\n${requirements}\n</requirements>\n\n<cards>\n${cards}\n</cards>`;
+}
+
+export function buildUser(input: Pick<SearchInput, "query" | "requirements" | "cards">): string {
+  return `<request>\n${input.query}\n</request>\n\n${buildData(input)}`;
 }
