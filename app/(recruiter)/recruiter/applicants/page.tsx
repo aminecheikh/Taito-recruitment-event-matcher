@@ -12,6 +12,7 @@ import { shortlist } from "@/lib/domain/scores";
 import { ApplicantList, type ApplicantRow } from "./ApplicantList";
 import { RefreshButton } from "./ScoreInputs";
 import { ShortlistTable } from "./ShortlistTable";
+import { CoverageSelect } from "./CoverageSelect";
 import { PoolSummaryStrip } from "./PoolSummaryStrip";
 import { poolSummary } from "@/lib/domain/insights";
 
@@ -25,12 +26,6 @@ function parseMinWeighted(raw: Param): number | undefined {
   if (text === undefined || text.trim() === "") return undefined;
   const value = Number(text);
   return Number.isInteger(value) && value >= 0 && value <= 100 ? value : undefined;
-}
-
-function optionLabel(min: number, total: number): string {
-  if (min >= total) return `Covers all ${total}`;
-  if (min <= 0) return "Show everyone";
-  return `At least ${min}`;
 }
 
 function parseMin(raw: string | string[] | undefined, total: number): number {
@@ -98,7 +93,6 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
 
   const left = companyOpenSlots(db, session.eventId, company.id);
   const slotTotal = companyCalendar(db, session.eventId, company.id).total;
-  const options = Array.from({ length: total + 1 }, (_, i) => total - i);
 
   return (
     <main className="page page-wide">
@@ -124,19 +118,8 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
       <form method="get" className="panel mt-8 flex flex-wrap items-center gap-3">
         <input type="hidden" name="view" value={tableView ? "table" : "cards"} />
         {markedOnly && <input type="hidden" name="marked" value="1" />}
-        <label htmlFor="min" className="label">Coverage</label>
-        <select
-          id="min"
-          name="min"
-          defaultValue={String(min)}
-          className="field field-inline"
-        >
-          {options.map((n) => (
-            <option key={n} value={n}>
-              {optionLabel(n, total)}
-            </option>
-          ))}
-        </select>
+        <label htmlFor="min" className="label">Has examples for</label>
+        <CoverageSelect min={min} total={total} />
         <label htmlFor="minw" className="label">Weighted score at least</label>
         <input
           id="minw"
@@ -159,7 +142,7 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
       </nav>
       {tableView ? (
         shown.length === 0 ? (
-          <p className="empty-slot mt-6">No applicants match. Try a lower coverage.</p>
+          <p className="empty-slot mt-6">No applicants have examples for that many core requirements. Pick a lower number.</p>
         ) : (
           <ShortlistTable
             scored={result.scored}
