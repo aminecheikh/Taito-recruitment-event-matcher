@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PageHeader } from "@/app/components/PageHeader";
 import { isMarked, recruiterList } from "@/lib/domain/applicantList";
 import { buildCard, coverage } from "@/lib/domain/cards";
@@ -51,7 +52,16 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
     marked: isMarked(db, session.eventId, company.id, id),
   }));
 
+  const allCount = recruiterList(db, session.eventId, company.id, { minCovered: 0, markedOnly: false }).length;
   const markedCount = recruiterList(db, session.eventId, company.id, { minCovered: 0, markedOnly: true }).length;
+  const viewHref = (marked: boolean) => {
+    const query = new URLSearchParams({ ...(min > 0 ? { min: String(min) } : {}), ...(marked ? { marked: "1" } : {}) }).toString();
+    return query ? `?${query}` : "?";
+  };
+  const views = [
+    { label: `All applicants (${allCount})`, href: viewHref(false), current: !markedOnly },
+    { label: `Marked for later (${markedCount})`, href: viewHref(true), current: markedOnly },
+  ];
   const left = companyOpenSlots(db, session.eventId, company.id);
   const slotTotal = companyCalendar(db, session.eventId, company.id).total;
   const options = Array.from({ length: total + 1 }, (_, i) => total - i);
@@ -72,7 +82,26 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
       >
         Anonymous evidence cards, in alphabetical order. No names, no photos, no AI score. You choose who to meet; invited applicants move to Meetings.
       </PageHeader>
-      <form method="get" className="panel mt-8 flex flex-wrap items-center gap-3">
+      {/* Marked applicants stay on the list; this switch shows just them. */}
+      <nav
+        aria-label="Which applicants"
+        className="seg mt-8"
+        style={{ "--n": views.length, "--i": markedOnly ? 1 : 0 } as React.CSSProperties}
+      >
+        <span aria-hidden="true" className="seg-thumb" />
+        {views.map((view) => (
+          <Link
+            key={view.label}
+            href={view.href}
+            aria-current={view.current ? "page" : undefined}
+            className={`seg-btn inline-flex items-center justify-center ${view.current ? "!text-ink" : ""}`}
+          >
+            {view.label}
+          </Link>
+        ))}
+      </nav>
+      <form method="get" className="panel mt-4 flex flex-wrap items-center gap-3">
+        {markedOnly && <input type="hidden" name="marked" value="1" />}
         <label htmlFor="min" className="label">Coverage</label>
         <select
           id="min"
@@ -86,10 +115,6 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
             </option>
           ))}
         </select>
-        <label className="choice">
-          <input type="checkbox" name="marked" value="1" defaultChecked={markedOnly} />
-          Only marked for later ({markedCount})
-        </label>
         <button type="submit" className="btn">
           Apply
         </button>

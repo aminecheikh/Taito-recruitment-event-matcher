@@ -50,7 +50,7 @@ export function ReasonInfo({ popoverKey, reasons, open, dispatch }: Props) {
       <button
         ref={button}
         type="button"
-        className="tag tag-ai cursor-pointer font-serif font-semibold italic"
+        className="inline-flex size-5 cursor-pointer items-center justify-center rounded-full border-[1.5px] border-current text-xs font-bold leading-none text-muted hover:text-ink"
         aria-label="Why this applicant matches"
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}

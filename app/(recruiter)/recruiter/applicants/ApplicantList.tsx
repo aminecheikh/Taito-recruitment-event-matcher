@@ -36,7 +36,7 @@ function inviteMessage(invited: number, alreadyInvited: number): string {
 
 function markMessage(count: number, marked: boolean): string {
   return marked
-    ? `Marked ${plural(count, "applicant")} for later. They stay on this list; tick "Only marked for later" to see just them.`
+    ? `Marked ${plural(count, "applicant")} for later. Find them under "Marked for later" above the list.`
     : `Unmarked ${plural(count, "applicant")}.`;
 }
 
@@ -190,7 +190,9 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly }: Props
         <p className="empty-slot mt-6">
           {filters.length > 0
             ? "No applicants match all the AI filters. Remove a filter or clear all to see everyone."
-            : "No applicants match. Try a lower coverage."}
+            : markedOnly
+              ? "Nobody is marked for later. Tick applicants under All applicants and press Mark for later."
+              : "No applicants match. Try a lower coverage."}
         </p>
       ) : (
         sections.map((section, s) => (
