@@ -22,7 +22,7 @@ export type ApplicantRow = {
   marked: boolean;
 };
 
-type Props = { rows: ApplicantRow[]; slotsLeft: number; minCovered: number; markedOnly: boolean };
+type Props = { rows: ApplicantRow[]; slotsLeft: number; minCovered: number; markedOnly: boolean; minWeighted?: number };
 type Notice = { kind: "error"; text: string } | null;
 type Section = { label?: string; ids: string[] };
 
@@ -50,7 +50,7 @@ function sectionsFor(rows: ApplicantRow[], filters: readonly ActiveFilter[]): Se
     .filter((section) => section.ids.length > 0);
 }
 
-export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly }: Props) {
+export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly, minWeighted }: Props) {
   const router = useRouter();
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<ActiveFilter[]>([]);
@@ -116,7 +116,7 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly }: Props
         <span className="hint">Or describe what you are looking for below.</span>
       </div>
 
-      <AiSearchPanel minCovered={minCovered} markedOnly={markedOnly} disabled={rows.length === 0} onResult={addSearch} />
+      <AiSearchPanel minCovered={minCovered} markedOnly={markedOnly} minWeighted={minWeighted} disabled={rows.length === 0} onResult={addSearch} />
 
       {filters.length > 0 && (
         <div className="ai-panel mt-6 space-y-3" role="status">

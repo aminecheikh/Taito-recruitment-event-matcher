@@ -5,5 +5,25 @@ export const SuggestLinksResponseSchema = z.object({
   source: z.enum(["model", "mock", "mock-fallback"]),
 });
 
-export type RequirementOption = { id: string; companyId: string; companyName: string; position: number; text: string };
-export type StoryLink = { id: string; requirementId: string; origin: "ai-suggested" | "applicant"; status: "pending" | "accepted" | "rejected"; aiReason?: string };
+export type UsedFor = { companyName: string; position: number | null; text: string };
+export type StoryView = { id: string; title: string; body: string };
+export type RecommendationView = { linkId: string; story: StoryView; reason: string };
+export type MatchView = {
+  entryId: string;
+  body: string;
+  kind: "same" | "similar" | "other";
+  sharedWords: string[];
+  usedFor: UsedFor[];
+};
+export type AnswerView = { entryId: string; body: string; languageLabel?: string; alsoUsedFor: UsedFor[] };
+export type CardView = {
+  requirementId: string;
+  position: number;
+  text: string;
+  inPractice: string;
+  answer: AnswerView | null;
+  matches: MatchView[];
+  recommendations: RecommendationView[];
+};
+
+export const usedForLabel = (u: UsedFor) => (u.position === null ? u.companyName : `${u.companyName} #${u.position}`);

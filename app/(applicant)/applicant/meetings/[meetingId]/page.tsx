@@ -3,7 +3,9 @@ import { EvidenceCard } from "@/app/(recruiter)/recruiter/applicants/EvidenceCar
 import { formatSlot } from "@/lib/domain/calendar";
 import { formatEventDate } from "@/lib/domain/eventFormat";
 import { buildCard } from "@/lib/domain/cards";
+import { InternationalSupport } from "@/app/components/InternationalSupport";
 import { revealDecisions } from "@/lib/domain/decisions";
+import { companySeesMovingHelp } from "@/lib/domain/movingHelp";
 import type { ShareChoice } from "@/lib/domain/shareInput";
 import type { Db, Meeting, Share } from "@/lib/domain/types";
 import { getSession } from "@/lib/session";
@@ -65,6 +67,13 @@ function Result({ db, meeting, applicantEmail }: { db: Db; meeting: Meeting; app
         <h2 className="h2 mt-3">It is a match</h2>
         <p className="mt-2 text-muted">Both of you chose to continue. Choose what you share with the company.</p>
         <ShareForm meetingId={meeting.id} email={applicantEmail} initial={initialChoice(share?.applicant)} />
+        {companySeesMovingHelp(db, meeting.id) ? (
+          <div className="mt-6 border-t border-line pt-6">
+            <h3 className="h3">Help with permits and moving</h3>
+            <p className="hint mt-1">The company can now see that you asked for this.</p>
+            <InternationalSupport audience="applicant" />
+          </div>
+        ) : null}
         <div className="mt-8 border-t border-line pt-6">
           <h3 className="h3">From the company</h3>
           <CompanyDetails company={share?.company} />

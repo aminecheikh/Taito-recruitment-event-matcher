@@ -17,3 +17,13 @@ test("DbSchema_dbWrittenBeforeMarks_loadsWithNoMarksInsteadOfReseeding", () => {
   const parsed = DbSchema.safeParse(old);
   expect(parsed.success && parsed.data.marks).toEqual([]);
 });
+
+test("DbSchema parses a db without entries and answers, defaulting both to empty", () => {
+  const legacy: Record<string, unknown> = { ...emptyDb() };
+  delete legacy.entries;
+  delete legacy.answers;
+  const parsed = DbSchema.safeParse(legacy);
+  expect(parsed.success).toBe(true);
+  expect(parsed.success && parsed.data.entries).toEqual([]);
+  expect(parsed.success && parsed.data.answers).toEqual([]);
+});

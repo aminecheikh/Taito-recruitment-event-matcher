@@ -29,29 +29,4 @@ function setStatus(db: Db, id: string, status: Link["status"]): Result<Db> {
   return { ok: true, value: { ...db, links: db.links.map((l) => (l.id === id ? { ...l, status } : l)) } };
 }
 
-export const acceptLink = (db: Db, id: string): Result<Db> => setStatus(db, id, "accepted");
 export const rejectLink = (db: Db, id: string): Result<Db> => setStatus(db, id, "rejected");
-
-/** Replaces any link on the pair with one accepted applicant-origin link. */
-function upsertApplicantLink(links: Link[], storyId: string, requirementId: string): Link[] {
-  const rest = links.filter((l) => !samePair(l, storyId, requirementId));
-  return [...rest, { id: linkId(storyId, requirementId), storyId, requirementId, origin: "applicant", status: "accepted" }];
-}
-
-/** Moves a link to another requirement of the same company; the applicant's choice makes it accepted. */
-export function moveLink(db: Db, id: string, toRequirementId: string): Result<Db> {
-  const link = db.links.find((l) => l.id === id);
-  const from = db.requirements.find((r) => r.id === link?.requirementId);
-  const to = db.requirements.find((r) => r.id === toRequirementId);
-  if (!link || !from || !to) return { ok: false, error: "not-found" };
-  if (from.companyId !== to.companyId) return { ok: false, error: "other-company" };
-  const others = db.links.filter((l) => l.id !== id);
-  return { ok: true, value: { ...db, links: upsertApplicantLink(others, link.storyId, to.id) } };
-}
-
-export function linkManually(db: Db, storyId: string, requirementId: string): Result<Db> {
-  const known =
-    db.stories.some((s) => s.id === storyId) && db.requirements.some((r) => r.id === requirementId);
-  if (!known) return { ok: false, error: "not-found" };
-  return { ok: true, value: { ...db, links: upsertApplicantLink(db.links, storyId, requirementId) } };
-}

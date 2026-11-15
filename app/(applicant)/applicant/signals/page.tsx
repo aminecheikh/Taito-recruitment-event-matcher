@@ -9,7 +9,7 @@ import { companiesAt } from "@/lib/domain/attendance";
 const ERROR_MESSAGES: Record<string, string> = {
   "no-signals-left": "You've used all your signals for this event.",
   "already-signalled": "You already signalled this company.",
-  "no-accepted-example": "Add at least one example first.",
+  "no-accepted-example": "Fill in at least one requirement card for this company first.",
   "not-at-event": "You are not registered for this event.",
   "not-found": "Something went wrong — refresh and try again.",
 };
@@ -57,7 +57,7 @@ export default async function SignalsPage({
         title={<>You have {left} of {event.signalsPerApplicant} signals left for this event</>}
       >
         A signal tells a company you chose them on purpose. You can signal a company once you have
-        at least one accepted example for its core requirements.
+        at least one filled-in requirement card for it.
       </PageHeader>
       <div aria-hidden="true" className="mt-6 flex gap-2">
         {Array.from({ length: event.signalsPerApplicant }, (_, i) => (
@@ -93,6 +93,7 @@ export default async function SignalsPage({
                 {total} core {total === 1 ? "requirement" : "requirements"} · your examples: {covered} of {total}
               </p>
               <p className="hint mt-1">{ruleText(company.name, total)}</p>
+              {total > 1 ? <p className="hint mt-1">{company.name} weighs requirement 1 the most.</p> : null}
               {done ? (
                 <button type="button" disabled className="btn mt-4">
                   Signalled

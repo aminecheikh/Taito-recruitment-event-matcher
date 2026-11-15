@@ -3,7 +3,9 @@
 import { useState, useTransition } from "react";
 import { flushSync } from "react-dom";
 import { saveRequirements } from "@/app/actions/requirements";
+import { REFUSAL_MESSAGE } from "@/lib/ai/guardrails";
 import { MAX_CORE_REQUIREMENTS, type Requirement } from "@/lib/domain/types";
+import { RecruiterFollowUp } from "./RecruiterFollowUp";
 
 const TOO_MANY_CORE = `Which ones would you actually hire on? Pick at most ${MAX_CORE_REQUIREMENTS}.`;
 const EXTRACT_URL = "/api/ai/extract-requirements";
@@ -62,6 +64,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
   const [newText, setNewText] = useState("");
   const [extracting, setExtracting] = useState(false);
   const [aiNote, setAiNote] = useState<string | null>(null);
+  const [aiRefusal, setAiRefusal] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
 
   const coreCount = items.filter((i) => i.req.isCore).length;
@@ -99,7 +102,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
     const confirmed =
       !savedIds.has(req.id) ||
       window.confirm(
-        `Delete "${req.text}"? When you save, examples applicants linked to it and any scores on it are removed too.`,
+        `Delete "${req.text}"? When you save, applicants' answers on that card and any scores on it are removed too; their saved entries stay.`,
       );
     if (!confirmed) return;
     setItems((prev) => prev.filter((_, i) => i !== index));
@@ -109,14 +112,20 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
   const extract = async () => {
     setExtracting(true);
     setAiNote(null);
+    setAiRefusal(null);
     try {
       const res = await fetch(EXTRACT_URL, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ jobAd: pasted }),
       });
+      if (res.status === 422) {
+        const refused = (await res.json()) as { message?: string };
+        setAiRefusal(refused.message ?? REFUSAL_MESSAGE);
+        return;
+      }
       if (!res.ok) throw new Error(`status ${res.status}`);
-      const data = (await res.json()) as { value: NewRequirement[]; source: string };
+      const data = (await res.json()) as { value: NewRequirement[]; source: string; removed?: number };
       const next = appendNew(companyId, items, data.value, true);
       const added = next.length - items.length;
       setItems(next);
@@ -130,7 +139,10 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
         mock: "No AI connected (offline example: one line of the ad per item). ",
         "mock-fallback": "AI unavailable — showing example. ",
       };
-      setAiNote(`${prefix[data.source] ?? ""}${result}`);
+      const skipped = data.removed
+        ? ` We skipped ${data.removed} line${data.removed === 1 ? "" : "s"} that asked to rank or score people.`
+        : "";
+      setAiNote(`${prefix[data.source] ?? ""}${result}${skipped}`);
       setPasted("");
     } catch {
       setAiNote("AI unavailable");
@@ -175,6 +187,11 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
         <button type="button" onClick={extract} disabled={extracting || pasted.trim() === ""} className={button}>
           {extracting ? "Reading the ad…" : "Suggest requirements"}
         </button>
+        {aiRefusal && (
+          <p role="alert" className="notice-error">
+            {aiRefusal}
+          </p>
+        )}
         {aiNote && (
           <p role="status" className="hint">
             {aiNote}
@@ -250,6 +267,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
                     onChange={(e) => patch(index, { inPractice: e.target.value })}
                     className={`${field} mt-1`}
                   />
+                  <RecruiterFollowUp idPrefix={req.id} requirementText={req.text} inPractice={req.inPractice} />
                 </div>
               </li>
             );

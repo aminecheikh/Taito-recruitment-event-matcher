@@ -4,7 +4,7 @@ import type { Db } from "@/lib/domain/types";
 
 export type SearchCard = {
   alias: string;
-  examples: { requirementId: string; title: string; body: string }[];
+  examples: { requirementId: string; body: string }[];
 };
 
 export type SearchInput = {
@@ -30,7 +30,7 @@ export function buildSearchInput(
   const entries = applicantIds.map((applicantId, i) => {
     const card = buildCard(db, companyId, applicantId);
     const examples = card.slots.flatMap((slot) =>
-      slot.examples.map(({ story }) => ({ requirementId: slot.requirement.id, title: story.title, body: story.body })),
+      slot.example ? [{ requirementId: slot.requirement.id, body: slot.example.entry.body }] : [],
     );
     return { alias: `A${i + 1}`, applicantId, examples };
   });

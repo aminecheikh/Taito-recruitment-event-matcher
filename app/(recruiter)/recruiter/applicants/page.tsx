@@ -1,16 +1,31 @@
 import Link from "next/link";
 import { PageHeader } from "@/app/components/PageHeader";
 import { isMarked, recruiterList } from "@/lib/domain/applicantList";
+import { ReminderBanner } from "@/app/components/ReminderBanner";
 import { buildCard, coverage } from "@/lib/domain/cards";
 import { companyCalendar, companyOpenSlots } from "@/lib/domain/calendar";
 import { coreRequirements } from "@/lib/domain/requirements";
 import type { Db } from "@/lib/domain/types";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
+import { shortlist } from "@/lib/domain/scores";
 import { ApplicantList, type ApplicantRow } from "./ApplicantList";
 import { RefreshButton } from "./ScoreInputs";
+import { ShortlistTable } from "./ShortlistTable";
+import { PoolSummaryStrip } from "./PoolSummaryStrip";
+import { poolSummary } from "@/lib/domain/insights";
 
-type SearchParams = Promise<{ min?: string | string[]; marked?: string | string[] }>;
+type Param = string | string[] | undefined;
+type SearchParams = Promise<{ min?: Param; view?: Param; minw?: Param; marked?: Param }>;
+
+const first = (raw: Param) => (Array.isArray(raw) ? raw[0] : raw);
+
+function parseMinWeighted(raw: Param): number | undefined {
+  const text = first(raw);
+  if (text === undefined || text.trim() === "") return undefined;
+  const value = Number(text);
+  return Number.isInteger(value) && value >= 0 && value <= 100 ? value : undefined;
+}
 
 function optionLabel(min: number, total: number): string {
   if (min >= total) return `Covers all ${total}`;
@@ -42,26 +57,45 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
 
   const total = coreRequirements(db, company.id).length;
   const min = parseMin(params.min, total);
-  const markedOnly = (Array.isArray(params.marked) ? params.marked[0] : params.marked) === "1";
-  const shown = recruiterList(db, session.eventId, company.id, { minCovered: min, markedOnly });
-  const rows: ApplicantRow[] = shown.map((id) => ({
+  const signalled = db.signals
+    .filter((s) => s.eventId === session.eventId && s.companyId === company.id)
+    .map((s) => s.applicantId);
+  const pseudonym = (id: string) => db.applicants.find((a) => a.id === id)?.pseudonym ?? id;
+  const minWeighted = parseMinWeighted(params.minw);
+  const tableView = first(params.view) === "table";
+  const result = shortlist(db, company.id, signalled, { minCovered: min, minWeighted });
+  const shown = [...result.scored, ...result.notScored]
+    .map((r) => r.applicantId)
+    .sort((a, b) => pseudonym(a).localeCompare(pseudonym(b)));
+  const coreIds = coreRequirements(db, company.id).map((r) => r.id);
+  const coreTexts = coreRequirements(db, company.id).map((r) => r.text);
+  // Marked applicants stay on the list; the tabs (cards view) show just them.
+  const markedOnly = !tableView && first(params.marked) === "1";
+  const queryFor = (view: string, marked = false) => {
+    const q = new URLSearchParams({ view });
+    if (min > 0) q.set("min", String(min));
+    if (minWeighted !== undefined) q.set("minw", String(minWeighted));
+    if (marked) q.set("marked", "1");
+    return `?${q.toString()}`;
+  };
+
+  // Cards view: who signalled, minus invited applicants (they are on Meetings), then the same filters.
+  const listFilter = { minCovered: min, markedOnly, minWeighted };
+  const cardIds = recruiterList(db, session.eventId, company.id, listFilter);
+  const rows: ApplicantRow[] = cardIds.map((id) => ({
     id,
     card: buildCard(db, company.id, id),
     initialScores: scoresFor(db, company.id, id),
     coverageText: `Covers ${coverage(db, company.id, id).covered} of ${total}`,
     marked: isMarked(db, session.eventId, company.id, id),
   }));
-
   const allCount = recruiterList(db, session.eventId, company.id, { minCovered: 0, markedOnly: false }).length;
   const markedCount = recruiterList(db, session.eventId, company.id, { minCovered: 0, markedOnly: true }).length;
-  const viewHref = (marked: boolean) => {
-    const query = new URLSearchParams({ ...(min > 0 ? { min: String(min) } : {}), ...(marked ? { marked: "1" } : {}) }).toString();
-    return query ? `?${query}` : "?";
-  };
   const views = [
-    { label: `All applicants (${allCount})`, href: viewHref(false), current: !markedOnly },
-    { label: `Marked for later (${markedCount})`, href: viewHref(true), current: markedOnly },
+    { label: `All applicants (${allCount})`, href: queryFor("cards"), current: !markedOnly },
+    { label: `Marked for later (${markedCount})`, href: queryFor("cards", true), current: markedOnly },
   ];
+
   const left = companyOpenSlots(db, session.eventId, company.id);
   const slotTotal = companyCalendar(db, session.eventId, company.id).total;
   const options = Array.from({ length: total + 1 }, (_, i) => total - i);
@@ -80,27 +114,15 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
           </p>
         }
       >
-        Anonymous evidence cards, in alphabetical order. No names, no photos, no AI score. You choose who to meet; invited applicants move to Meetings.
+        {tableView
+          ? "Your own scores, highest first. People you haven't scored stay listed. No AI score."
+          : "Anonymous evidence cards, in alphabetical order. No names, no photos, no AI score. Invited applicants move to Meetings."}{" "}
+        You choose who to meet.
       </PageHeader>
-      {/* Marked applicants stay on the list; this switch shows just them. */}
-      <nav
-        aria-label="Which applicants"
-        className="seg mt-8"
-        style={{ "--n": views.length, "--i": markedOnly ? 1 : 0 } as React.CSSProperties}
-      >
-        <span aria-hidden="true" className="seg-thumb" />
-        {views.map((view) => (
-          <Link
-            key={view.label}
-            href={view.href}
-            aria-current={view.current ? "page" : undefined}
-            className={`seg-btn inline-flex items-center justify-center ${view.current ? "!text-ink" : ""}`}
-          >
-            {view.label}
-          </Link>
-        ))}
-      </nav>
-      <form method="get" className="panel mt-4 flex flex-wrap items-center gap-3">
+      <ReminderBanner />
+      <PoolSummaryStrip summary={poolSummary(db, session.eventId, company.id)} />
+      <form method="get" className="panel mt-8 flex flex-wrap items-center gap-3">
+        <input type="hidden" name="view" value={tableView ? "table" : "cards"} />
         {markedOnly && <input type="hidden" name="marked" value="1" />}
         <label htmlFor="min" className="label">Coverage</label>
         <select
@@ -115,14 +137,68 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
             </option>
           ))}
         </select>
+        <label htmlFor="minw" className="label">Weighted score at least</label>
+        <input
+          id="minw"
+          name="minw"
+          type="number"
+          min={0}
+          max={100}
+          defaultValue={minWeighted ?? ""}
+          className="field field-inline w-24"
+        />
         <button type="submit" className="btn">
           Apply
         </button>
-        <span className="hint ml-auto">{shown.length} shown</span>
+        <span className="hint ml-auto">{tableView ? shown.length : cardIds.length} shown</span>
         <RefreshButton />
       </form>
-      {/* Keyed by the filters so changing them starts with an empty selection. */}
-      <ApplicantList key={`${min}-${markedOnly}`} rows={rows} slotsLeft={left} minCovered={min} markedOnly={markedOnly} />
+      <nav aria-label="View" className="mt-4 flex gap-2">
+        <Link href={queryFor("table")} className={tableView ? "btn btn-primary btn-sm" : "btn btn-sm"} aria-current={tableView ? "page" : undefined}>Table</Link>
+        <Link href={queryFor("cards")} className={tableView ? "btn btn-sm" : "btn btn-primary btn-sm"} aria-current={tableView ? undefined : "page"}>Cards</Link>
+      </nav>
+      {tableView ? (
+        shown.length === 0 ? (
+          <p className="empty-slot mt-6">No applicants match. Try a lower coverage.</p>
+        ) : (
+          <ShortlistTable
+            scored={result.scored}
+            notScored={result.notScored}
+            requirementIds={coreIds}
+            requirementTexts={coreTexts}
+            cardsHref={queryFor("cards")}
+          />
+        )
+      ) : (
+        <>
+          <nav
+            aria-label="Which applicants"
+            className="seg mt-4"
+            style={{ "--n": views.length, "--i": markedOnly ? 1 : 0 } as React.CSSProperties}
+          >
+            <span aria-hidden="true" className="seg-thumb" />
+            {views.map((view) => (
+              <Link
+                key={view.label}
+                href={view.href}
+                aria-current={view.current ? "page" : undefined}
+                className={`seg-btn inline-flex items-center justify-center ${view.current ? "!text-ink" : ""}`}
+              >
+                {view.label}
+              </Link>
+            ))}
+          </nav>
+          {/* Keyed by the filters so changing them starts with an empty selection. */}
+          <ApplicantList
+            key={`${min}-${markedOnly}-${minWeighted ?? ""}`}
+            rows={rows}
+            slotsLeft={left}
+            minCovered={min}
+            markedOnly={markedOnly}
+            minWeighted={minWeighted}
+          />
+        </>
+      )}
     </main>
   );
 }

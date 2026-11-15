@@ -11,10 +11,14 @@ export const ROLE_NAV: Record<Role, readonly NavItem[]> = {
   applicant: [
     { label: "My stories", href: "/applicant/stories" },
     { label: "Companies", href: "/applicant/companies" },
+    { label: "Saved entries", href: "/applicant/entries" },
     { label: "Signals", href: "/applicant/signals" },
     { label: "Meetings", href: "/applicant/meetings" },
   ],
-  staff: [{ label: "Who might need help", href: "/staff" }],
+  staff: [
+    { label: "Who might need help", href: "/staff" },
+    { label: "Event insights", href: "/staff/insights" },
+  ],
 };
 
 export const ROLE_HOME: Record<Role, string> = {

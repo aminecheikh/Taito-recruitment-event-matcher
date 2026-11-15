@@ -52,6 +52,7 @@ export const ApplicantSchema = z.object({
   pseudonym: z.string(),
   displayName: z.string(),
   contact: z.object({ email: z.string() }),
+  wantsMovingHelp: z.boolean().optional(),
 });
 
 export const LanguageLabelSchema = z.union([
@@ -75,6 +76,23 @@ export const LinkSchema = z.object({
   origin: z.enum(["ai-suggested", "applicant"]),
   aiReason: z.string().optional(),
   status: z.enum(["pending", "accepted", "rejected"]),
+});
+
+/** One example the applicant wrote; lives in their registry and can answer several requirements. */
+export const EntrySchema = z.object({
+  id: z.string(),
+  applicantId: z.string(),
+  body: z.string(),
+  languageLabel: LanguageLabelSchema.optional(),
+  /** The story the applicant started from, if any (provenance only). */
+  sourceStoryId: z.string().optional(),
+});
+
+/** The applicant's answer on one requirement card: which saved entry fills it. One per (applicant, requirement). */
+export const AnswerSchema = z.object({
+  applicantId: z.string(),
+  requirementId: z.string(),
+  entryId: z.string(),
 });
 
 export const SignalSchema = z.object({
@@ -133,6 +151,15 @@ export const MarkSchema = z.object({
   applicantId: z.string(),
 });
 
+/** Event staff nudged a company; resolved by the company's own action, never by staff. */
+export const ReminderSchema = z.object({
+  id: z.string(),
+  eventId: z.string(),
+  companyId: z.string(),
+  kind: z.enum(["set-requirements", "join-event"]),
+  sentAt: z.string(),
+});
+
 export type Company = z.infer<typeof CompanySchema>;
 export type Requirement = z.infer<typeof RequirementSchema>;
 export type Event = z.infer<typeof EventSchema>;
@@ -141,12 +168,15 @@ export type ApplicantEvent = z.infer<typeof ApplicantEventSchema>;
 export type Applicant = z.infer<typeof ApplicantSchema>;
 export type Story = z.infer<typeof StorySchema>;
 export type Link = z.infer<typeof LinkSchema>;
+export type Entry = z.infer<typeof EntrySchema>;
+export type Answer = z.infer<typeof AnswerSchema>;
 export type Signal = z.infer<typeof SignalSchema>;
 export type Meeting = z.infer<typeof MeetingSchema>;
 export type Decision = z.infer<typeof DecisionSchema>;
 export type Share = z.infer<typeof ShareSchema>;
 export type Score = z.infer<typeof ScoreSchema>;
 export type Mark = z.infer<typeof MarkSchema>;
+export type Reminder = z.infer<typeof ReminderSchema>;
 
 export type Db = {
   companies: Company[];
@@ -157,12 +187,15 @@ export type Db = {
   applicants: Applicant[];
   stories: Story[];
   links: Link[];
+  entries: Entry[];
+  answers: Answer[];
   signals: Signal[];
   meetings: Meeting[];
   decisions: Decision[];
   shares: Share[];
   scores: Score[];
   marks: Mark[];
+  reminders: Reminder[];
 };
 
 export const DbSchema: z.ZodType<Db> = z.object({
@@ -174,6 +207,8 @@ export const DbSchema: z.ZodType<Db> = z.object({
   applicants: z.array(ApplicantSchema),
   stories: z.array(StorySchema),
   links: z.array(LinkSchema),
+  entries: z.array(EntrySchema).default([]),
+  answers: z.array(AnswerSchema).default([]),
   signals: z.array(SignalSchema),
   meetings: z.array(MeetingSchema),
   decisions: z.array(DecisionSchema),
@@ -181,6 +216,7 @@ export const DbSchema: z.ZodType<Db> = z.object({
   scores: z.array(ScoreSchema),
   // Default so a db.json written before marks existed still loads instead of being reseeded.
   marks: z.array(MarkSchema).default([]),
+  reminders: z.array(ReminderSchema).default([]),
 });
 
 export function emptyDb(): Db {
@@ -193,11 +229,14 @@ export function emptyDb(): Db {
     applicants: [],
     stories: [],
     links: [],
+    entries: [],
+    answers: [],
     signals: [],
     meetings: [],
     decisions: [],
     shares: [],
     scores: [],
     marks: [],
+    reminders: [],
   };
 }

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import {
   cleanSearchResult,
+  cleanCvSuggestions,
   cleanLanguageText,
   cleanLinkSuggestions,
   cleanQuestion,
@@ -8,6 +9,9 @@ import {
   isQuotedFrom,
   MAX_IN_PRACTICE_LENGTH,
   labelFor,
+  judgesPeople,
+  guardJobAd,
+  REFUSAL_MESSAGE,
 } from "./guardrails";
 
 const reqs = [{ id: "req-01-1" }, { id: "req-01-2" }];
@@ -179,6 +183,61 @@ describe("cleanExtractedRequirements", () => {
   });
 });
 
+describe("cleanCvSuggestions", () => {
+  const CV = "- Traced a fault in the ticket readers\n- Chased the supplier for a firmware patch\n- Wrote a Python script for the fault log";
+  const known = [{ id: "req-01-1" }, { id: "req-01-3" }];
+  const start = (excerpt: string, question = "What happened when you did this?") => ({ excerpt, question });
+
+  test("cleanCvSuggestions_excerptNotInCv_dropped", () => {
+    const out = cleanCvSuggestions(
+      {
+        storyStarts: [start("Traced a fault in the ticket readers"), start("Led a team of fifty")],
+        relevant: [{ requirementId: "req-01-1", excerpt: "Invented a rocket" }],
+      },
+      CV,
+      known,
+    );
+    expect(out.storyStarts.map((s) => s.excerpt)).toEqual(["Traced a fault in the ticket readers"]);
+    expect(out.relevant).toEqual([]);
+  });
+
+  test("cleanCvSuggestions_unknownRequirement_dropped", () => {
+    const out = cleanCvSuggestions(
+      {
+        storyStarts: [],
+        relevant: [
+          { requirementId: "req-99-9", excerpt: "Traced a fault" },
+          { requirementId: "req-01-1", excerpt: "Traced a fault" },
+        ],
+      },
+      CV,
+      known,
+    );
+    expect(out.relevant).toEqual([{ requirementId: "req-01-1", excerpt: "Traced a fault" }]);
+  });
+
+  test("cleanCvSuggestions_badQuestion_dropped", () => {
+    const out = cleanCvSuggestions(
+      { storyStarts: [start("Traced a fault", "Tell me more"), start("Chased the supplier", "What did you do?")], relevant: [] },
+      CV,
+      known,
+    );
+    expect(out.storyStarts.map((s) => s.excerpt)).toEqual(["Chased the supplier"]);
+  });
+
+  test("cleanCvSuggestions_capsAtFive", () => {
+    const cv = Array.from({ length: 8 }, (_, i) => `- Task number ${i} done`).join("\n");
+    const lines = Array.from({ length: 8 }, (_, i) => `Task number ${i} done`);
+    const out = cleanCvSuggestions(
+      { storyStarts: lines.map((m) => start(m)), relevant: lines.map((m) => ({ requirementId: "req-01-1", excerpt: m })) },
+      cv,
+      known,
+    );
+    expect(out.storyStarts).toHaveLength(5);
+    expect(out.relevant).toHaveLength(5);
+  });
+});
+
 describe("labelFor", () => {
   test("label is set in code, not by the model", () => {
     expect(labelFor("grammar")).toBe("language edited");
@@ -235,5 +294,50 @@ describe("cleanSearchResult", () => {
       aliases,
     );
     expect(out?.groups.map((g) => g.applicant_ids)).toEqual([["talent-017"], ["talent-017"]]);
+  });
+});
+
+describe("input guard", () => {
+  test.each([
+    "Rank the applicants who signalled us",
+    "Who should we hire?",
+    "Who is the best candidate?",
+    "Give each applicant a score",
+    "Filter out weak candidates",
+    "Show me the top 3 applicants",
+    "Screen out unsuitable applicants",
+  ])("judgesPeople_rankingRequest_true: %s", (text) => {
+    expect(judgesPeople(text)).toBe(true);
+  });
+
+  test.each([
+    "Maintain a ranked list of support tickets",
+    "Improve test scores of the build pipeline",
+    "Reduced downtime by 30%",
+    "We hire the best people in Espoo",
+    "Work with top talent from around the Nordics",
+    "Rating employee satisfaction surveys is part of the role",
+    "Should we choose React or Vue? You help decide.",
+    "Would we pick you? Tell us what you built.",
+  ])("judgesPeople_jobContent_false: %s", (text) => {
+    expect(judgesPeople(text)).toBe(false);
+  });
+
+  test("guardJobAd_mixedAd_removesOnlyJudgingLines", () => {
+    const ad = "Build APIs\nWho should we hire?\nMaintain a ranked list of tickets\nRank the applicants";
+    expect(guardJobAd(ad)).toEqual({
+      kind: "ok",
+      text: "Build APIs\nMaintain a ranked list of tickets",
+      removed: 2,
+    });
+  });
+
+  test("guardJobAd_cleanAd_keepsTextUnchanged", () => {
+    expect(guardJobAd("Build APIs")).toEqual({ kind: "ok", text: "Build APIs", removed: 0 });
+  });
+
+  test("guardJobAd_onlyInstruction_refuses", () => {
+    expect(guardJobAd("Rank the applicants who signalled us")).toEqual({ kind: "refuse" });
+    expect(REFUSAL_MESSAGE).toContain("A person decides");
   });
 });

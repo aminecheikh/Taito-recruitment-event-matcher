@@ -50,4 +50,15 @@ describe("requirements", () => {
     const db = makeDb({ requirements: [req(3, true), req(1, true), req(2, false)] });
     expect(coreRequirements(db, "company-01").map((x) => x.id)).toEqual(["r1", "r3"]);
   });
+  test("setRequirements_deletedRequirement_dropsItsAnswersButKeepsEntries", () => {
+    const answer = (requirementId: string) => ({ applicantId: "talent-017", requirementId, entryId: "entry-1" });
+    const db = makeDb({
+      entries: [{ id: "entry-1", applicantId: "talent-017", body: "x" }],
+      answers: [answer("req-01-1"), answer("req-01-2")],
+    });
+    const kept = db.requirements.filter((r) => r.id !== "req-01-2");
+    const r = setRequirements(db, "company-01", kept);
+    expect(r.ok && r.value.answers).toEqual([answer("req-01-1")]);
+    expect(r.ok && r.value.entries).toHaveLength(1);
+  });
 });

@@ -28,7 +28,7 @@ export function buildData(input: Pick<SearchInput, "requirements" | "cards">): s
   const cards = input.cards
     .map((card) => {
       const examples = card.examples.length
-        ? card.examples.map((e) => `- for ${e.requirementId}: "${e.title}": ${e.body}`).join("\n")
+        ? card.examples.map((e) => `- for ${e.requirementId}: ${e.body}`).join("\n")
         : "- no examples";
       return `<card id="${card.alias}">\n${examples}\n</card>`;
     })

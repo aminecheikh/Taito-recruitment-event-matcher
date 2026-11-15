@@ -23,14 +23,14 @@ The CV can still be shared — after the conversation, if both sides want to con
 | AI and the applicant's words | Content is the applicant's own. AI asks questions; it may fix grammar or translate, always with a visible label ("language edited", "translated from …"). AI never drafts content. |
 | Documents | No CVs, applications or online profiles before the meeting |
 | Names | Hidden while recruiters choose whom to meet; revealed when a meeting is booked |
-| Judging people | Humans only. The **recruiter** scores each core requirement 0–10 (total out of 10 × number of core requirements). AI never scores, ranks or picks people, and shows no "top match" lists (the recruiter-asked search below is a lookup, not a ranking). Scoring guide and how scores are used to screen at volume: **open, being researched by two teammates**. |
+| Judging people | Humans only. The **recruiter** scores each core requirement 0–10. AI never scores, ranks or picks people, and shows no "top match" lists (the recruiter-asked search and suggested filters below are lookups the recruiter applies, not a ranking). Decided 2026-11-15: the recruiter scores 0–10 per core requirement; the weighted total (out of 100) uses the recruiter's own order (see the AGENTS.md decisions log); unscored applicants are never hidden by the score filter. |
 | Signalling | An applicant needs at least 1 accepted example for a company before they can signal it. The recruiter sees every core-requirement slot; empty ones show "no example yet". |
 | Shortlisting | The recruiter filters by coverage: how many core requirements have an example (all first, then one fewer, …). The rule is visible to applicants. |
 | AI search of cards (recruiter) | Optional, closed by default. The recruiter asks for what to look for ("Python evidence but no SQL"); AI lists the applicants whose card text fits, each with a short reason quoting the card, and an "interpretation" line to check it understood. It only searches the list already shown, never sees scores or names (pseudonymous aliases), never selects or acts; the recruiter ticks people and invites or marks for later. Applicants are told on their cards page. Decided 2026-11-15: a faster read for the recruiter, not a filter that decides. Also decided 2026-11-15: a "Suggested filters" dropdown, built once per job from the cards on the list, offers 5–10 evidence filters about the core requirements (never identity traits, never quality words; each shows its match count). Nothing applies until the recruiter clicks one; applied filters are removable chips combined with AND, and the reason per applicant sits behind an info icon. |
 | Job ad → suggested requirements | Job ads describe tasks, not needs. AI infers the skills, knowledge and tools the described work relies on (concise names, optional "in practice" line), each grounded in the ad; never identity traits. Shown as "AI suggestion"; the recruiter keeps, edits or deletes each one. |
-| Story → requirement links | Applicant tells stories first. AI suggests which company requirement a story could be evidence for, with a visible reason; the applicant accepts, rejects or moves each link. AI never changes the story. Cards show "linked by applicant". |
+| Requirement cards and stories | Applicants fill in each company's core-requirement cards individually. Stories are helpers: AI recommends a story for a requirement with a visible reason, and the applicant can start the card from it or dismiss it. AI never changes the story. Every card answer is saved in the applicant's registry of saved entries and can be reused on any card asking for the same or a similar requirement (similarity = shared words, shown as the reason). Cards show "Written by applicant". |
 | Product name | **Taito**, Finnish for "ability" (replaces the working title "No CV, No Job Ad"): the product is about what people can do, not their documents |
-| Hackathon demo | Thin full journey: every step works end to end on synthetic data; the story + AI-link step gets the most depth. |
+| Hackathon demo | Thin full journey: every step works end to end on synthetic data; the requirement cards and the AI story recommendation get the most depth. |
 
 ## The journey
 
@@ -43,9 +43,10 @@ The CV can still be shared — after the conversation, if both sides want to con
 
 **2. Applicant builds evidence cards**
 - Browses companies by their core requirements — no job ads.
-- Builds a personal library of examples. AI asks recall questions (situation → what *you* did → what changed); the applicant writes or speaks the answer.
+- Opens a company and fills in one card per core requirement, in their own words.
+- Stories are optional helpers: AI recommends a story for a requirement with a visible reason; the applicant can start the card from it or dismiss it. AI asks recall questions (situation → what *you* did → what changed).
 - Examples can come from anywhere: work, volunteering, studies, family business, caregiving.
-- One example can serve several companies when they ask for the same thing.
+- Every card answer is saved in "Saved entries" and can be reused on any card asking for the same or a similar requirement; similarity is shared words, shown as the reason.
 - Grammar fixes and translation are labelled on the card.
 
 **3. Applicant spends signals**
@@ -57,7 +58,7 @@ The CV can still be shared — after the conversation, if both sides want to con
 - Sees only applicants who signalled them: evidence cards against their own core requirements, every slot shown, no names.
 - The company has a fixed number of meeting slots *(proposal: set in step 1, e.g. 10)*.
 - **4a. Coverage filter.** Filter by how many core requirements have an example: all of them first, then one fewer, and so on. Applicants see this rule while they build their cards.
-- **4b. Screening at volume — open.** When more applicants cover every core requirement than there are slots (e.g. 100 for 10 slots), how the recruiter narrows the list is being researched by two teammates. Ruled out: cutting on requirement #1 before reading the rest, because someone strong on the others but weak on #1 would be screened out.
+- **4b. Screening at volume — decided (2026-11-15).** With N core requirements the #1 weighs N … the last weighs 1; the total is out of 100 and a "Weighted score at least" filter narrows the list. Unscored applicants stay visible in a "Not scored yet" group. Rule: `lib/domain/scores.ts`. Still ruled out: cutting on requirement #1 before reading the rest, because someone strong on the others but weak on #1 would be screened out.
 - The recruiter requests meetings; the applicant accepts; the name is revealed when the meeting is booked.
 
 - **4c. AI search (optional).** The recruiter can ask an AI helper to find cards with or without certain evidence; it returns a list with a reason per applicant, and the recruiter ticks whom to invite or mark for later. The AI can also suggest evidence filters for the job, which the recruiter may apply as chips. Invited applicants leave the list.
@@ -79,7 +80,7 @@ Why this stays human-decided: the coverage rule is set and applied by the recrui
 ### After the event
 
 **7. Match or not**
-- After the meeting, the recruiter scores the conversation on each core requirement (0–10). Scoring guide: open (see Still open).
+- After the meeting, the recruiter scores the conversation on each core requirement (0–10). Scores are weighted by the recruiter's order (see 4b).
 - Each side independently answers: **continue or not**. The score informs the recruiter's answer; it never decides it.
 - Answers are revealed together. A match happens only if both say continue.
 - Humans decide on both sides. No AI suggestion is shown at this step.
@@ -102,7 +103,7 @@ Pain point #5: *"Many professionals find it difficult to describe their competen
 
 The evidence card handles "describe what you did". Still open:
 
-1. ~~**Transferable skills**~~ — **decided:** story first, AI-suggested links the applicant confirms (see Decisions so far).
+1. ~~**Transferable skills**~~ — **decided:** per-company requirement cards, stories as AI-recommended helpers, saved entries reused across cards (see Decisions so far).
 2. **Value proposition** — beyond single examples, how does the applicant say in one line what they bring, in their own voice?
 3. **Getting attention** — what makes a recruiter stop on a card, without rewarding polish over substance?
 
@@ -117,8 +118,8 @@ Starting points from the research (to brainstorm, not decided):
 
 - Pain point #5: value proposition and getting attention (above)
 - Number of signals per applicant
-- Scoring guide (being researched by two teammates)
+- Scoring guide (how to read 0–10 consistently)
 - Does the applicant see their scores, or only the feedback lines?
-- Screening at volume (e.g. 100 applicants cover every requirement): two teammates are researching this. Rejected: scoring requirement #1 first and cutting before reading the others — someone strong on #2–#5 but weak on #1 gets screened out.
+- Screening at volume: decided, see 4b. Rejected: scoring requirement #1 first and cutting before reading the others — someone strong on #2–#5 but weak on #1 gets screened out.
 - Confirm meeting slots per company (step 4)
 - Minimum number of core requirements (currently 1)

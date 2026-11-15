@@ -1,9 +1,9 @@
 import { coreRequirements } from "./requirements";
-import type { Db, Link, Requirement, Story } from "./types";
+import type { Db, Entry, Requirement } from "./types";
 
 export type CardSlot = {
   requirement: Requirement;
-  examples: { story: Pick<Story, "id" | "title" | "body" | "languageLabel">; origin: Link["origin"] }[];
+  example: { entry: Pick<Entry, "id" | "body" | "languageLabel"> } | null;
 };
 export type Card = { applicantId: string; label: string; slots: CardSlot[] };
 
@@ -17,15 +17,11 @@ export function visibleApplicantName(db: Db, companyId: string, applicantId: str
 }
 
 function buildSlot(db: Db, applicantId: string, requirement: Requirement): CardSlot {
-  const examples = db.links
-    .filter((l) => l.status === "accepted" && l.requirementId === requirement.id)
-    .flatMap((l) => {
-      const story = db.stories.find((s) => s.id === l.storyId && s.applicantId === applicantId);
-      if (!story) return [];
-      const { id, title, body, languageLabel } = story;
-      return [{ story: { id, title, body, languageLabel }, origin: l.origin }];
-    });
-  return { requirement, examples };
+  const answer = db.answers.find((a) => a.applicantId === applicantId && a.requirementId === requirement.id);
+  const found = answer && db.entries.find((e) => e.id === answer.entryId && e.applicantId === applicantId);
+  if (!found) return { requirement, example: null };
+  const { id, body, languageLabel } = found;
+  return { requirement, example: { entry: { id, body, languageLabel } } };
 }
 
 export function buildCard(db: Db, companyId: string, applicantId: string): Card {
@@ -35,7 +31,7 @@ export function buildCard(db: Db, companyId: string, applicantId: string): Card 
 
 export function coverage(db: Db, companyId: string, applicantId: string): { covered: number; total: number } {
   const slots = coreRequirements(db, companyId).map((r) => buildSlot(db, applicantId, r));
-  return { covered: slots.filter((s) => s.examples.length > 0).length, total: slots.length };
+  return { covered: slots.filter((s) => s.example !== null).length, total: slots.length };
 }
 
 export function filterByCoverage(db: Db, companyId: string, applicantIds: string[], minCovered: number): string[] {

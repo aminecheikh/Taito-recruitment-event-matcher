@@ -13,13 +13,15 @@ const UNAVAILABLE: Record<string, string> = {
 type Props = {
   minCovered: number;
   markedOnly: boolean;
+  /** The recruiter's score floor narrows which cards are searched; scores themselves are never sent to the AI. */
+  minWeighted?: number;
   disabled: boolean;
   /** Adds the answer as a new filter chip; earlier filters stay. */
   onResult: (query: string, result: SearchResult) => void;
 };
 
 /** Optional helper, closed by default. It only answers the recruiter's question; it never selects or acts. */
-export function AiSearchPanel({ minCovered, markedOnly, disabled, onResult }: Props) {
+export function AiSearchPanel({ minCovered, markedOnly, minWeighted, disabled, onResult }: Props) {
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
@@ -32,7 +34,7 @@ export function AiSearchPanel({ minCovered, markedOnly, disabled, onResult }: Pr
       const res = await fetch(SEARCH_URL, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ query, minCovered, markedOnly }),
+        body: JSON.stringify({ query, minCovered, markedOnly, minWeighted }),
       });
       if (!res.ok) throw new Error(`status ${res.status}`);
       const data = (await res.json()) as { value: SearchResult; source: string };

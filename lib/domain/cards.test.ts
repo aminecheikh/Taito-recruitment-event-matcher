@@ -27,22 +27,22 @@ describe("cards", () => {
   });
   test("visibleApplicantName_bookedWithOtherCompany_staysPseudonym", () =>
     expect(visibleApplicantName(booked(), "company-02", "talent-017")).toBe("Applicant 017"));
-  test("buildCard_slotsFollowCoreRankWithAcceptedExamples", () => {
+  test("buildCard_slotsFollowCoreRankWithAnsweredEntry", () => {
     const card = buildCard(makeDb(), "company-01", "talent-017");
     expect(card.slots.map((s) => s.requirement.id)).toEqual(["req-01-1", "req-01-2", "req-01-3", "req-01-4"]);
-    expect(card.slots[1].examples).toEqual([
-      { story: { id: "story-017-a", title: "Story story-017-a", body: "Body of story-017-a", languageLabel: undefined }, origin: "applicant" },
-    ]);
+    expect(card.slots[1].example).toEqual({
+      entry: { id: "entry-story-017-a", body: "Body of story-017-a", languageLabel: undefined },
+    });
   });
-  test("buildCard_noAcceptedExample_slotEmpty", () =>
-    expect(buildCard(makeDb(), "company-01", "talent-017").slots[3].examples).toEqual([]));
-  test("coverage_pendingAndRejectedLinks_dontCount", () =>
+  test("buildCard_noAnswer_slotEmpty", () =>
+    expect(buildCard(makeDb(), "company-01", "talent-017").slots[3].example).toBeNull());
+  test("coverage_linksWithoutAnswers_dontCount", () =>
     expect(coverage(makeDb(), "company-01", "talent-017")).toEqual({ covered: 1, total: 4 }));
   test("coverage_demotedRequirement_ignoredAndTotalShrinks", () => {
     const db = makeDb();
     const withExtra: Db = {
       ...db,
-      links: [...db.links, { id: "x", storyId: "story-017-a", requirementId: "req-01-1", origin: "applicant", status: "accepted" }],
+      answers: [...db.answers, { applicantId: "talent-017", requirementId: "req-01-1", entryId: "entry-story-017-a" }],
     };
     expect(coverage(withExtra, "company-01", "talent-017")).toEqual({ covered: 2, total: 4 });
     const demoted: Db = {
@@ -51,6 +51,11 @@ describe("cards", () => {
     };
     expect(coverage(demoted, "company-01", "talent-017")).toEqual({ covered: 1, total: 3 });
     expect(buildCard(demoted, "company-01", "talent-017").slots).toHaveLength(3);
+  });
+  test("buildCard_answerPointsAtOtherApplicantsEntry_slotEmpty", () => {
+    const db = makeDb();
+    const stolen: Db = { ...db, answers: [...db.answers, { applicantId: "talent-017", requirementId: "req-01-4", entryId: "entry-story-020-b" }] };
+    expect(buildCard(stolen, "company-01", "talent-017").slots[3].example).toBeNull();
   });
   test("filterByCoverage_threshold_keepsInputOrder", () => {
     const db = makeDb();

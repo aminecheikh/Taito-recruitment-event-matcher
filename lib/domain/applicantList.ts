@@ -1,9 +1,11 @@
 import { filterByCoverage } from "./cards";
 import { companyOpenSlots } from "./calendar";
 import { requestMeeting } from "./meetings";
+import { shortlist } from "./scores";
 import type { Db, Result } from "./types";
 
-export type ListFilter = { minCovered: number; markedOnly: boolean };
+/** minWeighted: the recruiter's own weighted-score floor; applicants they have not scored yet always stay. */
+export type ListFilter = { minCovered: number; markedOnly: boolean; minWeighted?: number };
 
 const hasSignal = (db: Db, eventId: string, companyId: string, applicantId: string) =>
   db.signals.some((s) => s.eventId === eventId && s.companyId === companyId && s.applicantId === applicantId);
@@ -13,6 +15,13 @@ const hasMeeting = (db: Db, eventId: string, companyId: string, applicantId: str
 
 export function isMarked(db: Db, eventId: string, companyId: string, applicantId: string): boolean {
   return db.marks.some((m) => m.eventId === eventId && m.companyId === companyId && m.applicantId === applicantId);
+}
+
+/** Same rule as the shortlist table's score filter: scored applicants at or above the floor, plus everyone not scored. */
+function scoreFloor(db: Db, companyId: string, ids: string[], minWeighted: number): string[] {
+  const { scored, notScored } = shortlist(db, companyId, ids, { minCovered: 0, minWeighted });
+  const keep = new Set([...scored, ...notScored].map((r) => r.applicantId));
+  return ids.filter((id) => keep.has(id));
 }
 
 /**
@@ -27,7 +36,9 @@ export function recruiterList(db: Db, eventId: string, companyId: string, filter
     .filter((id) => !hasMeeting(db, eventId, companyId, id))
     .filter((id) => !filter.markedOnly || isMarked(db, eventId, companyId, id));
   const pseudonym = (id: string) => db.applicants.find((a) => a.id === id)?.pseudonym ?? id;
-  return filterByCoverage(db, companyId, open, filter.minCovered).sort((a, b) => pseudonym(a).localeCompare(pseudonym(b)));
+  const covered = filterByCoverage(db, companyId, open, filter.minCovered);
+  const passed = filter.minWeighted === undefined ? covered : scoreFloor(db, companyId, covered, filter.minWeighted);
+  return passed.sort((a, b) => pseudonym(a).localeCompare(pseudonym(b)));
 }
 
 export type InviteOutcome = { db: Db; invited: number; alreadyInvited: number };

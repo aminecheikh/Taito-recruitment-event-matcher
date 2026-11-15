@@ -19,6 +19,15 @@ function invited(db: Db, id: string): Db {
 }
 
 describe("recruiterList", () => {
+  test("recruiterList_scoreFloor_hidesScoredBelowButKeepsUnscored", () => {
+    const db = makeDb();
+    const core = db.requirements.filter((r) => r.companyId === COMPANY && r.isCore);
+    const low = core.map((r) => ({ companyId: COMPANY, applicantId: "talent-020", requirementId: r.id, stage: "card" as const, value: 1 }));
+    const scored = { ...db, scores: low };
+    expect(recruiterList(scored, EVENT, COMPANY, { ...ALL, minWeighted: 50 })).toEqual(["talent-017"]);
+    expect(recruiterList(scored, EVENT, COMPANY, { ...ALL, minWeighted: 10 })).toEqual(["talent-017", "talent-020"]);
+  });
+
   test("recruiterList_noFilters_listsEverySignalledApplicant", () =>
     expect(recruiterList(makeDb(), EVENT, COMPANY, ALL)).toEqual(["talent-017", "talent-020"]));
 

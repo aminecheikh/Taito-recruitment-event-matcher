@@ -4,7 +4,7 @@
 <!-- Update Now when you start something and push right away; teammates' agents read it at session start. -->
 
 ## Now
-- Requirement cards per company + saved-entry registry (branch `feat/requirement-cards`: `lib/domain/entries.ts`, `cards.ts`, `app/(applicant)/applicant/companies/[companyId]`, `/applicant/entries`, seed talent.json)
+- Done: pre-freeze plan (`docs/tonight-plan.md`) all merged to main. Next: rehearse with `docs/demo/demo-script.md`
 
 ## Next
 - 

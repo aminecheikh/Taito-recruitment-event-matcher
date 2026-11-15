@@ -4,7 +4,10 @@ import { formatSlot } from "@/lib/domain/calendar";
 import { formatEventDate } from "@/lib/domain/eventFormat";
 import { buildCard } from "@/lib/domain/cards";
 import { revealDecisions } from "@/lib/domain/decisions";
+import { InternationalSupport } from "@/app/components/InternationalSupport";
+import { companySeesMovingHelp } from "@/lib/domain/movingHelp";
 import { coreRequirements } from "@/lib/domain/requirements";
+import { weightedScore } from "@/lib/domain/scores";
 import type { Db, Meeting } from "@/lib/domain/types";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
@@ -88,6 +91,13 @@ function Outcome({ db, meeting }: { db: Db; meeting: Meeting }) {
           )}
         </div>
       </div>
+      {companySeesMovingHelp(db, meeting.id) ? (
+        <div className="mt-6 border-t border-line pt-6">
+          <h3 className="h3">This person would like help with permits and moving</h3>
+          <p className="hint mt-1">They chose to tell you this after you both decided to continue.</p>
+          <InternationalSupport audience="company" />
+        </div>
+      ) : null}
       <div className="mt-6">
         <RefreshButton />
       </div>
@@ -102,6 +112,7 @@ export default async function MeetingPage({ params }: { params: Params }) {
   const card = buildCard(db, meeting.companyId, meeting.applicantId);
   const meetingEvent = db.events.find((e) => e.id === meeting.eventId);
   const decided = db.decisions.some((d) => d.meetingId === meeting.id && d.side === "company");
+  const weighted = weightedScore(db, meeting.companyId, meeting.applicantId, "conversation");
   const requirements = coreRequirements(db, meeting.companyId).map((r) => ({ id: r.id, text: r.text }));
 
   return (
@@ -128,6 +139,9 @@ export default async function MeetingPage({ params }: { params: Params }) {
       <div className="mt-8">
         <EvidenceCard card={card} />
       </div>
+      {weighted === undefined ? null : (
+        <p className="hint mt-4">Weighted: {weighted} / 100. It informs your decision; it doesn&apos;t make it.</p>
+      )}
       {meeting.status === "requested" ? (
         <section className="card mt-8 border-l-4 border-l-accent">
           <h2 className="h2">Waiting for the applicant to accept</h2>

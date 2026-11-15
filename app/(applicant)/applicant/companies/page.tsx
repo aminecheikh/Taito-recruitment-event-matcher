@@ -1,10 +1,9 @@
+import Link from "next/link";
 import { PageHeader } from "@/app/components/PageHeader";
 import { coverage } from "@/lib/domain/cards";
 import { coreRequirements } from "@/lib/domain/requirements";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
-import { LinkSuggestions } from "./LinkSuggestions";
-import type { RequirementOption } from "./ui";
 import { companiesAt } from "@/lib/domain/attendance";
 
 function examplesLine(covered: number, total: number, missing: number[]): string {
@@ -26,23 +25,18 @@ export default async function CompaniesPage() {
 
   const atEvent = new Set(companiesAt(db, session.eventId));
   const companies = db.companies.filter((c) => atEvent.has(c.id)).sort((a, b) => a.name.localeCompare(b.name));
-  const own = new Set(db.stories.filter((s) => s.applicantId === applicant.id).map((s) => s.id));
 
   const view = companies.map((company) => {
     const reqs = coreRequirements(db, company.id);
-    const accepted = new Set(db.links.filter((l) => l.status === "accepted" && own.has(l.storyId)).map((l) => l.requirementId));
-    const missing = reqs.flatMap((r, i) => (accepted.has(r.id) ? [] : [i + 1]));
+    const answered = new Set(db.answers.filter((a) => a.applicantId === applicant.id).map((a) => a.requirementId));
+    const missing = reqs.flatMap((r, i) => (answered.has(r.id) ? [] : [i + 1]));
     return { company, reqs, missing, ...coverage(db, company.id, applicant.id) };
   });
-  const options: RequirementOption[] = view.flatMap(({ company, reqs }) =>
-    reqs.map((r, i) => ({ id: r.id, companyId: company.id, companyName: company.name, position: i + 1, text: r.text })),
-  );
-  const stories = db.stories.filter((s) => s.applicantId === applicant.id);
 
   return (
     <main className="page">
       <PageHeader eyebrow={applicant.pseudonym} title="Companies">
-        What each company looks for, and where your own stories fit. The AI only suggests; you decide, and it never changes your story. A recruiter may also ask an AI helper to search the cards they receive for certain examples; it never sees your name or scores, and the recruiter decides whom to invite.
+        What each company looks for. Open a company to fill in one card per requirement; the AI only suggests, you decide. A recruiter may also use an AI helper to search the cards they receive for certain examples; it never sees your name or scores, and the recruiter decides whom to invite.
       </PageHeader>
       <ul className="mt-8 space-y-5">
         {view.map(({ company, reqs, covered, total, missing }) => (
@@ -65,21 +59,7 @@ export default async function CompaniesPage() {
                 </li>
               ))}
             </ol>
-          </li>
-        ))}
-      </ul>
-      <h2 className="h2 mt-12">Where your stories fit</h2>
-      <p className="hint mt-1">Ask for a suggestion, or link a story yourself. Nothing is linked until you accept it.</p>
-      {stories.length === 0 ? <p className="empty-slot mt-4">Write a story first, then come back to link it.</p> : null}
-      <ul className="mt-4 space-y-4">
-        {stories.map((story) => (
-          <li key={story.id}>
-            <LinkSuggestions
-              idPrefix={story.id}
-              story={{ id: story.id, title: story.title }}
-              links={db.links.filter((l) => l.storyId === story.id).map(({ id, requirementId, origin, status, aiReason }) => ({ id, requirementId, origin, status, aiReason }))}
-              options={options}
-            />
+            <p className="mt-5"><Link href={`/applicant/companies/${company.id}`} className="btn btn-primary">Fill in requirement cards</Link></p>
           </li>
         ))}
       </ul>

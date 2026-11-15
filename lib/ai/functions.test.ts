@@ -1,6 +1,10 @@
 import { MockLanguageModelV4 } from "ai/test";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { createAiFunctions } from "./functions";
+import { cleanCvSuggestions } from "./guardrails";
+import { RECRUITER_LADDER } from "./mock";
 
 const demoStory = {
   id: "story-1",
@@ -136,6 +140,23 @@ describe("mock provider", () => {
     expect(out.value).toEqual([]);
   });
 
+  test("cvSuggestions_noModel_returnsMock", async () => {
+    const cvText = "- Traced a fault in the ticket readers after an update\n- Chased the supplier for a firmware patch";
+    const out = await ai.cvSuggestions({ cvText, requirements: acme });
+    expect(out.source).toBe("mock");
+    expect(out.value.storyStarts.length).toBeGreaterThan(0);
+    for (const s of out.value.storyStarts) expect(cvText).toContain(s.excerpt);
+  });
+
+  test("cvSuggestions_demoCv_mockQuotesTheFileExactly", async () => {
+    const cvText = readFileSync(join(process.cwd(), "data/synthetic/talent/demo-cv-017.txt"), "utf8");
+    const out = await ai.cvSuggestions({ cvText, requirements: acme });
+    const cleaned = cleanCvSuggestions(out.value, cvText, acme);
+    expect(out.value.storyStarts).toHaveLength(3);
+    expect(cleaned).toEqual({ storyStarts: out.value.storyStarts, relevant: out.value.relevant.filter((r) => acme.some((a) => a.id === r.requirementId)) });
+    expect(out.value.relevant.map((r) => r.requirementId)).toEqual(["req-01-1", "req-01-2", "req-01-3"]);
+  });
+
   test("languageAssist returns text unchanged with the label", async () => {
     const out = await ai.languageAssist({ text: "hello", mode: "translate", sourceLanguage: "Finnish" });
     expect(out.value).toEqual({ text: "hello", label: "translated from Finnish" });
@@ -151,6 +172,12 @@ describe("with a real model", () => {
     expect((await ai.nextFollowUpQuestion({ storyBody: "x", history: [] })).source).toBe("mock-fallback");
     expect((await ai.suggestLinks({ story: demoStory, requirements: acme })).source).toBe("mock-fallback");
     expect((await ai.languageAssist({ text: "t", mode: "grammar" })).source).toBe("mock-fallback");
+  });
+
+  test("cvSuggestions_modelThrows_fallsBack", async () => {
+    const ai = createAiFunctions(() => throwingModel);
+    const cvText = "- Traced a fault in the ticket readers after an update";
+    expect((await ai.cvSuggestions({ cvText, requirements: acme })).source).toBe("mock-fallback");
   });
 
   test("valid model output passes guardrails with source model", async () => {
@@ -172,6 +199,27 @@ describe("with a real model", () => {
   test("follow-up question with scoring language falls back to the mock", async () => {
     const ai = createAiFunctions(() => modelReturning(JSON.stringify({ question: "What score would you give it?" })));
     expect((await ai.nextFollowUpQuestion({ storyBody: "x", history: [] })).source).toBe("mock-fallback");
+  });
+
+  test("nextRecruiterQuestion_noModel_returnsLadderQuestion", async () => {
+    const ai = createAiFunctions(() => null);
+    const input = { requirementText: "Fault finding", inPractice: "", history: [] };
+    const first = await ai.nextRecruiterQuestion(input);
+    const second = await ai.nextRecruiterQuestion({ ...input, history: [{ question: first.value, answer: "a" }] });
+    expect(first).toEqual({ source: "mock", value: RECRUITER_LADDER[0] });
+    expect(second.value).toBe(RECRUITER_LADDER[1]);
+  });
+
+  test("nextRecruiterQuestion_scoringQuestion_fallsBack", async () => {
+    const ai = createAiFunctions(() => modelReturning(JSON.stringify({ question: "What score would you give them?" })));
+    const out = await ai.nextRecruiterQuestion({ requirementText: "x", inPractice: "", history: [] });
+    expect(out).toEqual({ source: "mock-fallback", value: RECRUITER_LADDER[0] });
+  });
+
+  test("nextRecruiterQuestion_twoQuestions_fallsBack", async () => {
+    const ai = createAiFunctions(() => modelReturning(JSON.stringify({ question: "Who did it well? What did they do?" })));
+    const out = await ai.nextRecruiterQuestion({ requirementText: "x", inPractice: "", history: [] });
+    expect(out.source).toBe("mock-fallback");
   });
 
   test("language assist output with scoring language falls back to the mock", async () => {

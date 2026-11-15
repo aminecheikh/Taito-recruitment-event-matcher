@@ -2,6 +2,7 @@ import { generateText, Output, type LanguageModel } from "ai";
 import { z } from "zod";
 import type { LanguageLabel, Requirement, Story } from "@/lib/domain/types";
 import {
+  cleanCvSuggestions,
   cleanLanguageText,
   cleanLinkSuggestions,
   cleanQuestion,
@@ -9,18 +10,23 @@ import {
   cleanSearchResult,
   cleanSuggestedFilters,
   labelFor,
+  type CvSuggestions,
   type ExtractedRequirement,
   type LinkSuggestion,
   type SearchResult,
   type SuggestedFilter,
 } from "./guardrails";
 import {
+  mockCvSuggestions,
   mockExtractRequirements,
   mockNextFollowUpQuestion,
+  mockNextRecruiterQuestion,
   mockSuggestLinks,
 } from "./mock";
+import * as cvPrompt from "./prompts/cvSuggestions";
 import * as extractPrompt from "./prompts/extractRequirements";
 import * as followUpPrompt from "./prompts/nextFollowUpQuestion";
+import * as recruiterPrompt from "./prompts/recruiterFollowUpQuestion";
 import * as languagePrompt from "./prompts/languageAssist";
 import * as linksPrompt from "./prompts/suggestLinks";
 import * as searchPrompt from "./prompts/searchApplicants";
@@ -28,7 +34,7 @@ import * as suggestFiltersPrompt from "./prompts/suggestFilters";
 import { getModel } from "./provider";
 import type { SearchInput } from "./searchInput";
 
-export type { ExtractedRequirement, LinkSuggestion, SearchResult, SuggestedFilter } from "./guardrails";
+export type { CvSuggestions, ExtractedRequirement, LinkSuggestion, SearchResult, SuggestedFilter } from "./guardrails";
 export type AiSource = "model" | "mock" | "mock-fallback";
 export type AiResult<T> = { value: T; source: AiSource };
 
@@ -51,6 +57,10 @@ const RequirementsSchema = z.object({
 const QuestionSchema = z.object({ question: z.string() });
 const SuggestionsSchema = z.object({
   suggestions: z.array(z.object({ requirementId: z.string(), reason: z.string() })),
+});
+const CvSuggestionsSchema = z.object({
+  storyStarts: z.array(z.object({ excerpt: z.string(), question: z.string() })),
+  relevant: z.array(z.object({ requirementId: z.string(), excerpt: z.string() })),
 });
 const TextSchema = z.object({ text: z.string() });
 const SearchSchema = z.object({
@@ -194,6 +204,25 @@ export function createAiFunctions(getModelFn: GetModel) {
     );
   }
 
+  function nextRecruiterQuestion(input: {
+    requirementText: string;
+    inPractice: string;
+    history: { question: string; answer: string }[];
+  }): Promise<AiResult<string>> {
+    return resolve(
+      async (model) => {
+        const { question } = await generate(
+          model,
+          QuestionSchema,
+          recruiterPrompt.system,
+          recruiterPrompt.buildUser(input),
+        );
+        return cleanQuestion(question, input.inPractice);
+      },
+      () => mockNextRecruiterQuestion(input.history),
+    );
+  }
+
   function suggestLinks(input: {
     story: Pick<Story, "id" | "body">;
     requirements: Pick<Requirement, "id" | "companyId" | "text" | "inPractice">[];
@@ -210,6 +239,25 @@ export function createAiFunctions(getModelFn: GetModel) {
         return cleaned.length > 0 ? cleaned : null;
       },
       () => mockSuggestLinks(input.story.body, input.requirements),
+    );
+  }
+
+  function cvSuggestions(input: {
+    cvText: string;
+    requirements: Pick<Requirement, "id" | "companyId" | "text" | "inPractice">[];
+  }): Promise<AiResult<CvSuggestions>> {
+    return resolve(
+      async (model) => {
+        const raw = await generate(
+          model,
+          CvSuggestionsSchema,
+          cvPrompt.system,
+          cvPrompt.buildUser(input),
+        );
+        const cleaned = cleanCvSuggestions(raw, input.cvText, input.requirements);
+        return cleaned.storyStarts.length + cleaned.relevant.length > 0 ? cleaned : null;
+      },
+      () => mockCvSuggestions(input.cvText, input.requirements),
     );
   }
 
@@ -268,8 +316,8 @@ export function createAiFunctions(getModelFn: GetModel) {
     );
   }
 
-  return { extractRequirements, nextFollowUpQuestion, suggestLinks, languageAssist, searchApplicants, suggestFilters };
+  return { extractRequirements, nextFollowUpQuestion, nextRecruiterQuestion, suggestLinks, cvSuggestions, languageAssist, searchApplicants, suggestFilters };
 }
 
-export const { extractRequirements, nextFollowUpQuestion, suggestLinks, languageAssist, searchApplicants, suggestFilters } =
+export const { extractRequirements, nextFollowUpQuestion, nextRecruiterQuestion, suggestLinks, cvSuggestions, languageAssist, searchApplicants, suggestFilters } =
   createAiFunctions(getModel);
