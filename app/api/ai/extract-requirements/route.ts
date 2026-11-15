@@ -4,7 +4,8 @@ import { guardJobAd, REFUSAL_MESSAGE } from "@/lib/ai/guardrails";
 import { handle } from "@/lib/ai/http";
 import { mockExtractRequirements } from "@/lib/ai/mock";
 
-const Body = z.object({ jobAd: z.string().min(1) });
+const MAX_JOB_AD_CHARS = 15_000;
+const Body = z.object({ jobAd: z.string().min(1).max(MAX_JOB_AD_CHARS) });
 
 export const POST = handle(
   Body,
