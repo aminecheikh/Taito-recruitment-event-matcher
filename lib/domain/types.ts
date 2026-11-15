@@ -143,6 +143,15 @@ export const ScoreSchema = z.object({
   value: z.number().int().min(0).max(10),
 });
 
+/** Event staff nudged a company; resolved by the company's own action, never by staff. */
+export const ReminderSchema = z.object({
+  id: z.string(),
+  eventId: z.string(),
+  companyId: z.string(),
+  kind: z.enum(["set-requirements", "join-event"]),
+  sentAt: z.string(),
+});
+
 export type Company = z.infer<typeof CompanySchema>;
 export type Requirement = z.infer<typeof RequirementSchema>;
 export type Event = z.infer<typeof EventSchema>;
@@ -158,6 +167,7 @@ export type Meeting = z.infer<typeof MeetingSchema>;
 export type Decision = z.infer<typeof DecisionSchema>;
 export type Share = z.infer<typeof ShareSchema>;
 export type Score = z.infer<typeof ScoreSchema>;
+export type Reminder = z.infer<typeof ReminderSchema>;
 
 export type Db = {
   companies: Company[];
@@ -175,6 +185,7 @@ export type Db = {
   decisions: Decision[];
   shares: Share[];
   scores: Score[];
+  reminders: Reminder[];
 };
 
 export const DbSchema: z.ZodType<Db> = z.object({
@@ -193,6 +204,7 @@ export const DbSchema: z.ZodType<Db> = z.object({
   decisions: z.array(DecisionSchema),
   shares: z.array(ShareSchema),
   scores: z.array(ScoreSchema),
+  reminders: z.array(ReminderSchema).default([]),
 });
 
 export function emptyDb(): Db {
@@ -212,5 +224,6 @@ export function emptyDb(): Db {
     decisions: [],
     shares: [],
     scores: [],
+    reminders: [],
   };
 }
