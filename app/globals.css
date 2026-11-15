@@ -582,6 +582,16 @@
   .seg-btn[aria-pressed="true"] {
     color: var(--on-thumb, var(--ink));
   }
+  /* Phones only (touch and under 640px): 44px tap targets. Laptops, touch laptops and tablets keep the compact sizes. */
+  @media (pointer: coarse) and (max-width: 639px) {
+    .btn-sm,
+    .seg-btn {
+      min-height: 2.75rem;
+    }
+    .btn-icon {
+      min-width: 2.75rem;
+    }
+  }
 
   /* Prototype strip: demo controls sit outside the product, in a dark band */
   .chrome-control {
@@ -868,6 +878,13 @@
   .nav-tab[aria-current="page"] {
     background: var(--cobalt);
     color: #ffffff;
+  }
+  /* Phones: while tabs are hidden to the right (RoleNav sets data-more), fade that edge so the row
+     reads as "scroll for more". */
+  @media (max-width: 639px) {
+    .nav-scroll[data-more] {
+      mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
+    }
   }
 
   /* Logo lockup: the pipo mascot head as a sticker mark + a chunky wordmark */

@@ -39,7 +39,7 @@ export function StoryStart({ idPrefix, recommendations, stories, busy, onStart, 
       {stories.length > 0 ? (
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <label htmlFor={`${idPrefix}-story`} className="hint w-full">Pick one of your stories</label>
-          <select id={`${idPrefix}-story`} className={`${fieldClass} field-inline min-w-0 flex-1`} value={chosen} onChange={(e) => setChosen(e.target.value)}>
+          <select id={`${idPrefix}-story`} className={`${fieldClass} field-inline min-w-0 flex-1 max-sm:basis-full`} value={chosen} onChange={(e) => setChosen(e.target.value)}>
             {stories.map((s) => <option key={s.id} value={s.id}>{s.title || "Untitled story"}</option>)}
           </select>
           <button type="button" className={`${buttonClass} btn-sm`} disabled={busy || !picked} onClick={() => picked && onStart(picked)}>Start from this story</button>

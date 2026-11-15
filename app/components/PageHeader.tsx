@@ -12,7 +12,8 @@ export function PageHeader({
 }) {
   return (
     <header className="flex flex-wrap items-end justify-between gap-4">
-      <div className="min-w-0 flex-1">
+      {/* Below 640px the text takes the whole row and any action box drops under it. */}
+      <div className="min-w-0 flex-1 max-sm:basis-full">
         {eyebrow ? <p className="eyebrow mb-2">{eyebrow}</p> : null}
         <h1 className="h1">{title}</h1>
         {children ? <div className="lede">{children}</div> : null}
