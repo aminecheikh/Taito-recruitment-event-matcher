@@ -23,7 +23,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const theme = parseTheme((await cookies()).get(THEME_COOKIE)?.value);
   return (
     <html lang="en" data-theme={theme} className={`${sans.variable} ${display.variable}`}>
-      <body className="relative flex min-h-screen flex-col">
+      {/* Browser extensions (e.g. Grammarly) add attributes to <body> before hydration. */}
+      <body className="relative flex min-h-screen flex-col" suppressHydrationWarning>
         <SceneBackdrop />
         <RoleBar />
         <EventBanner />
