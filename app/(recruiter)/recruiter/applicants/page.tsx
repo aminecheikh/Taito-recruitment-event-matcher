@@ -10,6 +10,8 @@ import { readDb } from "@/lib/store/db";
 import { shortlist } from "@/lib/domain/scores";
 import { RefreshButton, ScoredCard } from "./ScoreInputs";
 import { ShortlistTable } from "./ShortlistTable";
+import { PoolSummaryStrip } from "./PoolSummaryStrip";
+import { poolSummary } from "@/lib/domain/insights";
 
 type Param = string | string[] | undefined;
 type SearchParams = Promise<{ min?: Param; view?: Param; minw?: Param }>;
@@ -97,6 +99,7 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
         Anonymous evidence cards, in alphabetical order. No names, no photos, no AI score. You choose who to meet.
       </PageHeader>
       <ReminderBanner />
+      <PoolSummaryStrip summary={poolSummary(db, session.eventId, company.id)} />
       <form method="get" className="panel mt-8 flex flex-wrap items-center gap-3">
         <input type="hidden" name="view" value={tableView ? "table" : "cards"} />
         <label htmlFor="min" className="label">Coverage</label>
