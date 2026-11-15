@@ -133,10 +133,10 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
         added > 0
           ? `Added ${added} suggested requirement${added === 1 ? "" : "s"} at the bottom of the list.`
           : data.value.length === 0
-            ? "The ad doesn't describe the work clearly enough to suggest requirements. Add them below."
+            ? "The job description doesn't describe the work clearly enough to suggest requirements. Add them below."
             : "No new requirements found — they are already in the list.";
       const prefix: Record<string, string> = {
-        mock: "No AI connected (offline example: one line of the ad per item). ",
+        mock: "No AI connected (offline example: one line of the description per item). ",
         "mock-fallback": "AI unavailable — showing example. ",
       };
       const skipped = data.removed
@@ -171,7 +171,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
     <div className="mt-10 space-y-10">
       <section aria-labelledby="paste-heading" className="panel space-y-3">
         <div className="flex flex-wrap items-center gap-3">
-          <h2 id="paste-heading" className="h3">Paste an old job ad</h2>
+          <h2 id="paste-heading" className="h3">Paste a job description</h2>
           <span className="tag tag-ai">Optional AI help</span>
         </div>
         <label htmlFor="job-ad" className="hint block">
@@ -185,7 +185,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
           className={`${field} py-2`}
         />
         <button type="button" onClick={extract} disabled={extracting || pasted.trim() === ""} className={button}>
-          {extracting ? "Reading the ad…" : "Suggest requirements"}
+          {extracting ? "Reading the description…" : "Suggest requirements"}
         </button>
         {aiRefusal && (
           <p role="alert" className="notice-error">
@@ -211,7 +211,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
             ))}
           </div>
         </div>
-        {items.length === 0 && <p className="empty-slot">No requirements yet. Paste a job ad or add one below.</p>}
+        {items.length === 0 && <p className="empty-slot">No requirements yet. Paste a job description or add one below.</p>}
         <ol className="space-y-3">
           {items.map((item, index) => {
             const { req } = item;
