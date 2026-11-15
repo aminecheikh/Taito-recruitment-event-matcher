@@ -1,13 +1,26 @@
+import Link from "next/link";
 import { PageHeader } from "@/app/components/PageHeader";
-import { buildCard, coverage, filterByCoverage } from "@/lib/domain/cards";
+import { buildCard, coverage } from "@/lib/domain/cards";
 import { companyCalendar, companyOpenSlots } from "@/lib/domain/calendar";
 import { coreRequirements } from "@/lib/domain/requirements";
 import type { Db } from "@/lib/domain/types";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
+import { shortlist } from "@/lib/domain/scores";
 import { RefreshButton, ScoredCard } from "./ScoreInputs";
+import { ShortlistTable } from "./ShortlistTable";
 
-type SearchParams = Promise<{ min?: string | string[] }>;
+type Param = string | string[] | undefined;
+type SearchParams = Promise<{ min?: Param; view?: Param; minw?: Param }>;
+
+const first = (raw: Param) => (Array.isArray(raw) ? raw[0] : raw);
+
+function parseMinWeighted(raw: Param): number | undefined {
+  const text = first(raw);
+  if (text === undefined || text.trim() === "") return undefined;
+  const value = Number(text);
+  return Number.isInteger(value) && value >= 0 && value <= 100 ? value : undefined;
+}
 
 function optionLabel(min: number, total: number): string {
   if (min >= total) return `Covers all ${total}`;
@@ -43,9 +56,19 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
     .filter((s) => s.eventId === session.eventId && s.companyId === company.id)
     .map((s) => s.applicantId);
   const pseudonym = (id: string) => db.applicants.find((a) => a.id === id)?.pseudonym ?? id;
-  const shown = filterByCoverage(db, company.id, signalled, min).sort((a, b) =>
-    pseudonym(a).localeCompare(pseudonym(b)),
-  );
+  const minWeighted = parseMinWeighted(params.minw);
+  const tableView = first(params.view) === "table";
+  const result = shortlist(db, company.id, signalled, { minCovered: min, minWeighted });
+  const shown = [...result.scored, ...result.notScored]
+    .map((r) => r.applicantId)
+    .sort((a, b) => pseudonym(a).localeCompare(pseudonym(b)));
+  const coreIds = coreRequirements(db, company.id).map((r) => r.id);
+  const queryFor = (view: string) => {
+    const q = new URLSearchParams({ view });
+    if (min > 0) q.set("min", String(min));
+    if (minWeighted !== undefined) q.set("minw", String(minWeighted));
+    return `?${q.toString()}`;
+  };
 
   const left = companyOpenSlots(db, session.eventId, company.id);
   const slotTotal = companyCalendar(db, session.eventId, company.id).total;
@@ -73,6 +96,7 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
         Anonymous evidence cards, in alphabetical order. No names, no photos, no AI score. You choose who to meet.
       </PageHeader>
       <form method="get" className="panel mt-8 flex flex-wrap items-center gap-3">
+        <input type="hidden" name="view" value={tableView ? "table" : "cards"} />
         <label htmlFor="min" className="label">Coverage</label>
         <select
           id="min"
@@ -86,18 +110,43 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
             </option>
           ))}
         </select>
+        <label htmlFor="minw" className="label">Weighted score at least</label>
+        <input
+          id="minw"
+          name="minw"
+          type="number"
+          min={0}
+          max={100}
+          defaultValue={minWeighted ?? ""}
+          className="field field-inline w-24"
+        />
         <button type="submit" className="btn">
           Apply
         </button>
         <span className="hint ml-auto">{shown.length} shown</span>
         <RefreshButton />
       </form>
-      {shown.length === 0 ? (
+      <nav aria-label="View" className="mt-4 flex gap-2">
+        <Link href={queryFor("table")} className={tableView ? "btn btn-primary btn-sm" : "btn btn-sm"} aria-current={tableView ? "page" : undefined}>Table</Link>
+        <Link href={queryFor("cards")} className={tableView ? "btn btn-sm" : "btn btn-primary btn-sm"} aria-current={tableView ? undefined : "page"}>Cards</Link>
+      </nav>
+      {tableView ? (
+        shown.length === 0 ? (
+          <p className="empty-slot mt-6">No applicants match. Try a lower coverage.</p>
+        ) : (
+          <ShortlistTable
+            scored={result.scored}
+            notScored={result.notScored}
+            requirementIds={coreIds}
+            cardsHref={queryFor("cards")}
+          />
+        )
+      ) : shown.length === 0 ? (
         <p className="empty-slot mt-6">No applicants match. Try a lower coverage.</p>
       ) : (
         <ul className="mt-6 space-y-6">
           {shown.map((id) => (
-            <li key={id}>
+            <li key={id} id={`card-${id}`}>
               <ScoredCard
                 coverageText={`Covers ${coverage(db, company.id, id).covered} of ${total}`}
                 card={buildCard(db, company.id, id)}

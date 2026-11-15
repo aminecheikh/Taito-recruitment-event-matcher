@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { makeDb } from "./fixtures";
-import { setScore, totalScore } from "./scores";
+import { rankWeights, setScore, shortlist, weightedScore } from "./scores";
 import type { Db, Score } from "./types";
 
 const score = (requirementId: string, value: number, stage: Score["stage"] = "card"): Score => ({
@@ -15,13 +15,6 @@ function apply(db: Db, scores: Score[]): Db {
 }
 
 describe("scores", () => {
-  test("totalScore_partlyScored_isUndefined", () =>
-    expect(totalScore(apply(makeDb(), [score("req-01-1", 8)]), "company-01", "talent-017", "card")).toBeUndefined());
-  test("totalScore_allCoreScored_sumsOutOfTenTimesCore", () => {
-    const full = apply(makeDb(), [score("req-01-1", 8), score("req-01-2", 7), score("req-01-3", 6), score("req-01-4", 8)]);
-    expect(totalScore(full, "company-01", "talent-017", "card")).toEqual({ total: 29, max: 40 });
-    expect(totalScore(full, "company-01", "talent-017", "conversation")).toBeUndefined();
-  });
   test("setScore_sameKey_upsertsWithoutMutatingInput", () => {
     const db = apply(makeDb(), [score("req-01-1", 3)]);
     const before = JSON.stringify(db);
@@ -36,9 +29,60 @@ describe("scores", () => {
     expect(setScore(makeDb(), score("req-01-5", 5))).toEqual({ ok: false, error: "not-core" }));
   test.each([-1, 11, 5.5])("setScore_value_%s_rejects", (v) =>
     expect(setScore(makeDb(), score("req-01-1", v)).ok).toBe(false));
-  test("totalScore_scoreForDemotedRequirement_ignored", () => {
-    const full = apply(makeDb(), [score("req-01-1", 8), score("req-01-2", 7), score("req-01-3", 6), score("req-01-4", 8)]);
-    const demoted: Db = { ...full, requirements: full.requirements.map((r) => (r.id === "req-01-4" ? { ...r, isCore: false } : r)) };
-    expect(totalScore(demoted, "company-01", "talent-017", "card")).toEqual({ total: 21, max: 30 });
+});
+
+const scoreFor = (applicantId: string, requirementId: string, value: number): Score => ({
+  companyId: "company-01", applicantId, requirementId, stage: "card", value,
+});
+const scoreAll = (db: Db, values: number[], applicantId = "talent-017") =>
+  apply(db, values.map((v, i) => scoreFor(applicantId, `req-01-${i + 1}`, v)));
+
+describe("rankWeights", () => {
+  test("rankWeights_fourCore_givesFourThreeTwoOne", () =>
+    expect([...rankWeights(makeDb(), "company-01")]).toEqual([["req-01-1", 4], ["req-01-2", 3], ["req-01-3", 2], ["req-01-4", 1]]));
+  test("rankWeights_nonContiguousRanks_weighsByPosition", () => {
+    const ranks: Record<string, [number, boolean]> = { "req-01-1": [1, true], "req-01-2": [2, true], "req-01-3": [3, false], "req-01-4": [4, true], "req-01-5": [5, false], "req-01-6": [6, true] };
+    const db = makeDb();
+    const spread: Db = { ...db, requirements: db.requirements.map((r) => ({ ...r, rank: ranks[r.id][0], isCore: ranks[r.id][1] })) };
+    expect([...rankWeights(spread, "company-01")]).toEqual([["req-01-1", 4], ["req-01-2", 3], ["req-01-4", 2], ["req-01-6", 1]]);
+  });
+});
+
+describe("weightedScore", () => {
+  test("weightedScore_onlyTopRequirementFull_is40", () =>
+    expect(weightedScore(scoreAll(makeDb(), [10, 0, 0, 0]), "company-01", "talent-017", "card")).toBe(40));
+  test("weightedScore_strongOnAllButFirst_is60", () =>
+    expect(weightedScore(scoreAll(makeDb(), [0, 10, 10, 10]), "company-01", "talent-017", "card")).toBe(60));
+  test("weightedScore_allTen_is100", () =>
+    expect(weightedScore(scoreAll(makeDb(), [10, 10, 10, 10]), "company-01", "talent-017", "card")).toBe(100));
+  test("weightedScore_oneMissing_isUndefined", () =>
+    expect(weightedScore(scoreAll(makeDb(), [10, 10, 10]), "company-01", "talent-017", "card")).toBeUndefined());
+  test("weightedScore_noCore_isUndefined", () => {
+    const db = makeDb();
+    const none: Db = { ...db, requirements: db.requirements.map((r) => ({ ...r, isCore: false })) };
+    expect(weightedScore(none, "company-01", "talent-017", "card")).toBeUndefined();
+  });
+});
+
+describe("shortlist", () => {
+  const ids = ["talent-017", "talent-020"];
+  test("shortlist_minWeighted_hidesLowScoredButKeepsNotScored", () => {
+    const db = scoreAll(makeDb(), [1, 1, 1, 1], "talent-017");
+    const result = shortlist(db, "company-01", ids, { minCovered: 0, minWeighted: 60 });
+    expect(result.scored).toEqual([]);
+    expect(result.notScored.map((r) => r.applicantId)).toEqual(["talent-020"]);
+    const all = shortlist(db, "company-01", ids, { minCovered: 0 });
+    expect(all.scored.map((r) => r.applicantId)).toEqual(["talent-017"]);
+    expect(all.scored[0].weighted).toBe(10);
+  });
+  test("shortlist_coverageFilter_appliesToBothGroups", () => {
+    const db = scoreAll(makeDb(), [9, 9, 9, 9], "talent-017");
+    const result = shortlist(db, "company-01", ids, { minCovered: 3 });
+    expect(result.scored).toEqual([]);
+    expect(result.notScored.map((r) => r.applicantId)).toEqual(["talent-020"]);
+  });
+  test("shortlist_scored_sortsByWeightedDescending", () => {
+    const db = scoreAll(scoreAll(makeDb(), [2, 2, 2, 2], "talent-017"), [8, 8, 8, 8], "talent-020");
+    expect(shortlist(db, "company-01", ids, { minCovered: 0 }).scored.map((r) => r.applicantId)).toEqual(["talent-020", "talent-017"]);
   });
 });
