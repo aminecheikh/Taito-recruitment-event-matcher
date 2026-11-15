@@ -28,19 +28,22 @@ function scoreValue(db: Db, companyId: string, applicantId: string, requirementI
   )?.value;
 }
 
+/**
+ * Scores listed in the recruiter's core order (#1 first), weighted N … 1, out of 100.
+ * Undefined until every value is present. Pure, so the card (client) and the table (server) agree.
+ */
+export function weightedFromValues(valuesInRankOrder: readonly (number | undefined)[]): number | undefined {
+  if (valuesInRankOrder.length === 0 || valuesInRankOrder.some((v) => v === undefined)) return undefined;
+  const n = valuesInRankOrder.length;
+  const earned = valuesInRankOrder.reduce<number>((sum, v, i) => sum + (v ?? 0) * (n - i), 0);
+  const possible = (MAX_PER_REQUIREMENT * n * (n + 1)) / 2;
+  return Math.round((100 * earned) / possible);
+}
+
 /** Recruiter's own scores weighted by their ranking, out of 100. Undefined until every core requirement is scored. */
 export function weightedScore(db: Db, companyId: string, applicantId: string, stage: Score["stage"]): number | undefined {
-  const weights = rankWeights(db, companyId);
-  if (weights.size === 0) return undefined;
-  let earned = 0;
-  let possible = 0;
-  for (const [requirementId, weight] of weights) {
-    const value = scoreValue(db, companyId, applicantId, requirementId, stage);
-    if (value === undefined) return undefined;
-    earned += value * weight;
-    possible += MAX_PER_REQUIREMENT * weight;
-  }
-  return Math.round((100 * earned) / possible);
+  const values = coreRequirements(db, companyId).map((r) => scoreValue(db, companyId, applicantId, r.id, stage));
+  return weightedFromValues(values);
 }
 
 export type ShortlistRow = {

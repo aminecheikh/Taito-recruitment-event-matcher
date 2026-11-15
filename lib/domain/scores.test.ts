@@ -1,7 +1,25 @@
 import { describe, expect, test } from "vitest";
 import { makeDb } from "./fixtures";
-import { rankWeights, setScore, shortlist, weightedScore } from "./scores";
+import { rankWeights, setScore, shortlist, weightedFromValues, weightedScore } from "./scores";
 import type { Db, Score } from "./types";
+
+describe("weightedFromValues", () => {
+  test("weightedFromValues_onlyFirstFull_is40", () => {
+    expect(weightedFromValues([10, 0, 0, 0])).toBe(40);
+  });
+  test("weightedFromValues_allButFirstFull_is60", () => {
+    expect(weightedFromValues([0, 10, 10, 10])).toBe(60);
+  });
+  test("weightedFromValues_allEight_is80", () => {
+    expect(weightedFromValues([8, 8, 8, 8])).toBe(80);
+  });
+  test("weightedFromValues_oneMissing_isUndefined", () => {
+    expect(weightedFromValues([8, undefined, 8, 8])).toBeUndefined();
+  });
+  test("weightedFromValues_empty_isUndefined", () => {
+    expect(weightedFromValues([])).toBeUndefined();
+  });
+});
 
 const score = (requirementId: string, value: number, stage: Score["stage"] = "card"): Score => ({
   companyId: "company-01", applicantId: "talent-017", requirementId, stage, value,

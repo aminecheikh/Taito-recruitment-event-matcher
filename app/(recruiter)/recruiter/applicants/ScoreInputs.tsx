@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { requestMeetingAction, scoreAction } from "@/app/actions/recruiter";
 import type { Card } from "@/lib/domain/cards";
+import { weightedFromValues } from "@/lib/domain/scores";
 import { EvidenceCard } from "./EvidenceCard";
 
-const MAX_PER_REQUIREMENT = 10;
 const button = "btn";
 
 export function RefreshButton() {
@@ -48,8 +48,8 @@ export function ScoredCard({ card, initialScores, meetingRequested, slotsLeft, c
       router.refresh();
     });
 
-  const allScored = card.slots.length > 0 && card.slots.every((s) => scores[s.requirement.id] !== undefined);
-  const total = card.slots.reduce((sum, s) => sum + (scores[s.requirement.id] ?? 0), 0);
+  // Slots are in the recruiter's core order, so this matches the table's weighted score.
+  const weighted = weightedFromValues(card.slots.map((s) => scores[s.requirement.id]));
 
   return (
     <div>
@@ -60,10 +60,8 @@ export function ScoredCard({ card, initialScores, meetingRequested, slotsLeft, c
         meta={coverageText ? <span className="tag">{coverageText}</span> : undefined}
         footer={
           <>
-            {allScored && (
-              <p className="mr-auto font-medium">
-                Your total {total} / {MAX_PER_REQUIREMENT * card.slots.length}
-              </p>
+            {weighted !== undefined && (
+              <p className="mr-auto font-medium">Your weighted score {weighted} / 100</p>
             )}
             <button
               type="button"
