@@ -37,6 +37,13 @@ export const PERSONAL_DATA_FIELDS: readonly PersonalDataField[] = [
     deletedWhen: ON_REQUEST,
   },
   {
+    collection: "applicants",
+    field: "wantsMovingHelp",
+    purpose: "Your choice to get pointers on permits and moving, so the company can offer help after a match",
+    whoSees: "You; the company only after you both decide to continue",
+    deletedWhen: ON_REQUEST,
+  },
+  {
     collection: "stories",
     field: "body",
     purpose: "Your own words about what you have done, the evidence behind your answers",

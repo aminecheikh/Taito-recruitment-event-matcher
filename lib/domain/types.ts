@@ -52,6 +52,7 @@ export const ApplicantSchema = z.object({
   pseudonym: z.string(),
   displayName: z.string(),
   contact: z.object({ email: z.string() }),
+  wantsMovingHelp: z.boolean().optional(),
 });
 
 export const LanguageLabelSchema = z.union([
