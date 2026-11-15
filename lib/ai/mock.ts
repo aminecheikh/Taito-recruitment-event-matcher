@@ -72,6 +72,14 @@ export const FOLLOW_UP_LADDER: readonly string[] = [
   "What did you learn that you do differently now?",
 ];
 
+// Recruiter-facing recall questions: help the recruiter describe the in-practice line themselves.
+export const RECRUITER_LADDER: readonly string[] = [
+  "Think of someone who did this well on your team. What did they actually do?",
+  "What goes wrong in the first month if a new hire lacks this?",
+  "How would you notice this in a 15-minute conversation?",
+  "Could someone learn this in their first three months?",
+];
+
 /** Offline stand-in: one requirement per line of the ad, no inPractice note. */
 export function mockExtractRequirements(jobAd: string): ExtractedRequirement[] {
   return jobAd
@@ -84,6 +92,10 @@ export function mockExtractRequirements(jobAd: string): ExtractedRequirement[] {
 
 export function mockNextFollowUpQuestion(history: readonly unknown[]): string {
   return FOLLOW_UP_LADDER[Math.min(history.length, FOLLOW_UP_LADDER.length - 1)];
+}
+
+export function mockNextRecruiterQuestion(history: readonly unknown[]): string {
+  return RECRUITER_LADDER[Math.min(history.length, RECRUITER_LADDER.length - 1)];
 }
 
 export function mockSuggestLinks(

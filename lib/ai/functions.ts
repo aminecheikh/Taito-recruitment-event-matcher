@@ -16,11 +16,13 @@ import {
   mockCvSuggestions,
   mockExtractRequirements,
   mockNextFollowUpQuestion,
+  mockNextRecruiterQuestion,
   mockSuggestLinks,
 } from "./mock";
 import * as cvPrompt from "./prompts/cvSuggestions";
 import * as extractPrompt from "./prompts/extractRequirements";
 import * as followUpPrompt from "./prompts/nextFollowUpQuestion";
+import * as recruiterPrompt from "./prompts/recruiterFollowUpQuestion";
 import * as languagePrompt from "./prompts/languageAssist";
 import * as linksPrompt from "./prompts/suggestLinks";
 import { getModel } from "./provider";
@@ -158,6 +160,25 @@ export function createAiFunctions(getModelFn: GetModel) {
     );
   }
 
+  function nextRecruiterQuestion(input: {
+    requirementText: string;
+    inPractice: string;
+    history: { question: string; answer: string }[];
+  }): Promise<AiResult<string>> {
+    return resolve(
+      async (model) => {
+        const { question } = await generate(
+          model,
+          QuestionSchema,
+          recruiterPrompt.system,
+          recruiterPrompt.buildUser(input),
+        );
+        return cleanQuestion(question, input.inPractice);
+      },
+      () => mockNextRecruiterQuestion(input.history),
+    );
+  }
+
   function suggestLinks(input: {
     story: Pick<Story, "id" | "body">;
     requirements: Pick<Requirement, "id" | "companyId" | "text" | "inPractice">[];
@@ -218,8 +239,8 @@ export function createAiFunctions(getModelFn: GetModel) {
     );
   }
 
-  return { extractRequirements, nextFollowUpQuestion, suggestLinks, cvSuggestions, languageAssist };
+  return { extractRequirements, nextFollowUpQuestion, nextRecruiterQuestion, suggestLinks, cvSuggestions, languageAssist };
 }
 
-export const { extractRequirements, nextFollowUpQuestion, suggestLinks, cvSuggestions, languageAssist } =
+export const { extractRequirements, nextFollowUpQuestion, nextRecruiterQuestion, suggestLinks, cvSuggestions, languageAssist } =
   createAiFunctions(getModel);
