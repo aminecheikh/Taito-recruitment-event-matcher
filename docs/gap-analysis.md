@@ -1,6 +1,6 @@
 # Gap Analysis — what we have, what we don't
 
-Date: 2026-11-14, 21:00 · Checked against [technical-requirements.md](technical-requirements.md) at commit `801ca70`.
+Statuses updated 2026-11-15 after the pre-freeze slices; first written 2026-11-14, 21:00 · Checked against [technical-requirements.md](technical-requirements.md) at commit `801ca70`.
 Method: read `lib/domain`, `lib/ai`, `lib/store`, `app/actions`, the pages and the seed data; ran `scripts/check.sh` (green, 22 test files, 208 tests). The UI was not clicked through, so screen-level claims come from the code.
 
 Legend: ✅ built · 🟡 partly built · ❌ not built · ⏸ open product decision
@@ -27,7 +27,7 @@ Legend: ✅ built · 🟡 partly built · ❌ not built · ⏸ open product deci
 
 | ID | Status | Evidence / gap |
 |---|---|---|
-| FR-T1 Stories in own words | 🟡 | Create and edit work. **No delete story** |
+| FR-T1 Stories in own words | ✅ | Create, edit and **Delete story** (2026-11-15) |
 | FR-T2 One follow-up question | ✅ | `cleanQuestion` enforces exactly one question, no scoring words |
 | FR-T3 Grammar / translate with label | ✅ | Label persists on the card. Known limit: label honesty enforced in the UI only (no auth), documented in `constraints.md` |
 | FR-T4 AI link suggestions | ✅ | ≤ 3, reason required, unknown ids and scoring language dropped |
@@ -45,7 +45,7 @@ Legend: ✅ built · 🟡 partly built · ❌ not built · ⏸ open product deci
 | FR-S4 Coverage filter, rule visible to applicants | ✅ | R2 filter, list sorted alphabetically by pseudonym (no hidden order); rule sentence on `applicant/signals` |
 | FR-S5 Recruiter card scores | ✅ | `setScore` core-only, 0–10; total only when complete |
 | FR-S6 Request → accept → name revealed | ✅ | `requestMeeting` checks signal + slots; `acceptMeeting` |
-| FR-S7 Screening at volume | ⏸ | Two teammates researching |
+| FR-S7 Screening at volume | ✅ | Decided 2026-11-15: rank-weighted score out of 100 plus "Weighted score at least" filter; unscored never hidden (`lib/domain/scores.ts`) |
 
 ### Event day
 
@@ -64,22 +64,22 @@ Legend: ✅ built · 🟡 partly built · ❌ not built · ⏸ open product deci
 | FR-A2 Blind decisions, joint reveal | ✅ | `recordDecision` / `revealDecisions` |
 | FR-A3 Each side chooses what to share | ✅ | `saveShare` only after a match; applicant picks email / CV / portfolio |
 | FR-A4 Feedback line per core requirement | ✅ | Required when the company says no |
-| FR-A5 Keep / export library | ❌ | Library persists in the store, but there is no export |
+| FR-A5 Keep / export library | ✅ | **Download my data** (JSON) on `/privacy` |
 
 ### Organiser
 
 | ID | Status | Evidence / gap |
 |---|---|---|
 | FR-O1 Who needs help | ✅ | `needsHelp`, alphabetical, no scores; "offer coaching" button |
-| FR-O2 Companies late with requirements | ❌ | Symmetric counterpart of O1 is missing (pain point PP2 + symmetry rule) |
-| FR-O3 Event aggregates | ❌ | Nothing answers PP1 |
-| FR-O4 International support pointers | ❌ | Nothing answers PP9 beyond translation |
+| FR-O2 Companies late with requirements | ✅ | `/staff` lists companies without core requirements, **Send reminder** |
+| FR-O3 Event aggregates | ✅ | Pool strip for recruiters and `/staff/insights` (shows "Too few to compare yet" under 5 signals per group) |
+| FR-O4 International support pointers | ✅ | Opt-in moving help, shown to the company only after both continue, with resource links |
 
 ### AI
 
 | ID | Status | Evidence / gap |
 |---|---|---|
-| AI-1 No scoring/ranking by AI | ✅ | No AI function returns a number about a person; guardrails strip scoring language |
+| AI-1 No scoring/ranking by AI | ✅ | No AI function returns a number about a person; guardrails strip scoring language. Input guard (2026-11-15) refuses job-ad text that asks the AI to judge people |
 | AI-2 AI never writes content | ✅ | Only questions, link reasons, labelled language edits |
 | AI-3 AI labelled, user told | ✅ | `tag-ai` / `ai-panel` on all 5 AI surfaces; "You're talking to an AI" banner on stories |
 | AI-4 Schema-validated output | ✅ | zod `Output.object` + `schema.parse` + guardrails |
@@ -95,11 +95,11 @@ Legend: ✅ built · 🟡 partly built · ❌ not built · ⏸ open product deci
 | ID | Status | Evidence / gap |
 |---|---|---|
 | DP-1 Synthetic data | ✅ | 4 companies (34 requirements), 8 applicants, 20 stories, 1 event; pre-commit hook guards email domains |
-| DP-2 Purpose per personal field | ❌ | No purposes written in `types.ts` or shown anywhere in the UI |
+| DP-2 Purpose per personal field | ✅ | Field table with purposes on `/privacy` (`lib/domain/privacy.ts`) |
 | DP-3 No protected attributes in matching | ✅ | Fields don't exist |
 | DP-4 Name hidden until booked | ✅ | Tested |
 | DP-5 Retention window | ❌ | — |
-| DP-6 Export / delete my data | ❌ | No export; stories can't be deleted |
+| DP-6 Export / delete my data | ✅ | **Download my data**, **Delete all my data**, **Delete story** |
 | DP-7 Scores visible only to that company | ✅ | Recruiter pages filter by `session.companyId`; applicant pages don't read scores |
 | DP-8 Secrets | ✅ | `.env` + `.env.example`, pre-commit key scan |
 
@@ -127,7 +127,7 @@ Legend: ✅ built · 🟡 partly built · ❌ not built · ⏸ open product deci
 
 | Pain point | Coverage |
 |---|---|
-| PP1 Companies don't trust the city's pool | ❌ Nothing on screen |
+| PP1 Companies don't trust the city's pool | ✅ Pool strip and event insights |
 | PP2 Needs described late / unclearly | 🟡 Clear: yes (core + in practice + extraction). Late: no cut-off or staff nudge |
 | PP3 Organisers can't see real capability | ✅ Evidence cards |
 | PP4 Companies flooded | ✅ Scarce signals + coverage filter + slots |
@@ -135,7 +135,7 @@ Legend: ✅ built · 🟡 partly built · ❌ not built · ⏸ open product deci
 | PP6 AI-written CVs read by AI | ✅ No CVs; own words; labelled edits |
 | PP7 Cumbersome platforms | ✅ No matching settings to configure |
 | PP8 Crash at event start | 🟡 Print card only |
-| PP9 International complexity | 🟡 Translation only |
+| PP9 International complexity | ✅ Translation, opt-in moving help after a match |
 
 ## Recommended next slices (smallest effort, biggest judging impact)
 

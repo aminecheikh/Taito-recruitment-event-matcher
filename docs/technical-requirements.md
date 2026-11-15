@@ -58,7 +58,7 @@ Rules from the brief: **R-HUMAN** no automated profiling or decisions about indi
 | FR-S4 | Recruiter filters by coverage (all core requirements first, then one fewer, …) | Deterministic; the rule is shown to applicants in advance | PP4, R-HUMAN | MVP |
 | FR-S5 | Recruiter may score each card 0–10 per core requirement | Entered by the recruiter only; total shown only when every core requirement is scored; visible only to that company | PP3, R-HUMAN | MVP |
 | FR-S6 | Recruiter requests a meeting; applicant accepts; name revealed only when booked | Two-sided opt-in; booking blocked when slots are full | PP4, R-HUMAN | MVP |
-| FR-S7 | Screening guidance when more applicants cover all requirements than there are slots | Open: being researched by two teammates. Must not cut on requirement #1 alone | PP4 | Open |
+| FR-S7 | Screening guidance when more applicants cover all requirements than there are slots | Decided 2026-11-15: rank-weighted score, no cut on #1 alone | PP4 | Built ✅ |
 
 ### 1.4 During the event
 
@@ -77,16 +77,16 @@ Rules from the brief: **R-HUMAN** no automated profiling or decisions about indi
 | FR-A2 | Each side independently says continue / not; answers revealed together | Neither side sees the other's answer before both submit; match = both continue | R-HUMAN | MVP |
 | FR-A3 | On match, each side chooses what to share | Applicant: contact, CV, links; company: contact person, next step, timeline. Nothing shared without the owner's action | R-MIN | MVP |
 | FR-A4 | On no match, recruiter writes one human feedback line per core requirement | Shown to applicant after reveal; AI does not write it | PP5, R-HUMAN | MVP |
-| FR-A5 | Applicant keeps their story library for the next event | Stories survive event deletion; export and delete available | PP5, R-MIN | Pitch |
+| FR-A5 | Applicant keeps their story library for the next event | Stories survive event deletion; export and delete available | PP5, R-MIN | Built ✅ |
 
 ### 1.6 Organiser (City of Espoo staff)
 
 | ID | Requirement | Acceptance criteria | Source | Scope |
 |---|---|---|---|---|
 | FR-O1 | Staff see who needs help (0 stories or 0 accepted links) and offer a human coaching session | Alphabetical by pseudonym; no scores, no ranking | PP3, PP5 | MVP |
-| FR-O2 | Staff see which companies have not set core requirements by the cut-off | List with days remaining | PP2 | Pitch |
-| FR-O3 | Event-level aggregates for organisers and companies (signals per company, coverage gaps across the event, match rate) | Aggregates only, never per-person; used to show companies the value of the city's pool | PP1 | Pitch |
-| FR-O4 | International-recruitment support pointers attached to a match (permits, relocation, onboarding services) | Static, curated links from public services; shown to both sides after a match | PP9 | Pitch |
+| FR-O2 | Staff see which companies have not set core requirements by the cut-off | List with days remaining | PP2 | Built ✅ |
+| FR-O3 | Event-level aggregates for organisers and companies (signals per company, coverage gaps across the event, match rate) | Aggregates only, never per-person; used to show companies the value of the city's pool | PP1 | Built ✅ |
+| FR-O4 | International-recruitment support pointers attached to a match (permits, relocation, onboarding services) | Static, curated links from public services; shown to the company after a match, only if the applicant opted in | PP9 | Built ✅ |
 
 ---
 
@@ -110,11 +110,11 @@ Rules from the brief: **R-HUMAN** no automated profiling or decisions about indi
 | ID | Requirement | Acceptance criteria | Source |
 |---|---|---|---|
 | DP-1 | All data is synthetic and obviously fictional | Companies end in "(fictional)"; reserved email domains only (pre-commit hook enforces); follows `data/synthetic/README.md` | R-SYNTH |
-| DP-2 | Every personal-data field has a stated purpose | Purpose noted next to each field in `lib/domain/types.ts` | R-MIN, GDPR Art. 5 |
+| DP-2 | Every personal-data field has a stated purpose | Purpose noted next to each field in `lib/domain/types.ts` | R-MIN, GDPR Art. 5 ✅ built |
 | DP-3 | No matching feature uses nationality, language of origin, age, gender, name, photo or education institution | These fields don't exist or aren't read by matching/link code | R-FAIR |
 | DP-4 | Identity is hidden until a meeting is booked | `visibleApplicantName` returns pseudonym unless `booked`; tested | R-FAIR, R-MIN |
 | DP-5 | Retention: event data not carried into a match is deleted after a fixed window (e.g. 30 days) | Window configurable per event | GDPR Art. 5(1)(e) |
-| DP-6 | Applicant can export and delete their library at any time | JSON export; hard delete | GDPR Art. 15, 17, 20 |
+| DP-6 | Applicant can export and delete their library at any time | JSON export; hard delete | GDPR Art. 15, 17, 20 ✅ built |
 | DP-7 | Recruiter scores are visible only to recruiters of that company | Not exposed on applicant or staff routes | R-MIN |
 | DP-8 | Secrets in `.env` only; repo is public at judging | `.env.example` lists names only; pre-commit blocks keys | Security |
 
@@ -161,7 +161,7 @@ Test the logic whose failure would embarrass us in the demo (AGENTS.md); no cove
 
 ## 7. Open questions
 
-- Screening at volume and the scoring guide (FR-S7): being researched by two teammates.
+- Screening at volume (FR-S7): decided 2026-11-15, weighted score. Scoring guide (how to read 0–10): still open.
 - Does the applicant see their scores or only the feedback lines?
 - Number of signals per applicant and meeting slots per company: confirm with Espoo mentors.
 - How to address PP1 (company engagement) beyond aggregates: ask Espoo mentors what would convince a company.
