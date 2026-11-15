@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageHeader } from "@/app/components/PageHeader";
+import { ReminderBanner } from "@/app/components/ReminderBanner";
 import { buildCard, coverage } from "@/lib/domain/cards";
 import { companyCalendar, companyOpenSlots } from "@/lib/domain/calendar";
 import { coreRequirements } from "@/lib/domain/requirements";
@@ -95,6 +96,7 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
       >
         Anonymous evidence cards, in alphabetical order. No names, no photos, no AI score. You choose who to meet.
       </PageHeader>
+      <ReminderBanner />
       <form method="get" className="panel mt-8 flex flex-wrap items-center gap-3">
         <input type="hidden" name="view" value={tableView ? "table" : "cards"} />
         <label htmlFor="min" className="label">Coverage</label>

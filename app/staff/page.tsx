@@ -4,6 +4,48 @@ import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
 import { OfferButton } from "./OfferButton";
 import { applicantsAt } from "@/lib/domain/attendance";
+import { companiesNotAtEvent, companiesWithoutCore, type CompanyRef } from "@/lib/domain/reminders";
+import type { Db } from "@/lib/domain/types";
+import { ReminderButton } from "./ReminderButton";
+
+type Kind = "set-requirements" | "join-event";
+
+function CompanyList(props: {
+  db: Db;
+  eventId: string;
+  kind: Kind;
+  title: string;
+  empty: string;
+  buttonLabel: string;
+  companies: CompanyRef[];
+}) {
+  const { db, eventId, kind, title, empty, buttonLabel, companies } = props;
+  return (
+    <section className="mt-10" aria-labelledby={`list-${kind}`}>
+      <h2 id={`list-${kind}`} className="h2">{title}</h2>
+      {companies.length === 0 ? (
+        <p className="empty-slot mt-4">{empty}</p>
+      ) : (
+        <ul className="card mt-4 !py-2">
+          {companies.map((company) => (
+            <li key={company.companyId} className="flex flex-wrap items-center justify-between gap-3 border-b border-line py-3 last:border-b-0">
+              <span className="font-semibold">{company.name}</span>
+              <ReminderButton
+                companyId={company.companyId}
+                name={company.name}
+                kind={kind}
+                label={buttonLabel}
+                alreadySent={db.reminders.some(
+                  (r) => r.eventId === eventId && r.companyId === company.companyId && r.kind === kind,
+                )}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
 
 export default async function StaffPage() {
   // Pass only the row fields the table needs; never the whole Db to the client.
@@ -57,6 +99,25 @@ export default async function StaffPage() {
         </table>
         </div>
       )}
+
+      <CompanyList
+        db={db}
+        eventId={session.eventId}
+        kind="set-requirements"
+        title="Companies without core requirements"
+        empty="Every company at this event has set its core requirements."
+        buttonLabel="Send reminder"
+        companies={companiesWithoutCore(db, session.eventId)}
+      />
+      <CompanyList
+        db={db}
+        eventId={session.eventId}
+        kind="join-event"
+        title="Companies not at this event yet"
+        empty="Every company is already at this event."
+        buttonLabel="Invite"
+        companies={companiesNotAtEvent(db, session.eventId)}
+      />
     </main>
   );
 }
