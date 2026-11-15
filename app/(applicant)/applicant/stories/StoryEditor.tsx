@@ -48,7 +48,7 @@ export function AiBanner() {
   );
 }
 
-export function StoryEditor({ story, initialTitle = "" }: { story: Story | null; initialTitle?: string }) {
+export function StoryEditor({ story, initialTitle = "", deleteEnabled = true }: { story: Story | null; initialTitle?: string; deleteEnabled?: boolean }) {
   const [title, setTitle] = useState(story?.title ?? initialTitle);
   const [body, setBody] = useState(story?.body ?? "");
   const [label, setLabel] = useState<LanguageLabel | undefined>(story?.languageLabel);
@@ -103,7 +103,7 @@ export function StoryEditor({ story, initialTitle = "" }: { story: Story | null;
           {story ? "Save story" : "Add story"}
         </button>
         {story ? (
-          <button type="button" className="btn btn-danger" onClick={remove} disabled={pending}>Delete story</button>
+          <button type="button" className="btn btn-danger" onClick={remove} disabled={pending || !deleteEnabled} title={deleteEnabled ? undefined : "Deleting is turned off on the shared demo."}>Delete story</button>
         ) : null}
         {notice ? (
           <p role={notice.kind === "error" ? "alert" : "status"} className={notice.kind === "error" ? "font-medium text-danger" : "font-medium text-success"}>

@@ -5,6 +5,7 @@ type Props = {
   scored: ShortlistRow[];
   notScored: ShortlistRow[];
   requirementIds: string[];
+  requirementTexts: string[];
   cardsHref: string;
 };
 
@@ -35,7 +36,7 @@ function Rows({ rows, requirementIds, cardsHref }: { rows: ShortlistRow[]; requi
 }
 
 /** Recruiter-only table of their own scores. Nothing here is computed or ranked by AI. */
-export function ShortlistTable({ scored, notScored, requirementIds, cardsHref }: Props) {
+export function ShortlistTable({ scored, notScored, requirementIds, requirementTexts, cardsHref }: Props) {
   return (
     <div className="mt-6">
       <p className="hint">{legend(requirementIds.length)}</p>
@@ -46,7 +47,9 @@ export function ShortlistTable({ scored, notScored, requirementIds, cardsHref }:
               <th scope="col" className="label pb-2 pr-4">Applicant</th>
               <th scope="col" className="label pb-2 pr-4">Coverage</th>
               {requirementIds.map((id, i) => (
-                <th key={id} scope="col" className="label pb-2 pr-4">#{i + 1}</th>
+                <th key={id} scope="col" className="label pb-2 pr-4" title={requirementTexts[i]}>
+                  #{i + 1}<span className="sr-only">: {requirementTexts[i]}</span>
+                </th>
               ))}
               <th scope="col" className="label pb-2">Weighted</th>
             </tr>

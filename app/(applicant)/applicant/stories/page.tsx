@@ -1,5 +1,6 @@
 import { PageHeader } from "@/app/components/PageHeader";
 import { coreIdsAtEvent } from "@/lib/domain/attendance";
+import { resetEnabled } from "@/lib/demoReset";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
 import { NewStorySection, type RequirementInfo } from "./NewStorySection";
@@ -37,7 +38,7 @@ export default async function StoriesPage() {
       <ul className="mt-8 space-y-8">
         {stories.map((story) => (
           <li key={story.id}>
-            <StoryEditor key={story.id} story={story} />
+            <StoryEditor key={story.id} story={story} deleteEnabled={resetEnabled()} />
           </li>
         ))}
       </ul>

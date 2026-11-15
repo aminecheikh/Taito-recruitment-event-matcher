@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { z } from "zod";
 import type { RequirementInfo } from "./NewStorySection";
+import { truncateTitle } from "./truncateTitle";
 import { FALLBACK_NOTICE, buttonClass, fieldClass, primaryClass } from "./ui";
 
 const CV_URL = "/api/ai/cv-suggestions";
 const MIN_CV_CHARS = 50;
 const MAX_CV_CHARS = 15000;
-const HINT = "Paste your CV, LinkedIn About text or your own posts. It is not saved.";
+const HINT = "Paste your CV, LinkedIn About text or your own posts. Remove your name and contact details first. It is not saved.";
 
 const ResponseSchema = z.object({
   value: z.object({
@@ -77,7 +78,7 @@ export function CvPanel({ requirementInfo, onStart }: Props) {
                   <li key={s.excerpt} className="card">
                     <p className="font-serif">&ldquo;{s.excerpt}&rdquo;</p>
                     <p className="mt-1 text-muted">{s.question}</p>
-                    <button type="button" className={`${buttonClass} btn-sm mt-3`} onClick={() => onStart(s.excerpt)}>Start this story</button>
+                    <button type="button" className={`${buttonClass} btn-sm mt-3`} onClick={() => onStart(truncateTitle(s.excerpt))}>Start this story</button>
                   </li>
                 ))}
               </ul>
