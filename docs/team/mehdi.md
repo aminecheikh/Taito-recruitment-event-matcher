@@ -4,7 +4,7 @@
 <!-- Update Now when you start something and push right away; teammates' agents read it at session start. -->
 
 ## Now
-- Tuning the job-ad → requirements extraction prompt (`lib/ai/prompts/extractRequirements.ts`, eval script in `scripts/`)
+- Recruiter applicant list: select + bulk invite + mark for later + optional AI search (branch `feat/recruiter-ai-filtering`, files under `app/(recruiter)/recruiter/applicants/`, `lib/domain/`, `lib/ai/`)
 
 ## Next
 - 

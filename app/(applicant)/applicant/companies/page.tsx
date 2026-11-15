@@ -36,7 +36,7 @@ export default async function CompaniesPage() {
   return (
     <main className="page">
       <PageHeader eyebrow={applicant.pseudonym} title="Companies">
-        What each company looks for. Open a company to fill in one card per requirement; the AI only suggests, you decide.
+        What each company looks for. Open a company to fill in one card per requirement; the AI only suggests, you decide. A recruiter may also use an AI helper to search the cards they receive for certain examples; it never sees your name or scores, and the recruiter decides whom to invite.
       </PageHeader>
       <ul className="mt-8 space-y-5">
         {view.map(({ company, reqs, covered, total, missing }) => (

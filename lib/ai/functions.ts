@@ -7,10 +7,14 @@ import {
   cleanLinkSuggestions,
   cleanQuestion,
   cleanExtractedRequirements,
+  cleanSearchResult,
+  cleanSuggestedFilters,
   labelFor,
   type CvSuggestions,
   type ExtractedRequirement,
   type LinkSuggestion,
+  type SearchResult,
+  type SuggestedFilter,
 } from "./guardrails";
 import {
   mockCvSuggestions,
@@ -25,9 +29,12 @@ import * as followUpPrompt from "./prompts/nextFollowUpQuestion";
 import * as recruiterPrompt from "./prompts/recruiterFollowUpQuestion";
 import * as languagePrompt from "./prompts/languageAssist";
 import * as linksPrompt from "./prompts/suggestLinks";
+import * as searchPrompt from "./prompts/searchApplicants";
+import * as suggestFiltersPrompt from "./prompts/suggestFilters";
 import { getModel } from "./provider";
+import type { SearchInput } from "./searchInput";
 
-export type { CvSuggestions, ExtractedRequirement, LinkSuggestion } from "./guardrails";
+export type { CvSuggestions, ExtractedRequirement, LinkSuggestion, SearchResult, SuggestedFilter } from "./guardrails";
 export type AiSource = "model" | "mock" | "mock-fallback";
 export type AiResult<T> = { value: T; source: AiSource };
 
@@ -56,6 +63,41 @@ const CvSuggestionsSchema = z.object({
   relevant: z.array(z.object({ requirementId: z.string(), excerpt: z.string() })),
 });
 const TextSchema = z.object({ text: z.string() });
+const SearchSchema = z.object({
+  interpretation: z.string().describe("One sentence restating what was looked for"),
+  groups: z.array(
+    z.object({
+      label: z.string().describe("What the group's cards have or lack as evidence, never a quality judgment"),
+      applicants: z.array(
+        z.object({
+          id: z.string().describe("An applicant id from the input, e.g. A1"),
+          reason: z.string().describe("At most 25 words, quoting the applicant's card"),
+        }),
+      ),
+    }),
+  ),
+});
+
+const SuggestFiltersSchema = z.object({
+  suggested_filters: z.array(
+    z.object({
+      label: z.string().describe("At most 6 words, the evidence the filter checks, never a quality judgment"),
+      description: z.string().describe("At most 20 words, what this filter checks"),
+      applicants: z.array(
+        z.object({
+          id: z.string().describe("An applicant id from the input, e.g. A1"),
+          reason: z.string().describe("At most 25 words, quoting the applicant's card"),
+        }),
+      ),
+    }),
+  ),
+});
+// Fewer than this many cards cannot be split usefully.
+const MIN_CARDS_FOR_SUGGESTIONS = 2;
+
+/** No AI connected, rate limited or failed: the UI says so and keeps the full list. */
+export const NO_SEARCH_RESULT: SearchResult = { interpretation: "", groups: [] };
+const EMPTY_LIST_RESULT: SearchResult = { interpretation: "There are no applicants in the current list to search.", groups: [] };
 
 const DEFAULT_AI_TIMEOUT_MS = 8000;
 // Extraction reads a whole job ad and returns up to 15 requirements with notes; real models need ~10-20 s for a long ad.
@@ -69,6 +111,8 @@ function timeoutFromEnv(name: string, fallback: number): number {
 
 const aiTimeoutMs = () => timeoutFromEnv("AI_TIMEOUT_MS", DEFAULT_AI_TIMEOUT_MS);
 const aiExtractTimeoutMs = () => timeoutFromEnv("AI_EXTRACT_TIMEOUT_MS", DEFAULT_AI_EXTRACT_TIMEOUT_MS);
+// The search reads every card on the list, so it gets the long timeout too.
+const aiSearchTimeoutMs = () => timeoutFromEnv("AI_SEARCH_TIMEOUT_MS", DEFAULT_AI_EXTRACT_TIMEOUT_MS);
 
 type GetModel = () => LanguageModel | null;
 
@@ -239,8 +283,41 @@ export function createAiFunctions(getModelFn: GetModel) {
     );
   }
 
-  return { extractRequirements, nextFollowUpQuestion, nextRecruiterQuestion, suggestLinks, cvSuggestions, languageAssist };
+  async function searchApplicants(input: SearchInput): Promise<AiResult<SearchResult>> {
+    if (input.cards.length === 0) return { value: EMPTY_LIST_RESULT, source: "model" };
+    return resolve(
+      async (model) => {
+        const raw = await generate(model, SearchSchema, searchPrompt.system, searchPrompt.buildUser(input), aiSearchTimeoutMs());
+        return cleanSearchResult(raw, input.aliases);
+      },
+      () => NO_SEARCH_RESULT,
+    );
+  }
+
+  /** 5-10 filters the recruiter may apply, each with its matching applicants; [] when there is nothing to split. */
+  async function suggestFilters(input: SearchInput): Promise<AiResult<SuggestedFilter[]>> {
+    if (input.cards.length < MIN_CARDS_FOR_SUGGESTIONS) return { value: [], source: "model" };
+    return resolve(
+      async (model) => {
+        const raw = await generate(
+          model,
+          SuggestFiltersSchema,
+          suggestFiltersPrompt.system,
+          suggestFiltersPrompt.buildUser(input),
+          aiSearchTimeoutMs(),
+        );
+        const cleaned = cleanSuggestedFilters(raw, input.aliases, input.cards.length);
+        if (cleaned.length < raw.suggested_filters.length) {
+          console.warn(`[ai] guardrails dropped ${raw.suggested_filters.length - cleaned.length} suggested filter(s)`);
+        }
+        return cleaned;
+      },
+      () => [],
+    );
+  }
+
+  return { extractRequirements, nextFollowUpQuestion, nextRecruiterQuestion, suggestLinks, cvSuggestions, languageAssist, searchApplicants, suggestFilters };
 }
 
-export const { extractRequirements, nextFollowUpQuestion, nextRecruiterQuestion, suggestLinks, cvSuggestions, languageAssist } =
+export const { extractRequirements, nextFollowUpQuestion, nextRecruiterQuestion, suggestLinks, cvSuggestions, languageAssist, searchApplicants, suggestFilters } =
   createAiFunctions(getModel);

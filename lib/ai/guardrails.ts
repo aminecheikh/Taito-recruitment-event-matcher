@@ -107,6 +107,118 @@ export function cleanExtractedRequirements(
     .slice(0, MAX_REQUIREMENT_PHRASES);
 }
 
+export const MAX_SEARCH_REASON_WORDS = 25;
+const MAX_INTERPRETATION_LENGTH = 400;
+const MAX_SEARCH_GROUPS = 10;
+
+/** One group of the AI search as the UI gets it: real applicant ids, a reason per applicant. */
+export type SearchGroup = { label: string; applicant_ids: string[]; reason_per_applicant: Record<string, string> };
+export type SearchResult = { interpretation: string; groups: SearchGroup[] };
+/** What the model returns: aliases (A1, A2, ...) instead of applicant ids. */
+export type RawSearchResult = {
+  interpretation: string;
+  groups: { label: string; applicants: { id: string; reason: string }[] }[];
+};
+
+function capWords(text: string, max: number): string {
+  const words = text.split(/\s+/);
+  return words.length <= max ? text : `${words.slice(0, max).join(" ")}…`;
+}
+
+/** Alias -> applicant id with a capped reason; drops unknown aliases, repeats, empty reasons and scoring. */
+function cleanMatches(
+  applicants: readonly { id: string; reason: string }[],
+  aliases: Readonly<Record<string, string>>,
+): Map<string, string> {
+  const reasons = new Map<string, string>();
+  for (const { id, reason } of applicants) {
+    const applicantId = Object.hasOwn(aliases, id) ? aliases[id] : undefined;
+    const text = reason.trim();
+    if (!applicantId || reasons.has(applicantId) || !text || SCORES_A_PERSON.test(text)) continue;
+    reasons.set(applicantId, capWords(text, MAX_SEARCH_REASON_WORDS));
+  }
+  return reasons;
+}
+
+function cleanGroup(group: RawSearchResult["groups"][number], aliases: Readonly<Record<string, string>>): SearchGroup | null {
+  const label = group.label.trim();
+  if (!label || SCORES_A_PERSON.test(label)) return null;
+  const reasons = cleanMatches(group.applicants, aliases);
+  if (reasons.size === 0) return null;
+  return { label, applicant_ids: [...reasons.keys()], reason_per_applicant: Object.fromEntries(reasons) };
+}
+
+/**
+ * Maps aliases back to applicant ids and drops unknown ids, duplicates, empty groups and anything that
+ * scores a person. Returns null (caller falls back) when the interpretation is missing or too long, or
+ * when it scores people while still returning groups. An answer with no groups is valid: it is how the
+ * model says the request cannot be answered from the cards.
+ */
+export function cleanSearchResult(raw: RawSearchResult, aliases: Readonly<Record<string, string>>): SearchResult | null {
+  const interpretation = raw.interpretation.trim();
+  if (!interpretation || interpretation.length > MAX_INTERPRETATION_LENGTH) return null;
+  const groups = raw.groups
+    .map((g) => cleanGroup(g, aliases))
+    .filter((g): g is SearchGroup => g !== null)
+    .slice(0, MAX_SEARCH_GROUPS);
+  if (groups.length > 0 && SCORES_A_PERSON.test(interpretation)) return null;
+  return { interpretation, groups };
+}
+
+export const MAX_SUGGESTED_FILTERS = 10;
+export const MAX_FILTER_LABEL_WORDS = 6;
+export const MAX_FILTER_DESCRIPTION_WORDS = 20;
+// Suggested filters come from the AI, not the recruiter, so they must be about evidence for the job and
+// never a stand-in for who someone is (AGENTS.md: no nationality, language of origin, age, gender, name,
+// photo or school as a feature).
+const IDENTITY_TRAIT =
+  /\b(?:aged|years old|gender|male|female|nationality|national origin|native(?:\s+\w+)?\s+speakers?|mother tongue|first language|born in|ethnic\w*|religio\w*|photo\w*|studied at|graduated from|alma mater)\b/i;
+
+/** A suggested filter as the UI gets it: real applicant ids and a reason per applicant. */
+export type SuggestedFilter = {
+  id: string;
+  label: string;
+  description: string;
+  applicant_ids: string[];
+  reason_per_applicant: Record<string, string>;
+};
+export type RawSuggestedFilters = {
+  suggested_filters: { label: string; description: string; applicants: { id: string; reason: string }[] }[];
+};
+
+const wordCount = (text: string) => text.split(/\s+/).filter(Boolean).length;
+
+/**
+ * Keeps suggestions that are useful and safe: a short label, no scoring, no identity traits, known
+ * applicants only, and matching some but not all of the list (`listSize`). Ids are assigned here.
+ */
+export function cleanSuggestedFilters(
+  raw: RawSuggestedFilters,
+  aliases: Readonly<Record<string, string>>,
+  listSize: number,
+): SuggestedFilter[] {
+  const seen = new Set<string>();
+  const kept: SuggestedFilter[] = [];
+  for (const filter of raw.suggested_filters) {
+    const label = filter.label.trim();
+    const description = capWords(filter.description.trim(), MAX_FILTER_DESCRIPTION_WORDS);
+    const text = `${label} ${description}`;
+    if (!label || wordCount(label) > MAX_FILTER_LABEL_WORDS || seen.has(label.toLowerCase())) continue;
+    if (SCORES_A_PERSON.test(text) || SCORING_LANGUAGE.test(text) || IDENTITY_TRAIT.test(text)) continue;
+    const reasons = cleanMatches(filter.applicants, aliases);
+    if (reasons.size === 0 || reasons.size >= listSize) continue;
+    seen.add(label.toLowerCase());
+    kept.push({
+      id: `suggested-${kept.length + 1}`,
+      label,
+      description,
+      applicant_ids: [...reasons.keys()],
+      reason_per_applicant: Object.fromEntries(reasons),
+    });
+  }
+  return kept.slice(0, MAX_SUGGESTED_FILTERS);
+}
+
 export function labelFor(mode: "grammar" | "translate", sourceLanguage?: string): LanguageLabel {
   return mode === "grammar"
     ? "language edited"

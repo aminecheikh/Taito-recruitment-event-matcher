@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import {
+  cleanSearchResult,
   cleanCvSuggestions,
   cleanLanguageText,
   cleanLinkSuggestions,
@@ -241,6 +242,58 @@ describe("labelFor", () => {
   test("label is set in code, not by the model", () => {
     expect(labelFor("grammar")).toBe("language edited");
     expect(labelFor("translate", "Ukrainian")).toBe("translated from Ukrainian");
+  });
+});
+
+describe("cleanSearchResult", () => {
+  const aliases = { A1: "talent-017", A2: "talent-020" };
+  const group = (applicants: { id: string; reason: string }[], label = "Python evidence") => ({ label, applicants });
+
+  test("cleanSearchResult_unknownAndPrototypeIds_dropped", () => {
+    const out = cleanSearchResult(
+      { interpretation: "Python.", groups: [group([{ id: "A1", reason: "r" }, { id: "A7", reason: "r" }, { id: "constructor", reason: "r" }])] },
+      aliases,
+    );
+    expect(out?.groups).toEqual([{ label: "Python evidence", applicant_ids: ["talent-017"], reason_per_applicant: { "talent-017": "r" } }]);
+  });
+
+  test("cleanSearchResult_duplicateInGroup_keptOnce", () => {
+    const out = cleanSearchResult({ interpretation: "x", groups: [group([{ id: "A1", reason: "a" }, { id: "A1", reason: "b" }])] }, aliases);
+    expect(out?.groups[0].applicant_ids).toEqual(["talent-017"]);
+  });
+
+  test("cleanSearchResult_longReason_cutTo25Words", () => {
+    const long = Array.from({ length: 40 }, (_, i) => `w${i}`).join(" ");
+    const out = cleanSearchResult({ interpretation: "x", groups: [group([{ id: "A1", reason: long }])] }, aliases);
+    expect(out?.groups[0].reason_per_applicant["talent-017"].split(" ")).toHaveLength(25);
+  });
+
+  test("cleanSearchResult_rankingLabelOrReason_dropped", () => {
+    const out = cleanSearchResult(
+      {
+        interpretation: "x",
+        groups: [group([{ id: "A1", reason: "r" }], "Top candidates"), group([{ id: "A2", reason: "Best match for the role" }])],
+      },
+      aliases,
+    );
+    expect(out?.groups).toEqual([]);
+  });
+
+  test("cleanSearchResult_cannotAnswerFromCards_noGroupsIsValid", () =>
+    expect(cleanSearchResult({ interpretation: "Scores of applicants are not in the cards, so I cannot answer.", groups: [] }, aliases)).toEqual({
+      interpretation: "Scores of applicants are not in the cards, so I cannot answer.",
+      groups: [],
+    }));
+
+  test("cleanSearchResult_missingInterpretation_rejected", () =>
+    expect(cleanSearchResult({ interpretation: " ", groups: [] }, aliases)).toBeNull());
+
+  test("cleanSearchResult_applicantInTwoGroups_allowed", () => {
+    const out = cleanSearchResult(
+      { interpretation: "x", groups: [group([{ id: "A1", reason: "a" }], "Python"), group([{ id: "A1", reason: "b" }], "SQL")] },
+      aliases,
+    );
+    expect(out?.groups.map((g) => g.applicant_ids)).toEqual([["talent-017"], ["talent-017"]]);
   });
 });
 

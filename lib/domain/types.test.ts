@@ -12,6 +12,12 @@ test("DbSchema accepts an empty db", () => {
   expect(DbSchema.safeParse(emptyDb()).success).toBe(true);
 });
 
+test("DbSchema_dbWrittenBeforeMarks_loadsWithNoMarksInsteadOfReseeding", () => {
+  const old = Object.fromEntries(Object.entries(emptyDb()).filter(([key]) => key !== "marks"));
+  const parsed = DbSchema.safeParse(old);
+  expect(parsed.success && parsed.data.marks).toEqual([]);
+});
+
 test("DbSchema parses a db without entries and answers, defaulting both to empty", () => {
   const legacy: Record<string, unknown> = { ...emptyDb() };
   delete legacy.entries;
