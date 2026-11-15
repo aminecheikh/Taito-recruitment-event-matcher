@@ -62,6 +62,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
   const [newText, setNewText] = useState("");
   const [extracting, setExtracting] = useState(false);
   const [aiNote, setAiNote] = useState<string | null>(null);
+  const [aiRefusal, setAiRefusal] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
 
   const coreCount = items.filter((i) => i.req.isCore).length;
@@ -109,14 +110,20 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
   const extract = async () => {
     setExtracting(true);
     setAiNote(null);
+    setAiRefusal(null);
     try {
       const res = await fetch(EXTRACT_URL, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ jobAd: pasted }),
       });
+      if (res.status === 422) {
+        const refused = (await res.json()) as { message?: string };
+        setAiRefusal(refused.message ?? "Taito's AI doesn't rank, score or pick people.");
+        return;
+      }
       if (!res.ok) throw new Error(`status ${res.status}`);
-      const data = (await res.json()) as { value: NewRequirement[]; source: string };
+      const data = (await res.json()) as { value: NewRequirement[]; source: string; removed?: number };
       const next = appendNew(companyId, items, data.value, true);
       const added = next.length - items.length;
       setItems(next);
@@ -130,7 +137,10 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
         mock: "No AI connected (offline example: one line of the ad per item). ",
         "mock-fallback": "AI unavailable — showing example. ",
       };
-      setAiNote(`${prefix[data.source] ?? ""}${result}`);
+      const skipped = data.removed
+        ? ` We skipped ${data.removed} line${data.removed === 1 ? "" : "s"} that asked to rank or score people.`
+        : "";
+      setAiNote(`${prefix[data.source] ?? ""}${result}${skipped}`);
       setPasted("");
     } catch {
       setAiNote("AI unavailable");
@@ -175,6 +185,11 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
         <button type="button" onClick={extract} disabled={extracting || pasted.trim() === ""} className={button}>
           {extracting ? "Reading the ad…" : "Suggest requirements"}
         </button>
+        {aiRefusal && (
+          <p role="alert" className="notice-error">
+            {aiRefusal}
+          </p>
+        )}
         {aiNote && (
           <p role="status" className="hint">
             {aiNote}

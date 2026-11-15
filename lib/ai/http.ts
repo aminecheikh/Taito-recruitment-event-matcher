@@ -24,6 +24,11 @@ async function readJson(req: Request): Promise<{ ok: true; value: unknown } | { 
   }
 }
 
+/** Optional pre-model check: refuse the input, or pass on a cleaned input and how many lines were dropped. */
+export type InputGuard<I> =
+  | { kind: "refuse"; error: string; message: string }
+  | { kind: "ok"; input: I; removed?: number };
+
 /**
  * Shared POST handler: size cap (413), zod validation (400), rate limit.
  * When rate limited it answers 200 with `mock()` and source "mock-fallback" (never 429).
@@ -33,6 +38,7 @@ export function handle<S extends z.ZodType, T>(
   schema: S,
   live: (input: z.infer<S>) => Promise<AiResult<T> | null>,
   mock: (input: z.infer<S>) => T | null | Promise<T | null>,
+  guard?: (input: z.infer<S>) => InputGuard<z.infer<S>>,
 ) {
   return async (req: Request): Promise<Response> => {
     const body = await readJson(req);
@@ -40,12 +46,17 @@ export function handle<S extends z.ZodType, T>(
     const parsed = schema.safeParse(body.value);
     if (!parsed.success) return Response.json({ error: "invalid-body" }, { status: 400 });
 
+    const guarded: InputGuard<z.infer<S>> = guard ? guard(parsed.data) : { kind: "ok", input: parsed.data };
+    if (guarded.kind === "refuse") {
+      return Response.json({ error: guarded.error, message: guarded.message }, { status: 422 });
+    }
+
     const allowed = checkRateLimit(clientKey(req), Date.now());
     const result: AiResult<T> | null = allowed
-      ? await live(parsed.data)
-      : await mockResult(mock, parsed.data);
+      ? await live(guarded.input)
+      : await mockResult(mock, guarded.input);
     if (!result) return Response.json({ error: "not-found" }, { status: 404 });
-    return Response.json(result);
+    return Response.json(guarded.removed ? { ...result, removed: guarded.removed } : result);
   };
 }
 

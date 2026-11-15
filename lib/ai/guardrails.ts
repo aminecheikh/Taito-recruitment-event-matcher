@@ -112,3 +112,30 @@ export function labelFor(mode: "grammar" | "translate", sourceLanguage?: string)
     ? "language edited"
     : `translated from ${sourceLanguage ?? UNKNOWN_LANGUAGE}`;
 }
+
+// Input guard: refuses job-ad text that asks the AI to judge people. "Filter out weak candidates" has two
+// words before the noun, which SCORES_A_PERSON's one-word gap misses, so it gets its own pattern.
+export const HIRING_DECISION =
+  /\b(?:should|do|would) (?:we|i) (?:hire|reject|pick|choose)\b|\bwho (?:should|to) (?:hire|reject|pick)\b|\bwho is (?:the )?(?:best|strongest|top)\b/i;
+const DISMISSES_PEOPLE = new RegExp(
+  `\\b(?:filter|screen|weed)\\w*\\W+out\\W+(?:\\w+\\W+){0,2}?${PERSON_NOUN}`,
+  "i",
+);
+export const REFUSAL_MESSAGE =
+  "Taito's AI doesn't rank, score or pick people. A person decides. It can help you describe what you need.";
+
+export function judgesPeople(text: string): boolean {
+  return SCORES_A_PERSON.test(text) || HIRING_DECISION.test(text) || DISMISSES_PEOPLE.test(text);
+}
+
+export type JobAdGuard = { kind: "refuse" } | { kind: "ok"; text: string; removed: number };
+
+/** Drops the lines that ask to judge people; refuses when nothing is left to read. */
+export function guardJobAd(text: string): JobAdGuard {
+  const lines = text.split("\n");
+  const kept = lines.filter((line) => !judgesPeople(line));
+  if (kept.length === lines.length) return { kind: "ok", text, removed: 0 };
+  const rest = kept.join("\n");
+  if (rest.trim() === "") return { kind: "refuse" };
+  return { kind: "ok", text: rest, removed: lines.length - kept.length };
+}

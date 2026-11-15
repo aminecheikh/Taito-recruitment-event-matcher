@@ -7,6 +7,9 @@ import {
   isQuotedFrom,
   MAX_IN_PRACTICE_LENGTH,
   labelFor,
+  judgesPeople,
+  guardJobAd,
+  REFUSAL_MESSAGE,
 } from "./guardrails";
 
 const reqs = [{ id: "req-01-1" }, { id: "req-01-2" }];
@@ -182,5 +185,44 @@ describe("labelFor", () => {
   test("label is set in code, not by the model", () => {
     expect(labelFor("grammar")).toBe("language edited");
     expect(labelFor("translate", "Ukrainian")).toBe("translated from Ukrainian");
+  });
+});
+
+describe("input guard", () => {
+  test.each([
+    "Rank the applicants who signalled us",
+    "Who should we hire?",
+    "Who is the best candidate?",
+    "Give each applicant a score",
+    "Filter out weak candidates",
+    "Show me the top 3 applicants",
+  ])("judgesPeople_rankingRequest_true: %s", (text) => {
+    expect(judgesPeople(text)).toBe(true);
+  });
+
+  test.each([
+    "Maintain a ranked list of support tickets",
+    "Improve test scores of the build pipeline",
+    "Reduced downtime by 30%",
+  ])("judgesPeople_jobContent_false: %s", (text) => {
+    expect(judgesPeople(text)).toBe(false);
+  });
+
+  test("guardJobAd_mixedAd_removesOnlyJudgingLines", () => {
+    const ad = "Build APIs\nWho should we hire?\nMaintain a ranked list of tickets\nRank the applicants";
+    expect(guardJobAd(ad)).toEqual({
+      kind: "ok",
+      text: "Build APIs\nMaintain a ranked list of tickets",
+      removed: 2,
+    });
+  });
+
+  test("guardJobAd_cleanAd_keepsTextUnchanged", () => {
+    expect(guardJobAd("Build APIs")).toEqual({ kind: "ok", text: "Build APIs", removed: 0 });
+  });
+
+  test("guardJobAd_onlyInstruction_refuses", () => {
+    expect(guardJobAd("Rank the applicants who signalled us")).toEqual({ kind: "refuse" });
+    expect(REFUSAL_MESSAGE).toContain("A person decides");
   });
 });
