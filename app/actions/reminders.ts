@@ -6,7 +6,7 @@ import { joinEvent, sendReminder } from "@/lib/domain/reminders";
 import { getSession } from "@/lib/session";
 import { updateDb } from "@/lib/store/db";
 
-export type ReminderStatus = { ok: true } | { ok: false; error: string };
+export type ReminderStatus = { ok: true } | { ok: false; error: string; alreadySent?: true };
 
 const KindSchema = z.enum(["set-requirements", "join-event"]);
 const IdSchema = z.string().min(1).max(100);
@@ -24,7 +24,8 @@ export async function sendReminderAction(companyId: string, kind: string): Promi
       : { ok: false, error: "unknown-company" },
   );
   if (!known.ok) {
-    return { ok: false, error: known.error === "already-sent" ? "Already reminded." : "Company not found." };
+    if (known.error === "already-sent") return { ok: false, error: "Already reminded.", alreadySent: true };
+    return { ok: false, error: "Company not found." };
   }
   revalidatePath("/staff");
   revalidatePath("/recruiter", "layout");
@@ -44,7 +45,8 @@ export async function joinEventAction(eventId: string): Promise<ReminderStatus> 
       : { ok: false, error: "unknown-event" },
   );
   if (!result.ok) {
-    return { ok: false, error: result.error === "already-attending" ? "Already attending." : "Event not found." };
+    // One generic message for unknown and uninvited events.
+    return { ok: false, error: result.error === "already-attending" ? "Already attending." : "You have no invitation to that event." };
   }
   revalidatePath("/staff");
   revalidatePath("/recruiter", "layout");

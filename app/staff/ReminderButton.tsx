@@ -23,7 +23,7 @@ export function ReminderButton({ companyId, name, kind, label, alreadySent }: Pr
   function send() {
     startTransition(async () => {
       const status = await sendReminderAction(companyId, kind);
-      if (status.ok) setSent(true);
+      if (status.ok || status.alreadySent) setSent(true);
       else setError(status.error);
     });
   }

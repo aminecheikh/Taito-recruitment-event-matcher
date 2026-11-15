@@ -54,5 +54,9 @@ export function openReminders(db: Db, companyId: string): Reminder[] {
 
 export function joinEvent(db: Db, companyId: string, eventId: string): Result<Db> {
   if (companiesAt(db, eventId).includes(companyId)) return { ok: false, error: "already-attending" };
+  const invited = db.reminders.some(
+    (r) => r.kind === "join-event" && r.companyId === companyId && r.eventId === eventId,
+  );
+  if (!invited) return { ok: false, error: "not-invited" };
   return { ok: true, value: { ...db, companyEvents: [...db.companyEvents, { companyId, eventId }] } };
 }

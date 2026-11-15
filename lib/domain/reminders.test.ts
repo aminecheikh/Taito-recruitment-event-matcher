@@ -75,6 +75,10 @@ describe("reminders", () => {
     expect(openReminders(joined.value, "company-03")).toEqual([]);
   });
 
+  it("joinEvent_withoutInvite_notInvited", () => {
+    expect(joinEvent(withCompanies(), "company-03", "event-01")).toEqual({ ok: false, error: "not-invited" });
+  });
+
   it("joinEvent_duplicate_alreadyAttending", () => {
     expect(joinEvent(makeDb(), "company-01", "event-01")).toEqual({ ok: false, error: "already-attending" });
   });
