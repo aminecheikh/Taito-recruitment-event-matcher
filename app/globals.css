@@ -918,13 +918,13 @@
     font-size: 0.75rem;
     transition: transform 150ms var(--ease-out);
   }
-  .disclosure[open] .disclosure-arrow {
+  .disclosure[open] > summary .disclosure-arrow {
     transform: rotate(90deg);
   }
   .disclosure-preview {
     display: block;
   }
-  .disclosure[open] .disclosure-preview {
+  .disclosure[open] > summary .disclosure-preview {
     display: none;
   }
   @media (prefers-reduced-motion: reduce) {

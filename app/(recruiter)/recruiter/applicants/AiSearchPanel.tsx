@@ -48,8 +48,9 @@ export function AiSearchPanel({ minCovered, markedOnly, minWeighted, disabled, o
   };
 
   return (
-    <details className="panel mt-6">
-      <summary className="flex cursor-pointer flex-wrap items-center gap-3">
+    <details className="panel disclosure mt-6">
+      <summary className="flex-wrap">
+        <span aria-hidden="true" className="disclosure-arrow">▶</span>
         <span className="h3">Filter with AI</span>
         <span className="tag tag-ai">Optional AI help</span>
       </summary>
