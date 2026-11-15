@@ -34,12 +34,10 @@ export function CvPanel({ requirementInfo, onStart }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [pdfNote, setPdfNote] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
   const tooShort = text.trim().length < MIN_CV_CHARS;
 
-  const onPdf = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
+  const readFile = async (file: File) => {
     setError(null);
     setPdfNote(null);
     const problem = checkPdfFile(file);
@@ -59,6 +57,20 @@ export function CvPanel({ requirementInfo, onStart }: Props) {
     } finally {
       setPdfBusy(false);
     }
+  };
+
+  const onPick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (file) void readFile(file);
+  };
+
+  const onDrop = (event: React.DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    setDragging(false);
+    if (pdfBusy) return;
+    const file = event.dataTransfer.files?.[0];
+    if (file) void readFile(file);
   };
 
   const run = async () => {
@@ -87,9 +99,24 @@ export function CvPanel({ requirementInfo, onStart }: Props) {
         <span className="tag tag-ai mr-2">AI</span>Start from your CV
       </summary>
       <div className="mt-4">
-        <label htmlFor="cv-file" className="label">Upload a PDF</label>
+        <p className="label">Upload a PDF</p>
         <p className="hint mt-1">{PDF_HINT}</p>
-        <input id="cv-file" type="file" accept="application/pdf,.pdf" className="mt-2 block text-sm" onChange={onPdf} disabled={pdfBusy} />
+        <label
+          htmlFor="cv-file"
+          className="drop-zone mt-2"
+          data-dragging={dragging || undefined}
+          aria-busy={pdfBusy || undefined}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={onDrop}
+        >
+          <input id="cv-file" type="file" accept="application/pdf,.pdf" className="sr-only" onChange={onPick} disabled={pdfBusy} />
+          <span className="drop-zone-text">{pdfBusy ? "Reading the PDF…" : "Drag and drop your CV as a PDF here, or"}</span>
+          <span className={`${buttonClass} btn-sm pointer-events-none`}>Choose a file</span>
+        </label>
         {pdfNote ? <p role="status" className="mt-2 font-medium">{pdfNote}</p> : null}
         <label htmlFor="cv-text" className="label mt-5">Or paste your text</label>
         <p className="hint mt-1">{HINT}</p>

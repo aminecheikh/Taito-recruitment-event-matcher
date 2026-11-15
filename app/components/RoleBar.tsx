@@ -13,6 +13,7 @@ import { cookies } from "next/headers";
 import { formatShortDate } from "@/lib/domain/eventFormat";
 import { parseTheme, THEME_COOKIE } from "@/lib/theme";
 import { applicantsAt, companiesAt } from "@/lib/domain/attendance";
+import { pendingRequestCount } from "@/lib/domain/meetings";
 
 const ROLE_LABELS: Record<Role, string> = {
   recruiter: "Recruiter",
@@ -35,6 +36,12 @@ export async function RoleBar() {
     "use server";
     await setSession({ applicantId: String(formData.get("applicantId")) });
   }
+
+  // The applicant's Meetings tab shows how many company requests are still waiting for an answer.
+  const requests = session.role === "applicant" ? pendingRequestCount(db, session.eventId, session.applicantId) : 0;
+  const navItems = ROLE_NAV[session.role].map((item) =>
+    item.href === "/applicant/meetings" ? { ...item, badge: requests } : item,
+  );
 
   const companyIds = new Set(companiesAt(db, session.eventId));
   const applicantIds = new Set(applicantsAt(db, session.eventId));
@@ -127,7 +134,7 @@ export async function RoleBar() {
             <Logo />
           </Link>
           <div className="order-3 w-full min-w-0 lg:order-2 lg:w-auto">
-            <RoleNav items={ROLE_NAV[session.role]} />
+            <RoleNav items={navItems} />
           </div>
           <div className="order-2 ml-auto py-2 lg:order-3">
             <ThemeSwitch initial={theme} />
