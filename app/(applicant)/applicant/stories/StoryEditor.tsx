@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useSyncExternalStore, useTransition } from "react";
+import { deleteStoryAction } from "@/app/actions/privacy";
 import { createStory, saveStory } from "@/app/actions/stories";
 import type { LanguageLabel, Story } from "@/lib/domain/types";
 import { FollowUpPanel } from "./FollowUpPanel";
@@ -70,7 +71,12 @@ export function StoryEditor({ story }: { story: Story | null }) {
       }
     });
 
-  const acceptLanguage = (text: string, nextLabel: LanguageLabel) => {
+  const remove = () => {
+    if (!story || !window.confirm("Delete this story? Links to requirements are removed too.")) return;
+    startTransition(async () => report(await deleteStoryAction(story.id), "Story deleted."));
+  };
+
+  const acceptLanguage =(text: string, nextLabel: LanguageLabel) => {
     if (!story) return;
     startTransition(async () => {
       const status = await saveStory(story.id, { body: text, languageLabel: nextLabel });
@@ -96,6 +102,9 @@ export function StoryEditor({ story }: { story: Story | null }) {
         <button type="button" className={primaryClass} onClick={save} disabled={pending}>
           {story ? "Save story" : "Add story"}
         </button>
+        {story ? (
+          <button type="button" className="btn btn-danger" onClick={remove} disabled={pending}>Delete story</button>
+        ) : null}
         {notice ? (
           <p role={notice.kind === "error" ? "alert" : "status"} className={notice.kind === "error" ? "font-medium text-danger" : "font-medium text-success"}>
             {notice.text}

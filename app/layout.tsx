@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import { RoleBar } from "./components/RoleBar";
 import { EventBanner } from "./components/EventBanner";
 import { SceneBackdrop } from "./components/SceneBackdrop";
@@ -30,6 +31,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <footer data-app-chrome className="border-t border-line py-6 text-sm text-muted">
           <p className="shell">
             Concept for the City of Espoo challenge, Junction 2026. All people and companies are fictional.
+          </p>
+          <p className="shell mt-2">
+            <Link href="/privacy" className="underline">Privacy and your data</Link>
           </p>
         </footer>
       </body>
