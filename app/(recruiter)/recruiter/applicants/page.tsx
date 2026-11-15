@@ -51,6 +51,7 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
     marked: isMarked(db, session.eventId, company.id, id),
   }));
 
+  const markedCount = recruiterList(db, session.eventId, company.id, { minCovered: 0, markedOnly: true }).length;
   const left = companyOpenSlots(db, session.eventId, company.id);
   const slotTotal = companyCalendar(db, session.eventId, company.id).total;
   const options = Array.from({ length: total + 1 }, (_, i) => total - i);
@@ -87,7 +88,7 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: S
         </select>
         <label className="choice">
           <input type="checkbox" name="marked" value="1" defaultChecked={markedOnly} />
-          Only marked for later
+          Only marked for later ({markedCount})
         </label>
         <button type="submit" className="btn">
           Apply

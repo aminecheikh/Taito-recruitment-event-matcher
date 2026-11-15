@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { ToastView, useToast } from "@/app/components/Toast";
 import { inviteSelectedAction, markForLaterAction } from "@/app/actions/recruiter";
 import type { SearchResult } from "@/lib/ai/guardrails";
 import type { Card } from "@/lib/domain/cards";
@@ -18,7 +19,7 @@ export type ApplicantRow = {
 };
 
 type Props = { rows: ApplicantRow[]; slotsLeft: number; minCovered: number; markedOnly: boolean };
-type Notice = { kind: "error" | "success"; text: string } | null;
+type Notice = { kind: "error"; text: string } | null;
 type Section = { label?: string; ids: string[]; reasons: Record<string, string> };
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
@@ -27,6 +28,12 @@ function inviteMessage(invited: number, alreadyInvited: number): string {
   if (invited === 0) return `${plural(alreadyInvited, "applicant")} already invited. Nothing changed.`;
   const fresh = `${plural(invited, "new invite")} sent. Invited applicants move to Meetings.`;
   return alreadyInvited > 0 ? `${alreadyInvited} already invited, ${fresh}` : fresh;
+}
+
+function markMessage(count: number, marked: boolean): string {
+  return marked
+    ? `Marked ${plural(count, "applicant")} for later. They stay on this list; tick "Only marked for later" to see just them.`
+    : `Unmarked ${plural(count, "applicant")}.`;
 }
 
 /** Without an AI result: one section, the whole list. With one: a section per AI group, only listed applicants. */
@@ -44,6 +51,7 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly }: Props
   const [result, setResult] = useState<SearchResult | null>(null);
   const [notice, setNotice] = useState<Notice>(null);
   const [pending, start] = useTransition();
+  const { toast, showToast, dismissToast } = useToast();
 
   const byId = new Map(rows.map((r) => [r.id, r]));
   const sections = sectionsFor(rows, result);
@@ -63,8 +71,14 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly }: Props
     if (ids.length > 1 && !window.confirm(`Invite ${ids.length} applicants to the meeting?`)) return;
     start(async () => {
       const status = await inviteSelectedAction(ids);
-      setNotice(status.ok ? { kind: "success", text: inviteMessage(status.invited, status.alreadyInvited) } : { kind: "error", text: status.error });
-      if (status.ok) setPicked(new Set());
+      // A refused invite (e.g. not enough free slots) stays until the next action; a sent one is a passing confirmation.
+      if (status.ok) {
+        setNotice(null);
+        showToast(inviteMessage(status.invited, status.alreadyInvited));
+        setPicked(new Set());
+      } else {
+        setNotice({ kind: "error", text: status.error });
+      }
       router.refresh();
     });
   };
@@ -72,8 +86,13 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly }: Props
   const mark = (marked: boolean) =>
     start(async () => {
       const status = await markForLaterAction(ids, marked);
-      const done = marked ? `Marked ${plural(ids.length, "applicant")} for later.` : `Unmarked ${plural(ids.length, "applicant")}.`;
-      setNotice(status.ok ? { kind: "success", text: done } : { kind: "error", text: status.error });
+      // Success is a passing confirmation (the row tag shows the lasting state); a failure stays until the next action.
+      if (status.ok) {
+        setNotice(null);
+        showToast(markMessage(ids.length, marked));
+      } else {
+        setNotice({ kind: "error", text: status.error });
+      }
       router.refresh();
     });
 
@@ -122,10 +141,12 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly }: Props
         {slotsLeft <= 0 && <p className="hint w-full">No free meeting slots left for this event.</p>}
       </div>
       {notice && (
-        <p role={notice.kind === "error" ? "alert" : "status"} className={`notice mt-3 ${notice.kind === "error" ? "notice-error" : "notice-success"}`}>
+        <p role="alert" className="notice notice-error mt-3">
           {notice.text}
         </p>
       )}
+
+      <ToastView toast={toast} onDismiss={dismissToast} />
 
       {shownIds.length === 0 ? (
         <p className="empty-slot mt-6">
