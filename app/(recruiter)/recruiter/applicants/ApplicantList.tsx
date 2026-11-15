@@ -1,13 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useReducer, useRef, useState, useTransition } from "react";
 import { ToastView, useToast } from "@/app/components/Toast";
 import { inviteSelectedAction, markForLaterAction } from "@/app/actions/recruiter";
 import type { SearchResult } from "@/lib/ai/guardrails";
 import type { Card } from "@/lib/domain/cards";
+import { addFilter, applyFilters, fromSearch, matchLine, reasonsFor, removeFilter, sectionGroups, type ActiveFilter } from "@/lib/domain/activeFilters";
+import { CLOSED, popoverReducer } from "@/lib/domain/reasonPopover";
 import { keepShown, summarise, toggleAll, toggleOne } from "@/lib/domain/selection";
 import { AiSearchPanel } from "./AiSearchPanel";
+import { ReasonInfo } from "./ReasonInfo";
 import { ScoredCard } from "./ScoreInputs";
 
 export type ApplicantRow = {
@@ -20,7 +23,7 @@ export type ApplicantRow = {
 
 type Props = { rows: ApplicantRow[]; slotsLeft: number; minCovered: number; markedOnly: boolean };
 type Notice = { kind: "error"; text: string } | null;
-type Section = { label?: string; ids: string[]; reasons: Record<string, string> };
+type Section = { label?: string; ids: string[] };
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
@@ -36,35 +39,43 @@ function markMessage(count: number, marked: boolean): string {
     : `Unmarked ${plural(count, "applicant")}.`;
 }
 
-/** Without an AI result: one section, the whole list. With one: a section per AI group, only listed applicants. */
-function sectionsFor(rows: ApplicantRow[], result: SearchResult | null): Section[] {
-  if (!result) return [{ ids: rows.map((r) => r.id), reasons: {} }];
-  const known = new Set(rows.map((r) => r.id));
-  return result.groups
-    .map((g) => ({ label: g.label, ids: g.applicant_ids.filter((id) => known.has(id)), reasons: g.reason_per_applicant }))
-    .filter((s) => s.ids.length > 0);
+/** No AI filter: the whole list. Otherwise only applicants every filter matches, in sections when a request asked for groups. */
+function sectionsFor(rows: ApplicantRow[], filters: readonly ActiveFilter[]): Section[] {
+  const matched = applyFilters(rows.map((r) => r.id), filters);
+  const groups = sectionGroups(filters);
+  if (!groups) return [{ ids: matched }];
+  return groups
+    .map((g) => ({ label: g.label, ids: matched.filter((id) => g.applicant_ids.includes(id)) }))
+    .filter((section) => section.ids.length > 0);
 }
 
 export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly }: Props) {
   const router = useRouter();
   const [picked, setPicked] = useState<Set<string>>(new Set());
-  const [result, setResult] = useState<SearchResult | null>(null);
+  const [filters, setFilters] = useState<ActiveFilter[]>([]);
+  const [popover, dispatch] = useReducer(popoverReducer, CLOSED);
+  const searchCount = useRef(0);
   const [notice, setNotice] = useState<Notice>(null);
   const [pending, start] = useTransition();
   const { toast, showToast, dismissToast } = useToast();
 
   const byId = new Map(rows.map((r) => [r.id, r]));
-  const sections = sectionsFor(rows, result);
+  const sections = sectionsFor(rows, filters);
   const shownIds = sections.flatMap((s) => s.ids);
   const selected = keepShown(picked, shownIds);
   const summary = summarise(selected, shownIds);
   const ids = [...selected];
 
-  // A new AI result changes what is shown, so the selection starts empty again.
-  const applyResult = (next: SearchResult | null) => {
-    setResult(next);
+  // Changing the filters changes what is shown, so the selection starts empty again.
+  const changeFilters = (next: ActiveFilter[]) => {
+    setFilters(next);
     setPicked(new Set());
     setNotice(null);
+    dispatch({ type: "close" });
+  };
+  const addSearch = (query: string, result: SearchResult) => {
+    searchCount.current += 1;
+    changeFilters(addFilter(filters, fromSearch(`search-${searchCount.current}`, query, result)));
   };
 
   const invite = () => {
@@ -98,18 +109,38 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly }: Props
 
   return (
     <>
-      <AiSearchPanel minCovered={minCovered} markedOnly={markedOnly} disabled={rows.length === 0} onResult={applyResult} />
+      <AiSearchPanel minCovered={minCovered} markedOnly={markedOnly} disabled={rows.length === 0} onResult={addSearch} />
 
-      {result && (
-        <div className="ai-panel mt-6 flex flex-wrap items-start gap-3" role="status">
-          <span className="tag tag-ai">AI filter</span>
-          <p className="min-w-0 flex-1">
-            <span className="font-semibold">The AI looked for: </span>
-            {result.interpretation} <span className="hint">({plural(summary.total, "applicant")} listed. Check their cards before you decide.)</span>
-          </p>
-          <button type="button" className="btn btn-sm" onClick={() => applyResult(null)}>
-            Clear AI filter
-          </button>
+      {filters.length > 0 && (
+        <div className="ai-panel mt-6 space-y-3" role="status">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="tag tag-ai">AI filters</span>
+            {filters.map((f) => (
+              <span key={f.id} className="chip" title={f.note || undefined}>
+                {f.label}
+                <button
+                  type="button"
+                  className="-mr-1 rounded px-1 text-muted hover:text-ink"
+                  aria-label={`Remove filter: ${f.label}`}
+                  onClick={() => changeFilters(removeFilter(filters, f.id))}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+            <button type="button" className="btn btn-sm ml-auto" onClick={() => changeFilters([])}>
+              Clear all filters
+            </button>
+          </div>
+          {filters
+            .filter((f) => f.source === "search")
+            .map((f) => (
+              <p key={f.id}>
+                <span className="font-semibold">The AI looked for: </span>
+                {f.note}
+              </p>
+            ))}
+          <p className="hint">{matchLine(summary.total, filters.length)}. Check their cards before you decide.</p>
         </div>
       )}
 
@@ -150,7 +181,9 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly }: Props
 
       {shownIds.length === 0 ? (
         <p className="empty-slot mt-6">
-          {result ? "The AI found no applicants for this. Clear the AI filter to see everyone." : "No applicants match. Try a lower coverage."}
+          {filters.length > 0
+            ? "No applicants match all the AI filters. Remove a filter or clear all to see everyone."
+            : "No applicants match. Try a lower coverage."}
         </p>
       ) : (
         sections.map((section, s) => (
@@ -160,22 +193,17 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly }: Props
               {section.ids.map((id) => {
                 const row = byId.get(id);
                 if (!row) return null;
-                const reason = section.reasons[id];
+                const key = `${s}-${id}`;
                 return (
-                  <li key={`${s}-${id}`}>
+                  <li key={key}>
                     <div className="mb-2 flex flex-wrap items-center gap-3">
                       <label className="choice">
                         <input type="checkbox" checked={selected.has(id)} onChange={(e) => setPicked(toggleOne(selected, id, e.target.checked))} />
                         Select {row.card.label}
                       </label>
+                      <ReasonInfo popoverKey={key} reasons={reasonsFor(id, filters)} open={popover.key === key} dispatch={dispatch} />
                       {row.marked && <span className="tag tag-accent">Marked for later</span>}
                     </div>
-                    {reason && (
-                      <p className="ai-panel mb-2 !p-3">
-                        <span className="tag tag-ai mr-2">AI reason</span>
-                        {reason}
-                      </p>
-                    )}
                     <ScoredCard
                       coverageText={row.coverageText}
                       card={row.card}

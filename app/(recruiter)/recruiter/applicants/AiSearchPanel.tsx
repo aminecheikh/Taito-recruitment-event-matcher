@@ -14,7 +14,8 @@ type Props = {
   minCovered: number;
   markedOnly: boolean;
   disabled: boolean;
-  onResult: (result: SearchResult) => void;
+  /** Adds the answer as a new filter chip; earlier filters stay. */
+  onResult: (query: string, result: SearchResult) => void;
 };
 
 /** Optional helper, closed by default. It only answers the recruiter's question; it never selects or acts. */
@@ -36,7 +37,7 @@ export function AiSearchPanel({ minCovered, markedOnly, disabled, onResult }: Pr
       if (!res.ok) throw new Error(`status ${res.status}`);
       const data = (await res.json()) as { value: SearchResult; source: string };
       if (data.source !== "model") return setNote(UNAVAILABLE[data.source] ?? UNAVAILABLE["mock-fallback"]);
-      onResult(data.value);
+      onResult(query, data.value);
     } catch {
       setNote(UNAVAILABLE["mock-fallback"]);
     } finally {
