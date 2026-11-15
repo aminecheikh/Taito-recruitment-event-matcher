@@ -47,8 +47,8 @@ export function AiBanner() {
   );
 }
 
-export function StoryEditor({ story }: { story: Story | null }) {
-  const [title, setTitle] = useState(story?.title ?? "");
+export function StoryEditor({ story, initialTitle = "" }: { story: Story | null; initialTitle?: string }) {
+  const [title, setTitle] = useState(story?.title ?? initialTitle);
   const [body, setBody] = useState(story?.body ?? "");
   const [label, setLabel] = useState<LanguageLabel | undefined>(story?.languageLabel);
   const [notice, setNotice] = useState<Notice>(null);

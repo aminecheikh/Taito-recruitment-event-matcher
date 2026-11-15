@@ -1,0 +1,16 @@
+Applicant 017 (fictional)
+IT support technician, bus depot (fictional)
+
+About
+I keep the ticket readers and driver tablets running at a bus depot (fictional). I like fixing things that fail only sometimes, and I am looking for a job where I can do more of that.
+
+Work
+- Traced a fault in the ticket readers that froze one bus in five after an overnight update
+- Got the supplier to fix a firmware timing issue and tested the patched version on three buses
+- Explained the update problem to the depot managers in plain language at the Monday meeting
+- Wrote a small Python script that sorts the freeze log by bus and time of day
+- Trained two new drivers on the tablet system
+
+Other
+- Volunteer repair evenings for old laptops at a community centre (fictional)
+- Keeps a repair log for the depot tablets
