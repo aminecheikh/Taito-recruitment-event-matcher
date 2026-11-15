@@ -4,6 +4,8 @@ import { formatSlot } from "@/lib/domain/calendar";
 import { formatEventDate } from "@/lib/domain/eventFormat";
 import { buildCard } from "@/lib/domain/cards";
 import { revealDecisions } from "@/lib/domain/decisions";
+import { InternationalSupport } from "@/app/components/InternationalSupport";
+import { companySeesMovingHelp } from "@/lib/domain/movingHelp";
 import { coreRequirements } from "@/lib/domain/requirements";
 import { weightedScore } from "@/lib/domain/scores";
 import type { Db, Meeting } from "@/lib/domain/types";
@@ -89,6 +91,13 @@ function Outcome({ db, meeting }: { db: Db; meeting: Meeting }) {
           )}
         </div>
       </div>
+      {companySeesMovingHelp(db, meeting.id) ? (
+        <div className="mt-6 border-t border-line pt-6">
+          <h3 className="h3">This person would like help with permits and moving</h3>
+          <p className="hint mt-1">They chose to tell you this after you both decided to continue.</p>
+          <InternationalSupport audience="company" />
+        </div>
+      ) : null}
       <div className="mt-6">
         <RefreshButton />
       </div>

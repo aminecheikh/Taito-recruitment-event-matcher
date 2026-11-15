@@ -4,7 +4,9 @@ import { EventCalendar } from "@/app/components/EventCalendar";
 import { applicantCalendar, formatSlot, sharedFreeSlots } from "@/lib/domain/calendar";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
+import { InternationalSupport } from "@/app/components/InternationalSupport";
 import { AcceptButton, RefreshButton } from "./MeetingControls";
+import { MovingHelpToggle } from "./MovingHelpToggle";
 
 export default async function MeetingsPage() {
   const [session, db] = await Promise.all([getSession(), readDb()]);
@@ -42,6 +44,10 @@ export default async function MeetingsPage() {
           />
         </div>
       ) : null}
+
+      <MovingHelpToggle initial={applicant.wantsMovingHelp === true}>
+        <InternationalSupport audience="applicant" />
+      </MovingHelpToggle>
 
       <h2 className="h2 mt-10">Requests from companies</h2>
       {requested.length === 0 ? <p className="empty-slot mt-3">No requests right now.</p> : null}
