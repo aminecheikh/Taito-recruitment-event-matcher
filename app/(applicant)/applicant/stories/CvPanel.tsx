@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { z } from "zod";
 import type { RequirementInfo } from "./NewStorySection";
+import { checkPdfFile } from "./pdfText";
+import { readPdfText } from "./readPdf";
 import { truncateTitle } from "./truncateTitle";
 import { FALLBACK_NOTICE, buttonClass, fieldClass, primaryClass } from "./ui";
 
@@ -11,6 +13,7 @@ const CV_URL = "/api/ai/cv-suggestions";
 const MIN_CV_CHARS = 50;
 const MAX_CV_CHARS = 15000;
 const HINT = "Paste your CV, LinkedIn About text or your own posts. Remove your name and contact details first. It is not saved.";
+const PDF_HINT = "Your PDF is read on this device and never uploaded. Its text appears below so you can check it first.";
 
 const ResponseSchema = z.object({
   value: z.object({
@@ -29,7 +32,34 @@ export function CvPanel({ requirementInfo, onStart }: Props) {
   const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfNote, setPdfNote] = useState<string | null>(null);
   const tooShort = text.trim().length < MIN_CV_CHARS;
+
+  const onPdf = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setError(null);
+    setPdfNote(null);
+    const problem = checkPdfFile(file);
+    if (problem) return setError(problem);
+    setPdfBusy(true);
+    try {
+      const extracted = await readPdfText(file);
+      if (extracted.length < MIN_CV_CHARS) {
+        setError("This PDF has no readable text (it may be a scan). Paste your text instead.");
+        return;
+      }
+      setText(extracted.slice(0, MAX_CV_CHARS));
+      setResult(null);
+      setPdfNote(`Text taken from ${file.name}. Check it below and remove your name and contact details before you continue.`);
+    } catch {
+      setError("Could not read this PDF. Paste your text instead.");
+    } finally {
+      setPdfBusy(false);
+    }
+  };
 
   const run = async () => {
     setLoading(true);
@@ -57,7 +87,11 @@ export function CvPanel({ requirementInfo, onStart }: Props) {
         <span className="tag tag-ai mr-2">AI</span>Start from your CV
       </summary>
       <div className="mt-4">
-        <label htmlFor="cv-text" className="label">Your text</label>
+        <label htmlFor="cv-file" className="label">Upload a PDF</label>
+        <p className="hint mt-1">{PDF_HINT}</p>
+        <input id="cv-file" type="file" accept="application/pdf,.pdf" className="mt-2 block text-sm" onChange={onPdf} disabled={pdfBusy} />
+        {pdfNote ? <p role="status" className="mt-2 font-medium">{pdfNote}</p> : null}
+        <label htmlFor="cv-text" className="label mt-5">Or paste your text</label>
         <p className="hint mt-1">{HINT}</p>
         <textarea id="cv-text" className={`${fieldClass} mt-2`} rows={8} maxLength={MAX_CV_CHARS} value={text} onChange={(e) => setText(e.target.value)} />
         <div className="mt-3 flex flex-wrap items-center gap-3">
