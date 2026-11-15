@@ -20,6 +20,14 @@ Every number below is from `docs/research/README.md` and the linked reports. Fig
 
 See `docs/demo/demo-script.md`. Applicant 017 and Acme Robotics Oy (fictional).
 
+## What sets us apart
+
+- The AI refuses to judge people, right where you type (paste "Rank the applicants" into the job-ad box and it says no).
+- Both sides get help describing themselves: applicants with stories and a CV head start, companies with job-ad extraction and recruiter questions.
+- Scores are human, weighted by the recruiter's own ranking, and nobody gets filtered out unread (unscored applicants stay visible).
+- International needs are revealed only after a match, and only if the applicant opted in.
+- Privacy you can click: a field table with purposes, Download my data, Delete all my data.
+
 ## 4. Human decides: EU AI Act and GDPR story
 
 - Recruitment is high risk (Annex III, point 4(a)). Profiling would keep it high risk.
@@ -40,10 +48,14 @@ See `docs/demo/demo-script.md`. Applicant 017 and Acme Robotics Oy (fictional).
 
 ## 6. What is open
 
-- Scoring guide and screening at volume (for example 100 applicants cover every requirement for 10 slots). Two teammates are researching it. Ruled out: cutting on requirement #1 before reading the rest.
+- Screening at volume is decided: a weighted score (see `docs/pipeline.md`). Open: how the recruiter reads a 0 to 10 scale the same way every time (a scoring guide).
 - Number of signals per applicant, meeting slots per company, whether the applicant sees scores or only feedback lines.
 - Pain point #5 beyond examples: value proposition and getting attention.
 - No published TalentMatch outcomes exist, so we cannot claim an improvement yet.
+
+## In a real deployment
+
+Cut from the pre-freeze build: cut-off dates (FR-C5), ESCO mapping (FR-C6), voice input (FR-T7), event-day precompute and caching (FR-E3), online meeting links (FR-E4), an accessibility audit, a UI in more languages.
 
 ## 7. Next steps with Espoo
 

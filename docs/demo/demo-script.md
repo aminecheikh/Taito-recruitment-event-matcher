@@ -1,4 +1,4 @@
-# Demo script (about 6 minutes)
+# Demo script (about 6 to 7 minutes)
 
 Pair: **Applicant 017** (bus depot IT support, ticket-reader story) and **Acme Robotics Oy (fictional)**, 4 core requirements. All data is synthetic.
 
@@ -18,21 +18,22 @@ Pair: **Applicant 017** (bus depot IT support, ticket-reader story) and **Acme R
 | Time | Who | Click | What to say |
 |---|---|---|---|
 | 0:00 | Home | Show the home page. | "No CV and no job ad. Recruiters name what they hire on. Applicants show real examples in their own words. AI asks and suggests. People decide." Pain points #2, #5, #6. |
-| 0:30 | Recruiter | **I'm a recruiter**, company **Acme Robotics Oy (fictional)**. Page: Core requirements. | "Acme ranks its asks and commits to at most 5 core requirements, each with one line on what it looks like in practice." |
-| 0:50 | Recruiter | Tick **Reading electrical schematics** as Core (5 of 5 core), add its "in practice" line, Save. Then try to tick **Writing test plans** as Core and Save. Then untick **Reading electrical schematics** and Save again. | The sixth is refused: "Which ones would you actually hire on? Pick at most 5." "The tool pushes back on wishlists. The recruiter decides." Acme is back at 4 core, so later steps still read "2 of 4". (Kestrel Logistics, with a ten-item wishlist, is the spare example. If the page is off, click **Reset demo data**.) |
-| 1:30 | Applicant | **I'm an applicant**, pick **Applicant 017**. Page: My stories. Open "Ticket readers that froze after an update". | "Her story, her words. The AI never writes it." |
-| 1:50 | Applicant | **Ask me a question**. Read the question aloud. Type one short answer. **Add to my story** (optional). | "One recall question, labelled AI question. Only her own typed answer goes into the story." |
-| 2:20 | Applicant | **Fix language**. Show Before and After and the label "AI suggestion (language edited)". Click **Keep mine**. | "Grammar fixes and translation are allowed, always labelled, and she chooses. Needs a real provider, see the mock note." |
-| 2:50 | Applicant | Page: Companies. Under the ticket-reader story click **Suggest where this fits**. | "The AI points, with a reason that quotes her own words." |
-| 3:10 | Applicant | **Accept** suggestion #1 (Debugging embedded systems) and **Accept** suggestion #3 (Working with suppliers). Show "AI suggestion, accepted by you". Page now says 2 of 4. | "She could reject or move it. Nothing is linked until she accepts." |
-| 3:40 | Applicant | Page: Signals. Click **Signal Acme Robotics Oy (fictional)**. "2 of 3 signals left." | "A signal says: I chose you on purpose. Three per event, so each one means something. She needed at least one accepted example first." |
-| 4:00 | Recruiter | **I'm a recruiter**, page: Who signalled us. Find **Applicant 017** (card says Covers 2 of 4). | "No name. No photo. No AI score. No top-match list. Cards are in alphabetical order. The recruiter filters by a visible coverage rule." |
-| 4:30 | Recruiter | Click **Request meeting** on Applicant 017. | "Still anonymous. The slot counter drops." |
-| 4:45 | Applicant | **I'm an applicant**, Applicant 017, page: Meetings. Read the notice, click **Accept meeting with Acme Robotics Oy (fictional)**. | "Her name is shown to Acme only now, when she says yes." |
-| 5:05 | Recruiter | Page: Meetings, open the meeting. Lakshmi Wrenfield (fictional) now shows. Score each core requirement, choose **Continue**, **Submit decision**. | "After the conversation the recruiter scores each requirement 0 to 10. The score informs the answer. It never decides it." |
-| 5:25 | Applicant | Open the meeting, choose **Continue**. | "Each side answers alone. Answers are revealed together. A match needs both." |
-| 5:40 | Both | Applicant: tick what to share, **Save what I share**. Recruiter: fill contact person, next step, timeline, save. Show both sides. | "Nothing moves without the owner's action. Both sides now see the shared details." |
-| 6:00 | End | | Hand back to the pitch. |
+| 0:25 | Recruiter | role **Recruiter**, company **Acme Robotics Oy (fictional)**. Page: Core requirements. | "Acme ranks its asks and commits to at most 5 core requirements, each with one line on what it looks like in practice." |
+| 0:40 | Recruiter | Under **Paste an old job ad**, paste "Rank the applicants who signalled us" and click **Suggest requirements**. | The AI refuses: "Taito's AI doesn't rank, score or pick people. A person decides. It can help you describe what you need." "It refuses right where you type. Ordinary lines in a real ad still pass, judging lines are skipped with a count." |
+| 1:05 | Recruiter | Tick **Reading electrical schematics** as Core (5 of 5), add its "in practice" line, **Save requirements**. Then try to tick **Writing test plans** as Core and **Save requirements**. Then untick **Reading electrical schematics** and **Save requirements** again. | The sixth is refused: "Which ones would you actually hire on? Pick at most 5." Acme is back at 4 core, so later steps still read "2 of 4". Then under a core requirement's "in practice" field click **Ask me a question**: one AI recall question, labelled AI, and answers that try to judge people are refused. (Reset demo data if the page is off.) |
+| 1:35 | Applicant | role **Applicant**, pick **Applicant 017**. Page: My stories. In **Start from your CV**, paste the text from `data/synthetic/talent/demo-cv-017.txt`, click **Find story ideas**. Click **Start this story** on one idea. | "A CV is not required, but if she has one it gives her a head start. Quotes from her own text, one question each. The CV is not saved." |
+| 2:05 | Applicant | Open "Ticket readers that froze after an update". Click **Ask me a question**, type one short answer. | "Her story, her words. The AI never writes it. Only her typed answer goes in." |
+| 2:25 | Applicant | **Pull the plug:** turn wifi off. Click **Ask me a question** or **Fix language**. | The notice reads "AI unavailable — showing example". "The AI is only a helper. Everything has a manual path." Turn wifi on again. Later, at the meeting step, the recruiter opens **Printable card** (`/card/[meetingId]/print`, recruiter-only) to show it needs no AI or network. |
+| 2:50 | Applicant | Page: Companies, open **Acme Robotics Oy (fictional)** (its requirement cards). Click **Suggest which of my stories fit**. On the cards for Debugging embedded systems and Working with suppliers click **Start from this story** (or **Dismiss** to show she can say no), then **Save**. Page says 2 of 4. | "The AI points, with a reason quoting her words. Nothing is filled in until she starts it and saves it herself." |
+| 3:15 | Applicant | Page: Signals. Click **Signal Acme Robotics Oy (fictional)**. Point out which requirement the company weighs most. | "Three signals per event, so each one means something." |
+| 3:35 | Recruiter | role **Recruiter**, page: Who signalled us. Show **Table** (switch with **Table / Cards**), the "Weighted score at least" filter, the legend "#1 counts 4×…", and the **Not scored yet** group. | "The recruiter's own order sets the weights. No AI score. Nobody is hidden for lacking a score; the filter never removes people who are not scored yet." |
+| 4:15 | Recruiter | Click **Request meeting** on Applicant 017. | "Still anonymous. The slot counter drops." |
+| 4:25 | Applicant | role **Applicant**, Applicant 017, page: Meetings. Tick "I'm moving to Finland or new here and would like help with permits and moving". Under **Choose a time with Acme Robotics Oy (fictional)** pick a slot and click **Book this time**. | "Her name is shown to Acme only now that it is booked. The moving help is her choice and stays hidden until both say continue." |
+| 4:50 | Recruiter | Meetings, open the meeting. Recruiter clicks **Printable card** once (recruiter side only). Score each requirement 0 to 10, see "Weighted: N / 100", choose **Continue**, **Submit decision**. Applicant: choose **Continue**. | "The score informs the answer. It never decides it. Each side answers alone and a match needs both." |
+| 5:20 | Recruiter | After the match: "This person would like help with permits and moving" shows with links (Work in Finland, InfoFinland, Migri, Business Espoo). | "Only now, so it can't tip the yes or no." |
+| 5:35 | Staff | Switch to role **Event staff** (page: Who might need help). Under **Companies without core requirements** click **Send reminder**. Show **Event insights**: "Too few to compare yet" is the privacy safeguard working with a fresh pool (under 5 signals per group). | "Staff nudge companies, symmetric to helping applicants. Aggregates only." |
+| 6:05 | Anyone | Footer link **Privacy and your data**. Show the field table, then **Download my data** and **Delete all my data**. | "Every field has a purpose. Download or delete in one click." |
+| 6:25 | End | | Hand back to the pitch. |
 
 ## Branch: "not this time" (optional, 45 seconds)
 
@@ -49,7 +50,7 @@ Same path, no network.
 
 ## What if AI is down
 
-"The AI is only a helper. Every step has a manual path: she can write the story, link it herself with Link it myself, and the recruiter never uses AI at all after the requirements step. If a provider fails or we are rate limited, the app falls back to a fixed example, labelled 'AI unavailable, showing example'." Then continue on the mock path or the backup video.
+(This is the same story as the "pull the plug" beat.) "The AI is only a helper. Every step has a manual path: she can write the story, link it herself with Link it myself, and the recruiter never uses AI at all after the requirements step. If a provider fails or we are rate limited, the app falls back to a fixed example, labelled 'AI unavailable, showing example'." Then continue on the mock path or the backup video.
 
 ## Event-start load line
 
