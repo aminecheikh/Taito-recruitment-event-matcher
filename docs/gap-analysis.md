@@ -1,7 +1,7 @@
 # Gap Analysis — what we have, what we don't
 
 Statuses updated 2026-11-15 after the pre-freeze slices; first written 2026-11-14, 21:00 · Checked against [technical-requirements.md](technical-requirements.md) at commit `801ca70`.
-Method: read `lib/domain`, `lib/ai`, `lib/store`, `app/actions`, the pages and the seed data; ran `scripts/check.sh` (green, 22 test files, 208 tests). The UI was not clicked through, so screen-level claims come from the code.
+Method: read `lib/domain`, `lib/ai`, `lib/store`, `app/actions`, the pages and the seed data; ran `scripts/check.sh` (green, 351 tests after the 2026-11-15 slices). The UI was not clicked through, so screen-level claims come from the code.
 
 Legend: ✅ built · 🟡 partly built · ❌ not built · ⏸ open product decision
 
@@ -43,7 +43,7 @@ Legend: ✅ built · 🟡 partly built · ❌ not built · ⏸ open product deci
 | FR-S2 ≥ 1 accepted example to signal | ✅ | `no-accepted-example` error |
 | FR-S3 Anonymous cards, every slot | ✅ | `buildCard` + `visibleApplicantName`; the data model has no protected attributes at all |
 | FR-S4 Coverage filter, rule visible to applicants | ✅ | R2 filter, list sorted alphabetically by pseudonym (no hidden order); rule sentence on `applicant/signals` |
-| FR-S5 Recruiter card scores | ✅ | `setScore` core-only, 0–10; total only when complete |
+| FR-S5 Recruiter card scores | ✅ | `setScore` core-only, 0–10; weighted total out of 100 (`lib/domain/scores.ts`) |
 | FR-S6 Request → accept → name revealed | ✅ | `requestMeeting` checks signal + slots; `acceptMeeting` |
 | FR-S7 Screening at volume | ✅ | Decided 2026-11-15: rank-weighted score out of 100 plus "Weighted score at least" filter; unscored never hidden (`lib/domain/scores.ts`) |
 
@@ -121,7 +121,7 @@ Legend: ✅ built · 🟡 partly built · ❌ not built · ⏸ open product deci
 
 | ID | Status |
 |---|---|
-| TR-1 – TR-8 | ✅ All have test files; 208 tests pass |
+| TR-1 – TR-8 | ✅ All have test files; 351 tests pass |
 
 ## Brief pain points: coverage at a glance
 

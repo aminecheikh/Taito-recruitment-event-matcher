@@ -56,7 +56,7 @@ Rules from the brief: **R-HUMAN** no automated profiling or decisions about indi
 | FR-S2 | An applicant can signal a company only with ≥ 1 accepted example for its core requirements | Button disabled with reason otherwise | PP4, PP3 | MVP |
 | FR-S3 | Recruiter sees only applicants who signalled them, as anonymous cards with every core slot | Pseudonym only; empty slots show "no example yet"; no name, photo, age, nationality, education institution | PP4, R-FAIR | MVP |
 | FR-S4 | Recruiter filters by coverage (all core requirements first, then one fewer, …) | Deterministic; the rule is shown to applicants in advance | PP4, R-HUMAN | MVP |
-| FR-S5 | Recruiter may score each card 0–10 per core requirement | Entered by the recruiter only; total shown only when every core requirement is scored; visible only to that company | PP3, R-HUMAN | MVP |
+| FR-S5 | Recruiter may score each card 0–10 per core requirement | Entered by the recruiter only; weighted total out of 100, weights follow the recruiter's own order (N core: #1 weighs N … last weighs 1); applicants without scores are never hidden by the score filter; visible only to that company | PP3, R-HUMAN | MVP |
 | FR-S6 | Recruiter requests a meeting; applicant accepts; name revealed only when booked | Two-sided opt-in; booking blocked when slots are full | PP4, R-HUMAN | MVP |
 | FR-S7 | Screening guidance when more applicants cover all requirements than there are slots | Decided 2026-11-15: rank-weighted score, no cut on #1 alone | PP4 | Built ✅ |
 
