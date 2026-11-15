@@ -12,21 +12,21 @@ export type PersonalDataField = {
   deletedWhen: string;
 };
 
-const ON_REQUEST = `When you press "Delete all my data", or ${RETENTION_DAYS} days after the event`;
+const ON_REQUEST = `When you press "Delete all my data". In a real deployment, also ${RETENTION_DAYS} days after the event`;
 
 export const PERSONAL_DATA_FIELDS: readonly PersonalDataField[] = [
   {
     collection: "applicants",
     field: "pseudonym",
-    purpose: "Shown to companies instead of your name until both sides continue",
+    purpose: "Shown to companies instead of your name until you accept a meeting",
     whoSees: "You and recruiters you signal",
     deletedWhen: ON_REQUEST,
   },
   {
     collection: "applicants",
     field: "displayName",
-    purpose: "Shown only to you, so you recognise your own profile",
-    whoSees: "You",
+    purpose: "Shown to you, and to a company only after you accept its meeting request, so they know who is coming",
+    whoSees: "You; a company once you accept its meeting request",
     deletedWhen: ON_REQUEST,
   },
   {

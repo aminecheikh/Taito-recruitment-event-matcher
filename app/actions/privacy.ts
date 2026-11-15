@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { resetEnabled } from "@/lib/demoReset";
 import { deleteApplicantData, deleteStory } from "@/lib/domain/privacy";
 import { getSession } from "@/lib/session";
 import { updateDb } from "@/lib/store/db";
@@ -10,9 +11,11 @@ export type PrivacyStatus = { ok: true } | { ok: false; error: string };
 
 const NO_APPLICANT = "Pick an applicant in the top bar";
 const NOT_FOUND = "That story was not found.";
+const DELETE_OFF = "Deleting is turned off on the shared demo.";
 
 /** Only the session applicant's own story can be deleted. Returns a status, never database contents. */
 export async function deleteStoryAction(storyId: string): Promise<PrivacyStatus> {
+  if (!resetEnabled()) return { ok: false, error: DELETE_OFF };
   if (!z.string().min(1).safeParse(storyId).success) return { ok: false, error: NOT_FOUND };
   const session = await getSession();
   if (session.role !== "applicant") return { ok: false, error: NO_APPLICANT };
@@ -24,6 +27,7 @@ export async function deleteStoryAction(storyId: string): Promise<PrivacyStatus>
 
 /** Removes everything held about the session applicant. */
 export async function deleteMyDataAction(): Promise<PrivacyStatus> {
+  if (!resetEnabled()) return { ok: false, error: DELETE_OFF };
   const session = await getSession();
   if (session.role !== "applicant") return { ok: false, error: NO_APPLICANT };
   const result = await updateDb((db) => deleteApplicantData(db, session.applicantId));

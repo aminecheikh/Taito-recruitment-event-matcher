@@ -1,4 +1,5 @@
 import { PageHeader } from "@/app/components/PageHeader";
+import { resetEnabled } from "@/lib/demoReset";
 import { PERSONAL_DATA_FIELDS, RETENTION_DAYS } from "@/lib/domain/privacy";
 import { getSession } from "@/lib/session";
 import { MyDataControls } from "./MyDataControls";
@@ -17,7 +18,7 @@ export default async function PrivacyPage() {
         <section className="card mt-8" aria-label="My data">
           <h2 className="h2">My data</h2>
           <p className="hint mt-1">Download everything held about you, or delete it all. Recruiter scores are not part of the download.</p>
-          <MyDataControls />
+          <MyDataControls deleteEnabled={resetEnabled()} />
         </section>
       ) : null}
 
@@ -57,7 +58,7 @@ export default async function PrivacyPage() {
       </ul>
 
       <h2 className="h2 mt-10">Retention</h2>
-      <p className="mt-2">Applicant data is deleted {RETENTION_DAYS} days after the event, or sooner when you delete it yourself.</p>
+      <p className="mt-2">In a real deployment, applicant data would be deleted {RETENTION_DAYS} days after the event unless you matched. You can delete it yourself at any time.</p>
     </main>
   );
 }
