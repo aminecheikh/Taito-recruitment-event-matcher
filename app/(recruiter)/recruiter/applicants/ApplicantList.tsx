@@ -8,7 +8,7 @@ import type { SearchResult, SuggestedFilter } from "@/lib/ai/guardrails";
 import type { Card } from "@/lib/domain/cards";
 import { addFilter, applyFilters, fromSearch, fromSuggested, matchLine, reasonsFor, removeFilter, sectionGroups, type ActiveFilter } from "@/lib/domain/activeFilters";
 import { CLOSED, popoverReducer } from "@/lib/domain/reasonPopover";
-import { keepShown, summarise, toggleAll, toggleOne } from "@/lib/domain/selection";
+import { keepShown, markedAmong, summarise, toggleAll, toggleOne } from "@/lib/domain/selection";
 import { AiSearchPanel } from "./AiSearchPanel";
 import { ReasonInfo } from "./ReasonInfo";
 import { SuggestedFilters } from "./SuggestedFilters";
@@ -66,6 +66,7 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly, minWeig
   const selected = keepShown(picked, shownIds);
   const summary = summarise(selected, shownIds);
   const ids = [...selected];
+  const markedIds = markedAmong(selected, (id) => byId.get(id)?.marked ?? false);
 
   // Changing the filters changes what is shown, so the selection starts empty again.
   const changeFilters = (next: ActiveFilter[]) => {
@@ -98,11 +99,13 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly, minWeig
 
   const mark = (marked: boolean) =>
     start(async () => {
-      const status = await markForLaterAction(ids, marked);
+      // Unmark only touches applicants who are actually marked, so the message counts the right people.
+      const targets = marked ? ids : markedIds;
+      const status = await markForLaterAction(targets, marked);
       // Success is a passing confirmation (the row tag shows the lasting state); a failure stays until the next action.
       if (status.ok) {
         setNotice(null);
-        showToast(markMessage(ids.length, marked));
+        showToast(markMessage(targets.length, marked));
       } else {
         setNotice({ kind: "error", text: status.error });
       }
@@ -173,7 +176,13 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly, minWeig
         <button type="button" className="btn btn-sm" disabled={pending || summary.count === 0} onClick={() => mark(true)}>
           Mark for later
         </button>
-        <button type="button" className="btn btn-sm btn-quiet" disabled={pending || summary.count === 0} onClick={() => mark(false)}>
+        <button
+          type="button"
+          className="btn btn-sm btn-quiet"
+          disabled={pending || markedIds.length === 0}
+          title={summary.count > 0 && markedIds.length === 0 ? "None of the selected applicants is marked" : undefined}
+          onClick={() => mark(false)}
+        >
           Unmark
         </button>
         {slotsLeft <= 0 && <p className="hint w-full">No free meeting slots left for this event.</p>}

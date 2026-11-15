@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { keepShown, summarise, toggleAll, toggleOne } from "./selection";
+import { keepShown, markedAmong, summarise, toggleAll, toggleOne } from "./selection";
 
 const SHOWN = ["a", "b", "c"];
 
@@ -30,4 +30,14 @@ describe("selection", () => {
     expect(summarise(new Set(["a"]), ["a", "a", "b"])).toEqual({ count: 1, total: 2, all: false, some: true }));
 
   test("summarise_emptyList_notAll", () => expect(summarise(new Set(), [])).toMatchObject({ all: false, count: 0 }));
+});
+
+describe("markedAmong", () => {
+  const marked = new Set(["b"]);
+  test("markedAmong_noneSelectedMarked_returnsEmpty", () => {
+    expect(markedAmong(new Set(["a", "c"]), (id) => marked.has(id))).toEqual([]);
+  });
+  test("markedAmong_someSelectedMarked_returnsOnlyThose", () => {
+    expect(markedAmong(new Set(["a", "b"]), (id) => marked.has(id))).toEqual(["b"]);
+  });
 });

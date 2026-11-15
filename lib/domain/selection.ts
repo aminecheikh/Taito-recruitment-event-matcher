@@ -25,3 +25,8 @@ export function summarise(selected: ReadonlySet<string>, shown: readonly string[
   const count = unique.filter((id) => selected.has(id)).length;
   return { count, total: unique.length, all: unique.length > 0 && count === unique.length, some: count > 0 && count < unique.length };
 }
+
+/** The selected ids that are marked for later; Unmark acts only on these and is off when there are none. */
+export function markedAmong(selected: ReadonlySet<string>, isMarked: (id: string) => boolean): string[] {
+  return [...selected].filter(isMarked);
+}
