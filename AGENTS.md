@@ -125,6 +125,7 @@ When something you learn would change how the next agent works (a decision, a go
 | 2026-11-15 | Scoring: the recruiter scores 0–10 per core requirement; the weighted total (out of 100) uses the recruiter's own order (N core: #1 weighs N … last weighs 1); applicants without scores are never hidden by the score filter (`lib/domain/scores.ts`) | Scores were unused; weighting follows the recruiter's ranking without cutting anyone on #1 alone |
 | 2026-11-15 | Moving help: the applicant opts in; the company sees it only after both decide to continue | So it can't tip the yes or no against international applicants |
 | 2026-11-15 | An AI input guard replaces the planned "How Taito uses AI" page: the refusal happens in the job-ad box (and recruiter question answers) | Simpler, and it shows where people actually type |
+| 2026-11-15 | Hosting: Render free tier from `render.yaml` (one Node process, auto-deploy on push to `main`, demo reset off). Not Vercel/Netlify/Firebase: serverless instances don't share the JSON-file store | Free; Verda had no CPU instances. Free tier sleeps after 15 min (first visit ~1 min) and data returns to the seed on each sleep or deploy |
 
 <!-- BEGIN:nextjs-agent-rules -->
 
