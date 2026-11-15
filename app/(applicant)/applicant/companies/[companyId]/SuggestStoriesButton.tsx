@@ -62,7 +62,8 @@ export function SuggestStoriesButton({ stories }: { stories: StoryRef[] }) {
   return (
     <div className="mt-6">
       <button type="button" className={buttonClass} disabled={busy} onClick={run}>
-        {busy ? "Working" : "Suggest which of my stories fit"}
+        <span className="tag tag-ai mr-2">AI</span>
+        {busy ? "Matching your stories…" : "Suggest which of my stories fit"}
       </button>
       {fallback ? <p className="hint mt-2">{FALLBACK_NOTICE}</p> : null}
       {added === 0 ? <p className="hint mt-2" aria-live="polite">No new suggestions.</p> : null}

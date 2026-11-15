@@ -147,7 +147,7 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly, minWeig
                 {f.note}
               </p>
             ))}
-          <p className="hint">{matchLine(summary.total, filters.length)}. Check their cards before you decide.</p>
+          <p className="hint">{matchLine(summary.total, filters.length, rows.length)}. The AI may miss someone, so check their cards before you decide.</p>
         </div>
       )}
 

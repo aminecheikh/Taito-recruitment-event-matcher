@@ -59,11 +59,16 @@ export function reasonsFor(id: string, filters: readonly ActiveFilter[]): Filter
   );
 }
 
-/** "8 applicants match 2 filters" */
-export function matchLine(count: number, filterCount: number): string {
-  const people = `${count} applicant${count === 1 ? "" : "s"}`;
+/**
+ * "8 of 12 applicants match all 2 filters; 4 are hidden". The AI decides who matches, so the
+ * recruiter always sees how many people the filters hide, not only who is left.
+ */
+export function matchLine(count: number, filterCount: number, listCount: number): string {
+  const people = `${count} of ${listCount} applicant${listCount === 1 ? "" : "s"}`;
   const verb = count === 1 ? "matches" : "match";
-  return `${people} ${verb} ${filterCount === 1 ? "the filter" : `all ${filterCount} filters`}`;
+  const hidden = listCount - count;
+  const hiddenNote = hidden > 0 ? `; ${hidden} ${hidden === 1 ? "is" : "are"} hidden` : "";
+  return `${people} ${verb} ${filterCount === 1 ? "the filter" : `all ${filterCount} filters`}${hiddenNote}`;
 }
 
 /** The latest free-text filter that came back as several groups decides the sections; otherwise one list. */

@@ -92,7 +92,15 @@ describe("active AI filters", () => {
   });
 
   test("matchLine_counts_readsNaturally", () => {
-    expect(matchLine(8, 2)).toBe("8 applicants match all 2 filters");
-    expect(matchLine(1, 1)).toBe("1 applicant matches the filter");
+    expect(matchLine(8, 2, 12)).toBe("8 of 12 applicants match all 2 filters; 4 are hidden");
+    expect(matchLine(1, 1, 2)).toBe("1 of 2 applicants matches the filter; 1 is hidden");
+  });
+
+  test("matchLine_nobodyHidden_saysNothingHidden", () => {
+    expect(matchLine(5, 1, 5)).toBe("5 of 5 applicants match the filter");
+  });
+
+  test("matchLine_everyoneHidden_countsThemAll", () => {
+    expect(matchLine(0, 1, 3)).toBe("0 of 3 applicants match the filter; 3 are hidden");
   });
 });
