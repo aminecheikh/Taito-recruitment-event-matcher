@@ -114,8 +114,8 @@ export function CvPanel({ requirementInfo, onStart }: Props) {
           onDrop={onDrop}
         >
           <input id="cv-file" type="file" accept="application/pdf,.pdf" className="sr-only" onChange={onPick} disabled={pdfBusy} />
-          <span className={`${buttonClass} pointer-events-none`}>{pdfBusy ? "Reading the PDF…" : "Choose a PDF"}</span>
-          <span className="hint">or drag and drop it here</span>
+          <span className="drop-zone-text">{pdfBusy ? "Reading the PDF…" : "Drag and drop your CV as a PDF here, or"}</span>
+          <span className={`${buttonClass} btn-sm pointer-events-none`}>Choose a file</span>
         </label>
         {pdfNote ? <p role="status" className="mt-2 font-medium">{pdfNote}</p> : null}
         <label htmlFor="cv-text" className="label mt-5">Or paste your text</label>
