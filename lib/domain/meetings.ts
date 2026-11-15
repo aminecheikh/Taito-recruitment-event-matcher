@@ -32,3 +32,8 @@ export function acceptMeeting(db: Db, meetingId: string, slotStart: string): Res
   const meetings = db.meetings.map((m) => (m.id === meetingId ? { ...m, status: "booked" as const, slotStart } : m));
   return { ok: true, value: { ...db, meetings } };
 }
+
+/** Meeting requests from companies that this applicant has not answered yet at this event. */
+export function pendingRequestCount(db: Db, eventId: string, applicantId: string): number {
+  return db.meetings.filter((m) => m.eventId === eventId && m.applicantId === applicantId && m.status === "requested").length;
+}

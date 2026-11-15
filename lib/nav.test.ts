@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { currentNavHref, ROLE_NAV } from "./nav";
+import { badgeText, currentNavHref, ROLE_NAV } from "./nav";
 
 describe("currentNavHref", () => {
   test("currentNavHref_nestedStaffPage_picksOnlyTheLongestMatch", () => {
@@ -16,5 +16,17 @@ describe("currentNavHref", () => {
   });
   test("currentNavHref_unrelatedPage_returnsUndefined", () => {
     expect(currentNavHref(ROLE_NAV.staff, "/privacy")).toBeUndefined();
+  });
+});
+
+describe("badgeText", () => {
+  test("badgeText_zero_showsNoBadge", () => {
+    expect(badgeText(0)).toBeNull();
+  });
+  test("badgeText_small_showsTheNumber", () => {
+    expect(badgeText(3)).toBe("3");
+  });
+  test("badgeText_overNine_capsAtNinePlus", () => {
+    expect(badgeText(12)).toBe("9+");
   });
 });

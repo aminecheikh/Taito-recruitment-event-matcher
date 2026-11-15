@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { currentNavHref, type NavItem } from "@/lib/nav";
+import { badgeText, currentNavHref, type NavItem } from "@/lib/nav";
 
 export function RoleNav({ items }: { items: readonly NavItem[] }) {
   const pathname = usePathname();
@@ -12,10 +12,17 @@ export function RoleNav({ items }: { items: readonly NavItem[] }) {
       <ul className="flex gap-1">
         {items.map((item) => {
           const current = item.href === currentHref;
+          const badge = badgeText(item.badge ?? 0);
           return (
             <li key={item.href} className="shrink-0">
               <Link href={item.href} aria-current={current ? "page" : undefined} className="nav-tab">
                 {item.label}
+                {badge ? (
+                  <>
+                    <span className="nav-badge" aria-hidden="true">{badge}</span>
+                    <span className="sr-only">, {item.badge} waiting</span>
+                  </>
+                ) : null}
               </Link>
             </li>
           );

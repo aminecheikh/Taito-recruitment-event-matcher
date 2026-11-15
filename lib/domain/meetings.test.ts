@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { makeDb } from "./fixtures";
-import { acceptMeeting, requestMeeting } from "./meetings";
+import { acceptMeeting, pendingRequestCount, requestMeeting } from "./meetings";
 import type { Db, Meeting } from "./types";
 
 const EVENT = "event-01";
@@ -69,5 +69,26 @@ describe("acceptMeeting", () => {
     const booked = acceptMeeting(db, db.meetings[0]!.id, "15:00");
     if (!booked.ok) throw new Error(booked.error);
     expect(acceptMeeting(booked.value, db.meetings[0]!.id, "16:00")).toEqual({ ok: false, error: "not-requested" });
+  });
+});
+
+describe("pendingRequestCount", () => {
+  const meeting = (id: string, over: Partial<Meeting>): Meeting => ({
+    id, eventId: "e1", companyId: "c1", applicantId: "a1", status: "requested", ...over,
+  });
+  const db = (meetings: Meeting[]): Db => ({ ...makeDb(), meetings });
+
+  test("pendingRequestCount_noMeetings_isZero", () => {
+    expect(pendingRequestCount(db([]), "e1", "a1")).toBe(0);
+  });
+  test("pendingRequestCount_countsOnlyUnansweredRequestsForThisApplicantAndEvent", () => {
+    const meetings = [
+      meeting("m1", {}),
+      meeting("m2", { companyId: "c2" }),
+      meeting("m3", { status: "booked", slotStart: "14:00" }),
+      meeting("m4", { applicantId: "a2" }),
+      meeting("m5", { eventId: "e2" }),
+    ];
+    expect(pendingRequestCount(db(meetings), "e1", "a1")).toBe(2);
   });
 });

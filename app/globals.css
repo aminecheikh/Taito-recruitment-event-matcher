@@ -869,6 +869,53 @@
     background: var(--cobalt);
     color: #ffffff;
   }
+  /* File drop zone (CV PDF): dashed area holding a real button; highlights while a file is dragged over */
+  .drop-zone {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 6rem;
+    padding: 1.25rem;
+    border: 1.5px dashed var(--line-strong);
+    border-radius: 0.75rem;
+    background: var(--surface);
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 150ms var(--ease-out), border-color 150ms var(--ease-out);
+  }
+  .drop-zone:hover,
+  .drop-zone[data-dragging] {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .drop-zone:has(input:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .drop-zone[aria-busy] {
+    cursor: progress;
+    opacity: 0.7;
+  }
+  /* Notification count on a tab (e.g. unanswered meeting requests): the applicant pink, like an app badge */
+  .nav-badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    margin-left: 0.375rem;
+    border-radius: 999px;
+    padding-inline: 0.3rem;
+    background: var(--pink);
+    color: var(--on-tone);
+    box-shadow: 0 0 0 1.5px var(--on-tone);
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
 
   /* Logo lockup: the pipo mascot head as a sticker mark + a chunky wordmark */
   .logo {

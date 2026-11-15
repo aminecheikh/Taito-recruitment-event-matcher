@@ -1,6 +1,7 @@
 import type { Role } from "@/lib/session";
 
-export type NavItem = { label: string; href: string };
+/** badge: a count shown as a small circle on the tab, e.g. unanswered meeting requests. */
+export type NavItem = { label: string; href: string; badge?: number };
 
 export const ROLE_NAV: Record<Role, readonly NavItem[]> = {
   recruiter: [
@@ -33,3 +34,11 @@ export const ROLE_HOME: Record<Role, string> = {
   applicant: ROLE_NAV.applicant[0].href,
   staff: ROLE_NAV.staff[0].href,
 };
+
+export const MAX_BADGE = 9;
+
+/** Text for a nav notification badge: nothing at 0, the number up to 9, then "9+". */
+export function badgeText(count: number): string | null {
+  if (count <= 0) return null;
+  return count > MAX_BADGE ? `${MAX_BADGE}+` : String(count);
+}
