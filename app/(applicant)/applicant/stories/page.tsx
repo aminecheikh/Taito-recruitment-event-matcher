@@ -1,6 +1,8 @@
 import { PageHeader } from "@/app/components/PageHeader";
+import { coreIdsAtEvent } from "@/lib/domain/attendance";
 import { getSession } from "@/lib/session";
 import { readDb } from "@/lib/store/db";
+import { NewStorySection, type RequirementInfo } from "./NewStorySection";
 import { AiBanner, StoryEditor } from "./StoryEditor";
 
 export default async function StoriesPage() {
@@ -16,6 +18,15 @@ export default async function StoriesPage() {
   }
 
   const stories = db.stories.filter((s) => s.applicantId === applicant.id);
+  const coreIds = coreIdsAtEvent(db, session.eventId);
+  const requirementInfo: Record<string, RequirementInfo> = Object.fromEntries(
+    db.requirements
+      .filter((r) => coreIds.has(r.id))
+      .map((r) => [
+        r.id,
+        { companyId: r.companyId, companyName: db.companies.find((c) => c.id === r.companyId)?.name ?? r.companyId, text: r.text },
+      ]),
+  );
 
   return (
     <main className="page page-wide">
@@ -30,11 +41,7 @@ export default async function StoriesPage() {
           </li>
         ))}
       </ul>
-      <h2 className="h2 mt-12">Add a story</h2>
-      <p className="hint mt-1">A few sentences about something you did: what happened, what you did yourself, what changed.</p>
-      <div className="mt-4">
-        <StoryEditor key={`new:${stories.length}`} story={null} />
-      </div>
+      <NewStorySection storyCount={stories.length} requirementInfo={requirementInfo} />
     </main>
   );
 }

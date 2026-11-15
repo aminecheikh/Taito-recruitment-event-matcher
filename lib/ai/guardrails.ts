@@ -112,3 +112,28 @@ export function labelFor(mode: "grammar" | "translate", sourceLanguage?: string)
     ? "language edited"
     : `translated from ${sourceLanguage ?? UNKNOWN_LANGUAGE}`;
 }
+
+// --- CV suggestions ---
+export const MAX_CV_SUGGESTIONS = 5;
+export type CvSuggestions = {
+  storyStarts: { excerpt: string; question: string }[];
+  relevant: { requirementId: string; excerpt: string }[];
+};
+
+/** Every excerpt must be quoted from the pasted CV, every id known, every question a clean recall question. */
+export function cleanCvSuggestions(
+  raw: CvSuggestions,
+  cvText: string,
+  requirements: readonly { id: string }[],
+): CvSuggestions {
+  const known = new Set(requirements.map((r) => r.id));
+  const storyStarts = raw.storyStarts
+    .map((s) => ({ excerpt: s.excerpt.trim(), question: cleanQuestion(s.question, cvText) ?? "" }))
+    .filter((s) => s.question !== "" && isQuotedFrom(s.excerpt, cvText))
+    .slice(0, MAX_CV_SUGGESTIONS);
+  const relevant = raw.relevant
+    .map((r) => ({ requirementId: r.requirementId, excerpt: r.excerpt.trim() }))
+    .filter((r) => known.has(r.requirementId) && isQuotedFrom(r.excerpt, cvText))
+    .slice(0, MAX_CV_SUGGESTIONS);
+  return { storyStarts, relevant };
+}

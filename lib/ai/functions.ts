@@ -2,26 +2,30 @@ import { generateText, Output, type LanguageModel } from "ai";
 import { z } from "zod";
 import type { LanguageLabel, Requirement, Story } from "@/lib/domain/types";
 import {
+  cleanCvSuggestions,
   cleanLanguageText,
   cleanLinkSuggestions,
   cleanQuestion,
   cleanExtractedRequirements,
   labelFor,
+  type CvSuggestions,
   type ExtractedRequirement,
   type LinkSuggestion,
 } from "./guardrails";
 import {
+  mockCvSuggestions,
   mockExtractRequirements,
   mockNextFollowUpQuestion,
   mockSuggestLinks,
 } from "./mock";
+import * as cvPrompt from "./prompts/cvSuggestions";
 import * as extractPrompt from "./prompts/extractRequirements";
 import * as followUpPrompt from "./prompts/nextFollowUpQuestion";
 import * as languagePrompt from "./prompts/languageAssist";
 import * as linksPrompt from "./prompts/suggestLinks";
 import { getModel } from "./provider";
 
-export type { ExtractedRequirement, LinkSuggestion } from "./guardrails";
+export type { CvSuggestions, ExtractedRequirement, LinkSuggestion } from "./guardrails";
 export type AiSource = "model" | "mock" | "mock-fallback";
 export type AiResult<T> = { value: T; source: AiSource };
 
@@ -44,6 +48,10 @@ const RequirementsSchema = z.object({
 const QuestionSchema = z.object({ question: z.string() });
 const SuggestionsSchema = z.object({
   suggestions: z.array(z.object({ requirementId: z.string(), reason: z.string() })),
+});
+const CvSuggestionsSchema = z.object({
+  storyStarts: z.array(z.object({ excerpt: z.string(), question: z.string() })),
+  relevant: z.array(z.object({ requirementId: z.string(), excerpt: z.string() })),
 });
 const TextSchema = z.object({ text: z.string() });
 
@@ -169,6 +177,25 @@ export function createAiFunctions(getModelFn: GetModel) {
     );
   }
 
+  function cvSuggestions(input: {
+    cvText: string;
+    requirements: Pick<Requirement, "id" | "companyId" | "text" | "inPractice">[];
+  }): Promise<AiResult<CvSuggestions>> {
+    return resolve(
+      async (model) => {
+        const raw = await generate(
+          model,
+          CvSuggestionsSchema,
+          cvPrompt.system,
+          cvPrompt.buildUser(input),
+        );
+        const cleaned = cleanCvSuggestions(raw, input.cvText, input.requirements);
+        return cleaned.storyStarts.length + cleaned.relevant.length > 0 ? cleaned : null;
+      },
+      () => mockCvSuggestions(input.cvText, input.requirements),
+    );
+  }
+
   function languageAssist(input: {
     text: string;
     mode: "grammar" | "translate";
@@ -191,8 +218,8 @@ export function createAiFunctions(getModelFn: GetModel) {
     );
   }
 
-  return { extractRequirements, nextFollowUpQuestion, suggestLinks, languageAssist };
+  return { extractRequirements, nextFollowUpQuestion, suggestLinks, cvSuggestions, languageAssist };
 }
 
-export const { extractRequirements, nextFollowUpQuestion, suggestLinks, languageAssist } =
+export const { extractRequirements, nextFollowUpQuestion, suggestLinks, cvSuggestions, languageAssist } =
   createAiFunctions(getModel);

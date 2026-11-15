@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import {
+  cleanCvSuggestions,
   cleanLanguageText,
   cleanLinkSuggestions,
   cleanQuestion,
@@ -175,6 +176,61 @@ describe("cleanExtractedRequirements", () => {
       { text: "SQL", inPractice: "" },
       { text: "Dashboards", inPractice: "Weekly sales dashboards." },
     ]);
+  });
+});
+
+describe("cleanCvSuggestions", () => {
+  const CV = "- Traced a fault in the ticket readers\n- Chased the supplier for a firmware patch\n- Wrote a Python script for the fault log";
+  const known = [{ id: "req-01-1" }, { id: "req-01-3" }];
+  const start = (excerpt: string, question = "What happened when you did this?") => ({ excerpt, question });
+
+  test("cleanCvSuggestions_excerptNotInCv_dropped", () => {
+    const out = cleanCvSuggestions(
+      {
+        storyStarts: [start("Traced a fault in the ticket readers"), start("Led a team of fifty")],
+        relevant: [{ requirementId: "req-01-1", excerpt: "Invented a rocket" }],
+      },
+      CV,
+      known,
+    );
+    expect(out.storyStarts.map((s) => s.excerpt)).toEqual(["Traced a fault in the ticket readers"]);
+    expect(out.relevant).toEqual([]);
+  });
+
+  test("cleanCvSuggestions_unknownRequirement_dropped", () => {
+    const out = cleanCvSuggestions(
+      {
+        storyStarts: [],
+        relevant: [
+          { requirementId: "req-99-9", excerpt: "Traced a fault" },
+          { requirementId: "req-01-1", excerpt: "Traced a fault" },
+        ],
+      },
+      CV,
+      known,
+    );
+    expect(out.relevant).toEqual([{ requirementId: "req-01-1", excerpt: "Traced a fault" }]);
+  });
+
+  test("cleanCvSuggestions_badQuestion_dropped", () => {
+    const out = cleanCvSuggestions(
+      { storyStarts: [start("Traced a fault", "Tell me more"), start("Chased the supplier", "What did you do?")], relevant: [] },
+      CV,
+      known,
+    );
+    expect(out.storyStarts.map((s) => s.excerpt)).toEqual(["Chased the supplier"]);
+  });
+
+  test("cleanCvSuggestions_capsAtFive", () => {
+    const cv = Array.from({ length: 8 }, (_, i) => `- Task number ${i} done`).join("\n");
+    const lines = Array.from({ length: 8 }, (_, i) => `Task number ${i} done`);
+    const out = cleanCvSuggestions(
+      { storyStarts: lines.map((m) => start(m)), relevant: lines.map((m) => ({ requirementId: "req-01-1", excerpt: m })) },
+      cv,
+      known,
+    );
+    expect(out.storyStarts).toHaveLength(5);
+    expect(out.relevant).toHaveLength(5);
   });
 });
 
