@@ -5,6 +5,7 @@ import { flushSync } from "react-dom";
 import { saveRequirements } from "@/app/actions/requirements";
 import { REFUSAL_MESSAGE } from "@/lib/ai/guardrails";
 import { MAX_CORE_REQUIREMENTS, type Requirement } from "@/lib/domain/types";
+import { RecruiterFollowUp } from "./RecruiterFollowUp";
 
 const TOO_MANY_CORE = `Which ones would you actually hire on? Pick at most ${MAX_CORE_REQUIREMENTS}.`;
 const EXTRACT_URL = "/api/ai/extract-requirements";
@@ -266,6 +267,7 @@ export function RequirementsEditor({ companyId, initial }: { companyId: string; 
                     onChange={(e) => patch(index, { inPractice: e.target.value })}
                     className={`${field} mt-1`}
                   />
+                  <RecruiterFollowUp idPrefix={req.id} requirementText={req.text} inPractice={req.inPractice} />
                 </div>
               </li>
             );
