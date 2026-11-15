@@ -43,22 +43,23 @@ export function ShortlistTable({ scored, notScored, requirementIds, requirementT
       <div className="card mt-3 overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr>
-              <th scope="col" className="label pb-2 pr-4">Applicant</th>
-              <th scope="col" className="label pb-2 pr-4">Coverage</th>
+            <tr className="align-bottom text-sm">
+              <th scope="col" className="pb-2 pr-4 font-semibold">Applicant</th>
+              <th scope="col" className="pb-2 pr-4 font-semibold">Coverage</th>
               {requirementIds.map((id, i) => (
-                <th key={id} scope="col" className="label pb-2 pr-4" title={requirementTexts[i]}>
-                  #{i + 1}<span className="sr-only">: {requirementTexts[i]}</span>
+                <th key={id} scope="col" className="min-w-24 max-w-40 pb-2 pr-4 font-semibold">
+                  <span className="req-no req-no-core">{i + 1}</span>
+                  <span className="mt-1 block text-xs font-normal leading-snug text-muted">{requirementTexts[i]}</span>
                 </th>
               ))}
-              <th scope="col" className="label pb-2">Weighted</th>
+              <th scope="col" className="pb-2 font-semibold">Weighted</th>
             </tr>
           </thead>
           <tbody>
             <Rows rows={scored} requirementIds={requirementIds} cardsHref={cardsHref} />
             {notScored.length > 0 ? (
               <tr className="border-t border-line-strong">
-                <th scope="rowgroup" colSpan={requirementIds.length + 3} className="label pt-4 pb-1">
+                <th scope="rowgroup" colSpan={requirementIds.length + 3} className="pt-4 pb-1 text-sm font-semibold">
                   Not scored yet
                 </th>
               </tr>
