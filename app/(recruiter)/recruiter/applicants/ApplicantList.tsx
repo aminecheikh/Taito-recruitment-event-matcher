@@ -192,7 +192,7 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly, minWeig
             ? "No applicants match all the AI filters. Remove a filter or clear all to see everyone."
             : markedOnly
               ? "Nobody is marked for later. Tick applicants under All applicants and press Mark for later."
-              : "No applicants match. Try a lower coverage."}
+              : "No applicants have examples for that many core requirements. Pick a lower number."}
         </p>
       ) : (
         sections.map((section, s) => (
