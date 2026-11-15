@@ -93,6 +93,7 @@ export default async function SignalsPage({
                 {total} core {total === 1 ? "requirement" : "requirements"} · your examples: {covered} of {total}
               </p>
               <p className="hint mt-1">{ruleText(company.name, total)}</p>
+              {total > 1 ? <p className="hint mt-1">{company.name} weighs requirement 1 the most.</p> : null}
               {done ? (
                 <button type="button" disabled className="btn mt-4">
                   Signalled
