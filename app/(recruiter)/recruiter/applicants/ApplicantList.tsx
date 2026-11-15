@@ -4,13 +4,14 @@ import { useRouter } from "next/navigation";
 import { useReducer, useRef, useState, useTransition } from "react";
 import { ToastView, useToast } from "@/app/components/Toast";
 import { inviteSelectedAction, markForLaterAction } from "@/app/actions/recruiter";
-import type { SearchResult } from "@/lib/ai/guardrails";
+import type { SearchResult, SuggestedFilter } from "@/lib/ai/guardrails";
 import type { Card } from "@/lib/domain/cards";
-import { addFilter, applyFilters, fromSearch, matchLine, reasonsFor, removeFilter, sectionGroups, type ActiveFilter } from "@/lib/domain/activeFilters";
+import { addFilter, applyFilters, fromSearch, fromSuggested, matchLine, reasonsFor, removeFilter, sectionGroups, type ActiveFilter } from "@/lib/domain/activeFilters";
 import { CLOSED, popoverReducer } from "@/lib/domain/reasonPopover";
 import { keepShown, summarise, toggleAll, toggleOne } from "@/lib/domain/selection";
 import { AiSearchPanel } from "./AiSearchPanel";
 import { ReasonInfo } from "./ReasonInfo";
+import { SuggestedFilters } from "./SuggestedFilters";
 import { ScoredCard } from "./ScoreInputs";
 
 export type ApplicantRow = {
@@ -77,6 +78,7 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly }: Props
     searchCount.current += 1;
     changeFilters(addFilter(filters, fromSearch(`search-${searchCount.current}`, query, result)));
   };
+  const addSuggested = (filter: SuggestedFilter) => changeFilters(addFilter(filters, fromSuggested(filter)));
 
   const invite = () => {
     if (ids.length > 1 && !window.confirm(`Invite ${ids.length} applicants to the meeting?`)) return;
@@ -109,6 +111,11 @@ export function ApplicantList({ rows, slotsLeft, minCovered, markedOnly }: Props
 
   return (
     <>
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <SuggestedFilters shownIds={rows.map((r) => r.id)} activeIds={new Set(filters.map((f) => f.id))} onApply={addSuggested} />
+        <span className="hint">Or describe what you are looking for below.</span>
+      </div>
+
       <AiSearchPanel minCovered={minCovered} markedOnly={markedOnly} disabled={rows.length === 0} onResult={addSearch} />
 
       {filters.length > 0 && (

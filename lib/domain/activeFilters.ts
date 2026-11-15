@@ -1,4 +1,4 @@
-import type { SearchGroup, SearchResult } from "@/lib/ai/guardrails";
+import type { SearchGroup, SearchResult, SuggestedFilter } from "@/lib/ai/guardrails";
 
 /**
  * One AI filter the recruiter applied: a suggested filter or a free-text request. Both have the same
@@ -18,6 +18,14 @@ export type FilterReason = { label: string; reason: string };
 
 export function fromSearch(id: string, query: string, result: SearchResult): ActiveFilter {
   return { id, label: query.trim(), source: "search", note: result.interpretation, groups: result.groups };
+}
+
+/** Keyed by label: ids restart at each refresh, a label means the same check across refreshes. */
+export const suggestedFilterId = (filter: Pick<SuggestedFilter, "label">) => `suggested:${filter.label.toLowerCase()}`;
+
+export function fromSuggested(filter: SuggestedFilter): ActiveFilter {
+  const group = { label: filter.label, applicant_ids: filter.applicant_ids, reason_per_applicant: filter.reason_per_applicant };
+  return { id: suggestedFilterId(filter), label: filter.label, source: "suggested", note: filter.description, groups: [group] };
 }
 
 export function matchingIds(filter: ActiveFilter): Set<string> {

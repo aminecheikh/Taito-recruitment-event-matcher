@@ -3,6 +3,7 @@ import {
   addFilter,
   applyFilters,
   fromSearch,
+  fromSuggested,
   matchLine,
   reasonsFor,
   removeFilter,
@@ -76,6 +77,18 @@ describe("active AI filters", () => {
       { label: "Supplier work", reason: "Supplier work reason for b" },
     ]);
     expect(reasonsFor("d", filters)).toEqual([]);
+  });
+
+  test("fromSuggested_appliedWithSearch_bothChipsAnd", () => {
+    const suggested = fromSuggested({ id: "suggested-1", label: "Supplier work", description: "Checks supplier examples.", applicant_ids: ["a", "c"], reason_per_applicant: { a: "x", c: "y" } });
+    expect(suggested).toMatchObject({ id: "suggested:supplier work", source: "suggested", note: "Checks supplier examples." });
+    const search = fromSearch("search-1", "python", { interpretation: "Python.", groups: [{ label: "Python", applicant_ids: ["c", "d"], reason_per_applicant: { c: "z", d: "w" } }] });
+    const filters = addFilter(addFilter([], suggested), search);
+    expect(applyFilters(LIST, filters)).toEqual(["c"]);
+    expect(reasonsFor("c", filters)).toEqual([
+      { label: "Supplier work", reason: "y" },
+      { label: "python", reason: "z" },
+    ]);
   });
 
   test("matchLine_counts_readsNaturally", () => {
