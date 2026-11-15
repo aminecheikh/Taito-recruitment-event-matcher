@@ -15,7 +15,10 @@ export const ROLE_NAV: Record<Role, readonly NavItem[]> = {
     { label: "Signals", href: "/applicant/signals" },
     { label: "Meetings", href: "/applicant/meetings" },
   ],
-  staff: [{ label: "Who might need help", href: "/staff" }],
+  staff: [
+    { label: "Who might need help", href: "/staff" },
+    { label: "Event insights", href: "/staff/insights" },
+  ],
 };
 
 export const ROLE_HOME: Record<Role, string> = {
