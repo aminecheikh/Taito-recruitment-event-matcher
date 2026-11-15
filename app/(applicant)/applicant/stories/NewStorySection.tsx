@@ -19,7 +19,7 @@ export function NewStorySection({ storyCount, requirementInfo }: { storyCount: n
   return (
     <>
       <CvPanel requirementInfo={requirementInfo} onStart={start} />
-      <h2 className="h2 mt-12">Add a story</h2>
+      <h2 className="h2 mt-10">Add a story</h2>
       <p className="hint mt-1">A few sentences about something you did: what happened, what you did yourself, what changed.</p>
       <div className="mt-4" ref={formRef}>
         <StoryEditor key={`new:${storyCount}:${prefill.nonce}`} story={null} initialTitle={prefill.title} />

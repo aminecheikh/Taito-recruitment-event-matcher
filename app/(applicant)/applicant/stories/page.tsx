@@ -35,14 +35,22 @@ export default async function StoriesPage() {
         Tell what you have done in your own words. The words stay yours; the AI never writes your story.
       </PageHeader>
       <AiBanner />
-      <ul className="mt-8 space-y-8">
-        {stories.map((story) => (
-          <li key={story.id}>
-            <StoryEditor key={story.id} story={story} deleteEnabled={resetEnabled()} />
-          </li>
-        ))}
-      </ul>
       <NewStorySection storyCount={stories.length} requirementInfo={requirementInfo} />
+      <h2 className="h2 mt-12">Your stories ({stories.length})</h2>
+      {stories.length === 0 ? (
+        <p className="empty-slot mt-4">No stories yet. Add one above.</p>
+      ) : (
+        <>
+          <p className="hint mt-1">Open a story to edit it or get AI help.</p>
+          <ul className="mt-4 space-y-3">
+            {stories.map((story) => (
+              <li key={story.id}>
+                <StoryEditor key={story.id} story={story} deleteEnabled={resetEnabled()} />
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </main>
   );
 }

@@ -889,6 +889,37 @@
     }
   }
 
+  /* Collapsible card on a native <details>: own arrow, one-line preview hidden while open */
+  .disclosure > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    list-style: none;
+    cursor: pointer;
+  }
+  .disclosure > summary::-webkit-details-marker {
+    display: none;
+  }
+  .disclosure-arrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    transition: transform 150ms var(--ease-out);
+  }
+  .disclosure[open] .disclosure-arrow {
+    transform: rotate(90deg);
+  }
+  .disclosure-preview {
+    display: block;
+  }
+  .disclosure[open] .disclosure-preview {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .disclosure-arrow {
+      transition: none;
+    }
+  }
+
   /* A mascot sticker sitting on, or peeking over, the top edge of its relative parent */
   .mascot-on-edge {
     position: absolute;

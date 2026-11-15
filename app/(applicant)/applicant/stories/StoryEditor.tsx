@@ -119,13 +119,23 @@ export function StoryEditor({ story, initialTitle = "", deleteEnabled = true }: 
   }
 
   return (
-    <section className="card grid gap-6 lg:grid-cols-[minmax(0,1fr)_17rem]" aria-label={`Story: ${story.title}`}>
-      {editor}
-      <aside aria-label="AI help for this story" className="grid content-start gap-3 border-t border-line pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-        <p><span className="tag tag-ai">Optional AI help</span></p>
-        <FollowUpPanel idPrefix={idPrefix} storyBody={body} onAddAnswer={appendAnswer} />
-        <LanguagePanel idPrefix={idPrefix} text={body} onAccept={acceptLanguage} disabled={pending} />
-      </aside>
-    </section>
+    <details className="card disclosure" aria-label={`Story: ${story.title}`}>
+      <summary>
+        <span aria-hidden="true" className="disclosure-arrow">▶</span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate font-serif text-lg font-semibold">{story.title || "Untitled story"}</span>
+          <span className="disclosure-preview truncate text-sm text-muted">{story.body}</span>
+        </span>
+        {label ? <span className="tag tag-ai shrink-0">{label}</span> : null}
+      </summary>
+      <div className="mt-5 grid gap-6 border-t border-line pt-5 lg:grid-cols-[minmax(0,1fr)_17rem]">
+        {editor}
+        <aside aria-label="AI help for this story" className="grid content-start gap-3 border-t border-line pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+          <p><span className="tag tag-ai">Optional AI help</span></p>
+          <FollowUpPanel idPrefix={idPrefix} storyBody={body} onAddAnswer={appendAnswer} />
+          <LanguagePanel idPrefix={idPrefix} text={body} onAccept={acceptLanguage} disabled={pending} />
+        </aside>
+      </div>
+    </details>
   );
 }
