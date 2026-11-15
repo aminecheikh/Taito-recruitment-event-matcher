@@ -4,7 +4,7 @@
 <!-- Update Now when you start something and push right away; teammates' agents read it at session start. -->
 
 ## Now
-- 
+- Pre-freeze plan (`docs/tonight-plan.md`): scoring, AI input guard, privacy, late companies, pool strip, moving help, CV ideas, recruiter questions, staff insights. Built on `feat/*` branches by agents, merged to main one by one
 
 ## Next
 - 
